@@ -16,7 +16,7 @@ const Header = () => {
         <NavItem>커뮤니티</NavItem>
       </NavContainer>
       <AuthContainer>
-        <AuthLink>회원가입</AuthLink>
+        <AuthLink>회원가입1</AuthLink>
         <AuthLink>로그인</AuthLink>
       </AuthContainer>
     </HeaderContainer>
