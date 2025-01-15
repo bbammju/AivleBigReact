@@ -17,7 +17,7 @@ const Header = () => {
       </NavContainer>
       <AuthContainer>
         <AuthLink>회원가입1</AuthLink>
-        <AuthLink>로그인</AuthLink>
+        <AuthLink>로그인1</AuthLink>
       </AuthContainer>
     </HeaderContainer>
   );
