@@ -11,6 +11,7 @@ const Login = () => {
   const navigate = useNavigate()
   const [id, setId] = useState('')
   const [password, setPassword] = useState('')
+  const [list, setList] = useState([])
   const idHandler = (e) => {
 		setId(e.target.value);
 	};
@@ -18,14 +19,14 @@ const Login = () => {
 		setPassword(e.target.value);
 	};
   const loginHandler = async () => {
-    const token = await axios.post('http://localhost:7773/api/v1/reg-test-tt',
-       {name: '김범주'
+    const token = await axios.post('http://localhost:7773/api/list-test',
+       {employeeName: id
         , email: 'stwin@naver.com'
         , phone: '01065683055'
         , gender: 'M'
       })
     if (token) {
-      alert('로그인에 실패했습니다.')
+      setList(token)
     }
     // if (token.data) {
     //   window.localStorage.setItem('accessToken', token.data)
@@ -35,6 +36,9 @@ const Login = () => {
     //   alert('로그인에 실패했습니다.')
     // }
   }
+  const listconsole = () => {
+		console.log(list);
+	};
   return (
     <>
       <Header />
@@ -76,7 +80,8 @@ const Login = () => {
             아직 회원이 아니시라면 회원으로 가입 후 이용해 주십시오.
           </GuideText>
         </GuideBox>
-        <LoginButton>로그인</LoginButton>
+        <LoginButton onClick={loginHandler}>로그인</LoginButton>
+        <LoginButton onClick={listconsole}>로그인</LoginButton>
         <EtcContainer>
           <EtcText>아직 회원이 아니세요?</EtcText>
           <EtcText>아이디/비밀번호를 잊으셨나요?</EtcText>
