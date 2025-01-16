@@ -1,17 +1,13 @@
-import Login from "./pages/Login";
-// import Main from './pages/Main';
-// import Searchreview from './pages/Searchreview'
-// import Searchuser from './pages/Searchuser'
-import {BrowserRouter, Route, Routes} from 'react-router-dom'
+import React from 'react';
+import InputModal from './pages/InputModal'; // InputModal 컴포넌트를 import
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login/>}/>
-        {/* <Route path="/main" element={<Main/>}/>
-        <Route path="/search/review" element={<Searchreview/>}/>
-        <Route path="/search/user" element={<Searchuser/>}/> */}
+        {/* 기본 경로("/")에 InputModal 컴포넌트를 렌더링 */}
+        <Route path="/" element={<InputModal />} />
       </Routes>
     </BrowserRouter>
   );
