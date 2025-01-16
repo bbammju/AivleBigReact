@@ -1,188 +1,85 @@
-import axios from "axios";
-import React, {useState} from "react";
-import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
-import { FaBolt } from "react-icons/fa";
-import Header from '../components/header';
-import { useStore } from "../zustand/store";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
-  const { keyword, setKeyword } = useStore();
-  const navigate = useNavigate()
-  const [id, setId] = useState('')
-  const [password, setPassword] = useState('')
-  const [list, setList] = useState([])
-  const idHandler = (e) => {
-		setId(e.target.value);
-	};
-  const passwordHandler = (e) => {
-		setPassword(e.target.value);
-	};
-  const loginHandler = async () => {
-    const token = await axios.post('http://localhost:7773/api/list-test',
-       {employeeName: id
-        , email: 'stwin@naver.com'
-        , phone: '01065683055'
-        , gender: 'M'
-      })
-    if (token) {
-      setList(token)
+function Login() {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:7773/api/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+      const data = await response.json();
+      if (data.resultCode === 200) {
+        alert('로그인이 완료되었습니다.');
+        navigate('/main');  // 로그인 성공시 메인 페이지로 이동
+      } else {
+        alert(data.resultMsg);
+      }
+    } catch (error) {
+      alert('로그인 중 오류가 발생했습니다.');
     }
-    // if (token.data) {
-    //   window.localStorage.setItem('accessToken', token.data)
-    //   navigate('/main')
-    // }
-    // else {
-    //   alert('로그인에 실패했습니다.')
-    // }
-  }
-  const listconsole = () => {
-		console.log(list);
-	};
+  };
+
   return (
-    <>
-      <Header />
-      <LoginContainer>
-      <LoginBox>
-        <Title>
-          <FaBolt style={{ marginRight: "10px" }} />
-          로그인
-        </Title>
-        <InputBox>
-          <Input
-            type="text"
-            placeholder="아이디"
-            value={id}
-            onChange={(e) => setId(e.target.value)}
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-md shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-center">로그인</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label className="block mb-2">이메일</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            required
           />
-          <Input
+        </div>
+        <div className="mb-4">
+          <label className="block mb-2">비밀번호</label>
+          <input
             type="password"
-            placeholder="비밀번호"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            required
           />
-        </InputBox>
-        {/* <CheckboxContainer>
-          <Checkbox
-            type="checkbox"
-            checked={autoLogin}
-            onChange={() => setAutoLogin(!autoLogin)}
-          />
-          자동로그인
-        </CheckboxContainer> */}
-        <GuideBox>
-          <GuideText>
-            <strong>회원로그인 안내</strong>
-            <br />
-            회원아이디 및 비밀번호가 기억 안나실 때는 아이디/비밀번호 찾기를
-            이용하십시오.
-            <br />
-            아직 회원이 아니시라면 회원으로 가입 후 이용해 주십시오.
-          </GuideText>
-        </GuideBox>
-        <LoginButton onClick={loginHandler}>로그인</LoginButton>
-        <LoginButton onClick={listconsole}>로그인</LoginButton>
-        <EtcContainer>
-          <EtcText>아직 회원이 아니세요?</EtcText>
-          <EtcText>아이디/비밀번호를 잊으셨나요?</EtcText>
-        </EtcContainer>
-      </LoginBox>
-    </LoginContainer>
-    </>
-    
+        </div>
+        <button 
+          type="submit"
+          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+        >
+          로그인
+        </button>
+        <button 
+          type="button"
+          onClick={() => navigate('/signup')}
+          className="w-full mt-2 bg-gray-200 p-2 rounded hover:bg-gray-300"
+        >
+          회원가입하러 가기
+        </button>
+      </form>
+    </div>
   );
-};
+}
 
 export default Login;
-
-const LoginContainer = styled.div`
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f9f9f9;
-`;
-
-const LoginBox = styled.div`
-  width: 400px;
-  padding: 20px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-`;
-
-const Title = styled.h1`
-  font-size: 1.5rem;
-  color: #444;
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-`;
-
-const InputBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 15px;
-`;
-
-const Input = styled.input`
-  padding: 10px;
-  margin-bottom: 10px;
-  font-size: 14px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-`;
-
-const CheckboxContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-`;
-
-const Checkbox = styled.input`
-  margin-right: 10px;
-`;
-
-const GuideBox = styled.div`
-  padding: 10px;
-  background-color: #fff5d9;
-  border: 1px solid #ffd580;
-  border-radius: 4px;
-  margin-bottom: 20px;
-`;
-
-const GuideText = styled.p`
-  font-size: 12px;
-  color: #666;
-  line-height: 1.5;
-`;
-
-const LoginButton = styled.button`
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  color: white;
-  background-color: #007bff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  &:hover {
-    background-color: #0056b3;
-  }
-`;
-
-const EtcContainer = styled.div`
-  margin-top: 15px;
-  text-align: center;
-`;
-
-const EtcText = styled.p`
-  font-size: 12px;
-  color: #007bff;
-  cursor: pointer;
-  &:hover {
-    text-decoration: underline;
-  }
-`;
