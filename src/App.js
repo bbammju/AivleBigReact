@@ -3,7 +3,6 @@ import InputModal from './pages/InputModal'; // InputModal 컴포넌트를 impor
 import Main from './pages/Main'; // 메인 페이지
 import EmailCheck from './pages/EmailCheck'; // 이메일 중복 체크 페이지
 import Signup from './pages/Signup'; // 회원가입
-import RsltList from './pages/RsltList';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -14,7 +13,6 @@ function App() {
         <Route path="/main" element={<Main />} />
         <Route path="/email-check" element={<EmailCheck />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/list" element={<RsltList />} />
       </Routes>
     </BrowserRouter>
   );
