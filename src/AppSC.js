@@ -10,7 +10,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/list4" element={<RsltList />} />
+        <Route path="/sdfsdfsdf" element={<RsltList />} />
       </Routes>
     </BrowserRouter>
   );

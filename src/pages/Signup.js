@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Header from "../components/header";
 import {
   Box,
@@ -13,6 +14,14 @@ import {
   FormControlLabel,
   Alert,
 } from "@mui/material";
+
+// axios 인스턴스 생성
+const api = axios.create({
+  baseURL: 'http://localhost:7773/api/users',
+  headers: {
+    'Content-Type': 'application/json',
+  }
+});
 
 function Signup() {
   const location = useLocation();
@@ -187,37 +196,23 @@ function Signup() {
     const fullPhoneNumber = `010${formData.telnoMiddle}${formData.telnoLast}`;
 
     try {
-      const response = await fetch('http://localhost:7773/api/users/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          telno: fullPhoneNumber,
-        })
+      const response = await api.post('/users/signup', {
+        ...formData,
+        telno: fullPhoneNumber
       });
-
-      const textResponse = await response.text();
-      console.log('Server Response:', textResponse);
       
-      let data;
-      try {
-        data = JSON.parse(textResponse);
-      } catch (parseError) {
-        console.error('JSON Parse Error:', parseError);
-        throw new Error('Invalid JSON response from server');
-      }
-
-      if (response.ok && data.resultCode === 200) {
+      if (response.data.resultCode === 200) {
         alert('회원가입이 완료되었습니다.');
         navigate('/main');
       } else {
-        throw new Error(data.resultMsg || '회원가입 처리 중 오류가 발생했습니다.');
+        setAlertMessage(response.data.message || '회원가입 중 오류가 발생했습니다.');
+        setShowAlert(true);
       }
     } catch (error) {
       console.error('Signup error:', error);
-      setAlertMessage(error.message || '서버와의 통신 중 오류가 발생했습니다.');
+      // axios 에러 응답 처리
+      const errorMessage = error.response?.data?.message || '회원가입 중 오류가 발생했습니다.';
+      setAlertMessage(errorMessage);
       setShowAlert(true);
     }
   };
@@ -266,34 +261,6 @@ function Signup() {
                 value={formData.email}
                 disabled
               />
-            </Grid>
-
-            <Grid item xs={12}>
-              <FormControl component="fieldset" error={!!fieldErrors.gender}>
-                <Typography component="legend" sx={{ mb: 1 }}>성별</Typography>
-                <RadioGroup
-                  row
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                >
-                  <FormControlLabel 
-                    value="male" 
-                    control={<Radio required />} 
-                    label="남성"
-                  />
-                  <FormControlLabel 
-                    value="female" 
-                    control={<Radio required />} 
-                    label="여성"
-                  />
-                </RadioGroup>
-                {fieldErrors.gender && (
-                  <Typography color="error" variant="caption">
-                    {fieldErrors.gender}
-                  </Typography>
-                )}
-              </FormControl>
             </Grid>
 
             <Grid item xs={12}>
@@ -381,12 +348,12 @@ function Signup() {
                 </Grid>
               </Grid>
               {fieldErrors.telno && (
-                <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block' }}>
+                <Typography color="error" variant="caption" sx={{ mt: 1 }}>
                   {fieldErrors.telno}
                 </Typography>
               )}
             </Grid>
-            
+
             <Grid item xs={12} sm={4}>
               <TextField
                 fullWidth
@@ -414,6 +381,34 @@ function Signup() {
                 value={formData.address}
                 disabled
               />
+            </Grid>
+
+            <Grid item xs={12}>
+              <FormControl component="fieldset" error={!!fieldErrors.gender}>
+                <Typography component="legend" sx={{ mb: 1 }}>성별</Typography>
+                <RadioGroup
+                  row
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                >
+                  <FormControlLabel 
+                    value="male" 
+                    control={<Radio required />} 
+                    label="남성"
+                  />
+                  <FormControlLabel 
+                    value="female" 
+                    control={<Radio required />} 
+                    label="여성"
+                  />
+                </RadioGroup>
+                {fieldErrors.gender && (
+                  <Typography color="error" variant="caption">
+                    {fieldErrors.gender}
+                  </Typography>
+                )}
+              </FormControl>
             </Grid>
 
             <Grid item xs={12}>
