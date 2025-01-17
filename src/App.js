@@ -15,7 +15,8 @@ function App() {
         <Route path="/email-check" element={<EmailCheck />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/list" element={<RsltList />} />
-        <Route path="/title" element={<RsltList />} />
+        <Route path="/list1" element={<RsltList />} />
+        <Route path="/list1" element={<RsltList />} />
       </Routes>
     </BrowserRouter>
   );
