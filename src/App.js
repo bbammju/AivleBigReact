@@ -9,7 +9,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* 기본 경로("/")에 InputModal 컴포넌트를 렌더링 */}
+        
         <Route path="/input" element={<InputModal />} />
         <Route path="/" element={<Main />} />
         <Route path="/email-check" element={<EmailCheck />} />
