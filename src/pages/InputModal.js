@@ -7,6 +7,9 @@ const InputModal = () => {
   const [selectedType, setSelectedType] = useState(""); // STEP 1에서 선택된 유형
   const [selectedPriority, setSelectedPriority] = useState(""); // STEP 2에서 선택된 순위
   const [selectedConditions, setSelectedConditions] = useState([]); // STEP 3에서 선택된 조건
+  const [totalScore, setTotalScore] = useState(0); //총점 상태 추가
+  
+
 
   // 모달 닫기 핸들러
   const handleClose = () => setOpen(false);
@@ -33,7 +36,32 @@ const InputModal = () => {
       } else {
         return [...prevConditions, condition];
       }
-    });
+    }); 
+  };
+  const [savingScore, setSavingScore] = useState(""); // 드롭다운 값 상태
+
+  const handleSavingScoreChange = (event) => {
+    setSavingScore(event.target.value); // 드롭다운 값 업데이트
+  };
+
+  //가산점 계산기 함수
+  const calculateTotalScore = () => {
+    const scoreMap = {
+      "생계, 의료급여 수급자 (3점)": 3,
+      "보호대상 한부모가족 (3점)": 3,
+      "신청자의 부모가 무주택자인 경우 (2점)": 2,
+      "장애인등록증이 교부된 사람(본인) (2점)": 2,
+      "신청자의 부모 중 장애인등록증이 교부된 사람이 있는 경우 (1점)": 1,
+      "소득수준이 해당 순위 소득기준의 50%이하인 경우 (3점)": 3
+    };
+  
+    // 선택된 조건의 점수를 합산
+    const score = selectedConditions.reduce(
+      (total, condition) => total + (scoreMap[condition] || 0),0);
+      const savingScoreValue = parseInt(savingScore ||0);
+    const total = score + savingScoreValue;
+    setTotalScore(total);
+    return total;
   };
 
   return (
@@ -338,7 +366,7 @@ const InputModal = () => {
                 >
                   장애인등록증이 교부된 사람(본인)
                   <Typography sx={{ marginLeft: "20px" }}>
-                    <strong>3점</strong>
+                    <strong>2점</strong>
                   </Typography>
                 </Button>
                 <Button
@@ -382,25 +410,35 @@ const InputModal = () => {
                     border: "1px solid gray",
                     borderRadius: "5px",
                   }}
+                  onChange={handleSavingScoreChange} // 이벤트 핸들러
+                  value={savingScore} // 드롭다운 상태 값
                 >
                   <option value="">납입 횟수를 선택하세요</option>
-                  <option value="24회 이상납입 (3점)">24회 이상납입 (3점)</option>
-                  <option value="12회 이상 24회 미만 납입 (2점)">12회 이상 24회 미만 납입 (2점)</option>
-                  <option value="6회 이상 12회 미만 납입 (1점)">6회 이상 12회 미만 납입 (1점)</option>
+                  <option value="3">24회 이상납입 (3점)</option>
+                  <option value="2">12회 이상 24회 미만 납입 (2점)</option>
+                  <option value="1">6회 이상 12회 미만 납입 (1점)</option>
                 </select>
               </Box>
 
               {/* 이전/제출 버튼 */}
-              <Box display="flex" justifyContent="space-between" marginTop={5}>
+              <Box display="flex" justifyContent="space-between" marginTop={4}>
                 <Button variant="outlined" onClick={handlePreviousStep}>
                   이전
                 </Button>
-                <Button variant="contained" onClick={() => alert("점수 계산 및 제출 완료!")}>제출</Button>
+                <Button
+                    variant="contained"
+                    onClick={() => {
+                      const totalScore = calculateTotalScore();
+                      alert(`제출 완료! \n선택한 순위: ${selectedPriority}\n총점: ${totalScore}점`);
+                    }}>
+                  확인하기
+                </Button>
               </Box>
             </>
           )}
           {step === 3 && (selectedPriority === "2순위" || selectedPriority === "3순위" ) && (
             <>
+              
               <Typography variant="h6" component="h2" marginBottom={2}>
                 2순위 또는 3순위 조건 선택 및 점수 계산
               </Typography>
@@ -459,7 +497,7 @@ const InputModal = () => {
                 >
                   신청자의 부모가 무주택자인 경우
                   <Typography sx={{ marginLeft: "20px" }}>
-                    <strong>3점</strong>
+                    <strong>2점</strong>
                   </Typography>
                 </Button>
                 <Button
@@ -481,7 +519,7 @@ const InputModal = () => {
                 >
                   장애인등록증이 교부된 사람(본인)
                   <Typography sx={{ marginLeft: "20px" }}>
-                    <strong>3점</strong>
+                    <strong>2점</strong>
                   </Typography>
                 </Button>
                 <Button
@@ -507,7 +545,7 @@ const InputModal = () => {
                 >
                   신청자의 부모 중 장애인등록증이 교부된 사람이 있는 경우
                   <Typography sx={{ marginLeft: "20px" }}>
-                    <strong>3점</strong>
+                    <strong>1점</strong>
                   </Typography>
                 </Button>
               </Box>
@@ -525,20 +563,29 @@ const InputModal = () => {
                     border: "1px solid gray",
                     borderRadius: "5px",
                   }}
+                  onChange={handleSavingScoreChange} // 이벤트 핸들러
+                  value={savingScore} // 드롭다운 상태 값
                 >
                   <option value="">납입 횟수를 선택하세요</option>
-                  <option value="24회 이상납입 (3점)">24회 이상납입 (3점)</option>
-                  <option value="12회 이상 24회 미만 납입 (2점)">12회 이상 24회 미만 납입 (2점)</option>
-                  <option value="6회 이상 12회 미만 납입 (1점)">6회 이상 12회 미만 납입 (1점)</option>
+                  <option value="3">24회 이상납입 (3점)</option>
+                  <option value="2">12회 이상 24회 미만 납입 (2점)</option>
+                  <option value="1">6회 이상 12회 미만 납입 (1점)</option>
                 </select>
               </Box>
 
               {/* 이전/제출 버튼 */}
-              <Box display="flex" justifyContent="space-between" marginTop={5}>
+              <Box display="flex" justifyContent="space-between" marginTop={4}>
                 <Button variant="outlined" onClick={handlePreviousStep}>
                   이전
                 </Button>
-                <Button variant="contained" onClick={() => alert("점수 계산 및 제출 완료!")}>제출</Button>
+                <Button
+                    variant="contained"
+                    onClick={() => {
+                      const totalScore = calculateTotalScore();
+                      alert(`제출 완료! \n선택한 순위: ${selectedPriority}\n총점: ${totalScore}점`);
+                    }}>
+                  확인하기
+                </Button>
               </Box>
             </>
           )}
