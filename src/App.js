@@ -15,7 +15,6 @@ function App() {
         <Route path="/email-check" element={<EmailCheck />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/list" element={<RsltList />} />
-        <Route path="/list2" element={<RsltList />} />
       </Routes>
     </BrowserRouter>
   );
