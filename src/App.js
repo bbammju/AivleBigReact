@@ -1,7 +1,9 @@
 import React from 'react';
 import InputModal from './pages/InputModal'; // InputModal 컴포넌트를 import
+import Main from './pages/Main'; // 메인 페이지
+import EmailCheck from './pages/EmailCheck'; // 이메일 중복 체크 페이지
+import Signup from './pages/Signup'; // 회원가입
 import RsltList from './pages/RsltList';
-import GuModal from "./components/guModal";
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -9,8 +11,10 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<InputModal />} />
+        <Route path="/main" element={<Main />} />
+        <Route path="/email-check" element={<EmailCheck />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/list" element={<RsltList />} />
-        <Route path="/list1" element={<GuModal />} />
       </Routes>
     </BrowserRouter>
   );
