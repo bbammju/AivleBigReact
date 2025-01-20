@@ -8,10 +8,39 @@ import {
   Button,
   Box,
   Container,
-  Alert  
+  Alert,
+  Menu,
+  MenuItem,
+  Avatar,
+  Stack  
 } from '@mui/material'; 
 import LoginModal from './LoginModal';
 
+// 아바타 색상 생성 함수
+function stringToColor(string) {
+  let hash = 0;
+  let i;
+  for (i = 0; i < string.length; i += 1) {
+    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let color = '#';
+  for (i = 0; i < 3; i += 1) {
+    const value = (hash >> (i * 8)) & 0xff;
+    color += `00${value.toString(16)}`.slice(-2);
+  }
+  return color;
+}
+
+// 아바타 속성 생성 함수
+function stringAvatar(name) {
+  return {
+    sx: {
+      bgcolor: stringToColor(name),
+      cursor: 'pointer'
+    },
+    children: name[0], // 이름의 첫 글자만 사용
+  };
+}
 
 const Header = () => {
   const navigate = useNavigate();
@@ -20,9 +49,26 @@ const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
+  // 드롭다운 메뉴를 위한 state
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
   const handleLogoClick = () => {
-    navigate('/main'); // 메인페이지로 이동동
-  }
+    navigate('/'); // 메인페이지로 이동동
+  };
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = (event) => {
+    setAnchorEl(null);
+  };
+
+  const handleMyPage = () => {
+    navigate('/mypage');
+    handleMenuClose();
+  };
 
   useEffect(() => {
     // 컴포넌트가 마운트될 때 로그인 상태 확인
@@ -37,7 +83,8 @@ const Header = () => {
     localStorage.removeItem('user');
     setIsLoggedIn(false);
     setUser(null);
-    setShowAlert(true); // Alert 표시시
+    setShowAlert(true); // Alert 표시
+    handleMenuClose(); // 메뉴 닫기
     // 3초 후 Alert 숨기기
     setTimeout(() => {
       setShowAlert(false);
@@ -83,20 +130,41 @@ const Header = () => {
             </Box>
             <Box sx={{ display: 'flex', gap: 1 }}>
             {isLoggedIn ? (
-                // 로그인된 경우
                 <>
-                  <Typography sx={{ alignSelf: 'center', color: 'white' }}>
-                    {user?.userName}님
-                  </Typography>
-                  <Button 
-                    color="inherit"
-                    onClick={handleLogout}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography color="inherit">
+                      {user?.userName}님
+                    </Typography>
+                    <Avatar
+                      {...stringAvatar(user?.userName || '')}
+                      onClick={handleMenuClick}
+                    />
+                  </Box>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleMenuClose}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
                   >
-                    로그아웃
-                  </Button>
+                    <MenuItem onClick={() => {
+                      navigate('/mypage');
+                      handleMenuClose();
+                    }}>
+                      마이페이지
+                    </MenuItem>
+                    <MenuItem onClick={handleLogout}>
+                      로그아웃
+                    </MenuItem>
+                  </Menu>
                 </>
               ) : (
-                // 로그인되지 않은 경우
                 <>
                   <Button 
                     color="inherit"
@@ -121,7 +189,6 @@ const Header = () => {
         open={isLoginModalOpen} 
         onClose={() => setIsLoginModalOpen(false)} 
       />
-      
     </>
   );
 };
