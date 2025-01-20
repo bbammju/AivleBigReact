@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
   Dialog, 
@@ -22,93 +23,12 @@ const api = axios.create({
   }
 });
 
-const ResetPasswordModal = ({ open, onClose }) => {
-  const [email, setEmail] = useState('');
-  const [resetMessage, setResetMessage] = useState('');
-  const [resetSeverity, setResetSeverity] = useState('info');
-
-  const handleResetPassword = async (e) => {
-    e.preventDefault();
-    // TODO: 비밀번호 재설정 API 호출
-    try {
-      const response = await fetch('http://localhost:7773/api/users/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email })
-      });
-
-      const data = await response.json();
-      
-      if (data.resultCode === 200) {
-        setResetSeverity('success');
-        setResetMessage('임시 비밀번호가 이메일로 전송되었습니다.');
-      } else {
-        setResetSeverity('error');
-        setResetMessage(data.resultMsg || '비밀번호 재설정에 실패했습니다.');
-      }
-    } catch (error) {
-      setResetSeverity('error');
-      setResetMessage('서버 오류가 발생했습니다.');
-    }
-  };
-
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>
-        비밀번호 찾기
-        <IconButton
-          onClick={onClose}
-          sx={{
-            position: 'absolute',
-            right: 8,
-            top: 8
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <form onSubmit={handleResetPassword}>
-        <DialogContent>
-          <Typography variant="body2" gutterBottom>
-            가입된 이메일 주소를 입력하시면 임시 비밀번호를 보내드립니다.
-          </Typography>
-          <TextField
-            label="이메일"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            fullWidth
-            margin="normal"
-          />
-          {resetMessage && (
-            <Alert severity={resetSeverity} sx={{ mt: 2 }}>
-              {resetMessage}
-            </Alert>
-          )}
-        </DialogContent>
-        <DialogActions sx={{ padding: 2 }}>
-          <Button 
-            variant="contained" 
-            type="submit" 
-            fullWidth
-          >
-            임시 비밀번호 받기
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
-  );
-};
-
-
 const LoginModal = ({ open, onClose }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState('success');
@@ -159,6 +79,12 @@ const LoginModal = ({ open, onClose }) => {
       }, 3000);
     }
 };
+
+  const handleFindPassword = () => {
+    onClose();
+    navigate('/find-password');
+  };
+
   return (
     <>
       {showAlert && (
@@ -218,7 +144,7 @@ const LoginModal = ({ open, onClose }) => {
                     textDecoration: 'underline'
                   }
                 }}
-                onClick={() => setIsResetModalOpen(true)}
+                onClick={handleFindPassword}
               >
                 비밀번호를 잊으셨나요?
               </Typography>
@@ -236,10 +162,6 @@ const LoginModal = ({ open, onClose }) => {
         </form>
       </Dialog>
 
-      <ResetPasswordModal
-        open={isResetModalOpen}
-        onClose={() => setIsResetModalOpen(false)}
-      />
     </>
   );
 };
