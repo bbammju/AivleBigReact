@@ -196,14 +196,14 @@ function Signup() {
     const fullPhoneNumber = `010${formData.telnoMiddle}${formData.telnoLast}`;
 
     try {
-      const response = await api.post('/users/signup', {
+      const response = await api.post('/signup', {
         ...formData,
         telno: fullPhoneNumber
       });
       
       if (response.data.resultCode === 200) {
         alert('회원가입이 완료되었습니다.');
-        navigate('/main');
+        navigate('/');
       } else {
         setAlertMessage(response.data.message || '회원가입 중 오류가 발생했습니다.');
         setShowAlert(true);
