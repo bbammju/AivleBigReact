@@ -50,7 +50,7 @@ function EmailCheck() {
 
   return (
     <>
-        <Header />
+      <Header />
         {showAlert && (
             <Alert 
             severity={alertSeverity}

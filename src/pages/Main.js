@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/header';
+import LoginModal from '../components/LoginModal';
+import InputModal from './InputModal';
 import {
  Box, 
  Container,
@@ -24,17 +26,22 @@ function Main() {
  const navigate = useNavigate();
  const [activeGongos, setActiveGongos] = useState([]);
  const [selectedGongo, setSelectedGongo] = useState('');
+ const [isInputModalOpen, setIsInputModalOpen] = useState(false);
+ const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
  useEffect(() => {
-   const fetchActiveGongos = async () => {
-     try {
-       const response = await api.get('/gongo/active');
-       console.log('응답 데이터:', response.data);
-       setActiveGongos(response.data.data || []);
-     } catch (error) {
-       console.error('공고 목록 조회 실패:', error);
-     }
-   };
+  const fetchActiveGongos = async () => {
+    try {
+      const response = await api.get('/gongo/active');
+      if (response.data?.resultCode === 200) {
+        setActiveGongos(response.data.data || []);
+      } else {
+        console.error('공고 목록 조회 실패:', response.data?.resultMsg);
+      }
+    } catch (error) {
+      console.error('공고 목록 조회 실패:', error);
+    }
+  };
 
    fetchActiveGongos();
  }, []);
@@ -44,11 +51,23 @@ function Main() {
  };
 
  const handlePredict = () => {
+  // 공고 선택 여부 확인
    if (!selectedGongo) {
      alert('공고를 선택해주세요.');
      return;
    }
-   navigate(`/predict/${selectedGongo.gongoSn}`);
+   
+  // 로그인 체크
+  const user = localStorage.getItem('user');
+    if(!user) {
+      //로그인 되지 않은 경우 모달 표시
+      setIsLoginModalOpen(true);
+      return;
+    }
+
+    //로그인 된 경우 입력 모달 열기
+    setIsInputModalOpen(true);
+   
  };
 
  return (
@@ -67,10 +86,10 @@ function Main() {
       <Container sx={{ pt: 15 }}>
         <Box sx={{ maxWidth: '600px', color: 'white', mb: 6 }}>
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
-            API 분석과
+            AI가 분석한
           </Typography>
           <Typography variant="h4" sx={{ mb: 2 }}>
-            가장 정확한 청약주택 카트라인
+            가장 정확한 청약주택 커트라인
           </Typography>
           <Typography variant="h3" sx={{ mb: 3, fontWeight: 'bold' }}>
             ZIPLINE
@@ -78,7 +97,7 @@ function Main() {
 
         </Box>
 
-        {/* 기존 드롭다운과 버튼 */}
+        
         <Box sx={{ 
           bgcolor: 'white', 
           p: 4, 
@@ -122,6 +141,17 @@ function Main() {
           </Button>
         </Box>
       </Container>
+
+      <InputModal
+        open={isInputModalOpen}
+        onClose={() => setIsInputModalOpen(false)}
+        gongo={selectedGongo}
+      />
+
+      <LoginModal
+        open={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
     </Box>
    </>
  );
