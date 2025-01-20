@@ -1,18 +1,43 @@
 import React, { useState } from "react";
 import { Modal, Box, Button, Typography, LinearProgress } from "@mui/material";
+import axios from "axios";
+const InputModal = ({ open, onClose, gongo }) => {
+  
+  const [step, setStep] = useState(1); 
+  const [selectedType, setSelectedType] = useState(""); 
+  const [selectedPriority, setSelectedPriority] = useState(0); 
+  const [selectedConditions, setSelectedConditions] = useState([]); 
+  const [totalScore, setTotalScore] = useState(0);
 
-const InputModal = () => {
-  const [open, setOpen] = useState(true); // 초기 상태를 true로 설정
-  const [step, setStep] = useState(1); // 현재 스텝 상태
-  const [selectedType, setSelectedType] = useState(""); // STEP 1에서 선택된 유형
-  const [selectedPriority, setSelectedPriority] = useState(""); // STEP 2에서 선택된 순위
-  const [selectedConditions, setSelectedConditions] = useState([]); // STEP 3에서 선택된 조건
-  const [totalScore, setTotalScore] = useState(0); //총점 상태 추가
+
+const handleSubmit = async () => {
+  const as = calculateTotalScore()
+  const data = {
+    userSn: 1, 
+    gongoSn: 1, 
+    inputType:selectedType,
+    inputRank:selectedPriority,
+    inputScore: as
+  };
+
+  try {
+    const response = await axios.post("http://localhost:7773/api/input", data);
+    if(response){
+      alert(`제출 완료! \n선택한 순위: ${selectedPriority}\n총점: ${as}점`);
+      alert("데이터 전송 성공: " + response.data);
+      }
+  } catch (error) {
+    console.error("데이터 전송 실패:", error);
+    alert("데이터 전송 중 오류 발생: " + error.message);
+  }
+};
   
 
 
   // 모달 닫기 핸들러
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    onClose();  // 부모 컴포넌트의 close 함수 호출
+  };
 
   // 스텝 이동 핸들러
   const handleNextStep = () => setStep(step + 1);
@@ -25,7 +50,14 @@ const InputModal = () => {
 
   // STEP 2 선택 핸들러
   const handleSelectPriority = (priority) => {
-    setSelectedPriority(priority); // STEP 2 선택된 순위 저장
+    const priorityMapping = {
+      "1순위": 1,
+      "2순위": 2,
+      "3순위": 3,
+    };
+  
+    const priorityValue = priorityMapping[priority]; // "1순위"를 숫자로 변환
+    setSelectedPriority(priorityValue);
   };
 
   // STEP 3 조건 선택 핸들러
@@ -181,10 +213,10 @@ const InputModal = () => {
                     padding: "30px",
                     textAlign: "left",
                     justifyContent: "flex-start",
-                    backgroundColor: selectedPriority === "1순위" ? "#e3f2fd" : "white",
-                    borderColor: selectedPriority === "1순위" ? "#90caf9" : "gray",
+                    backgroundColor: selectedPriority === 1 ? "#e3f2fd" : "white",
+                    borderColor: selectedPriority === 1 ? "#90caf9" : "gray",
                     "&:hover": {
-                      backgroundColor: selectedPriority === "1순위" ? "#bbdefb" : "#f5f5f5",
+                      backgroundColor: selectedPriority === 1 ? "#bbdefb" : "#f5f5f5",
                     },
                   }}
                 >
@@ -203,10 +235,10 @@ const InputModal = () => {
                     padding: "40px",
                     textAlign: "left",
                     justifyContent: "flex-start",
-                    backgroundColor: selectedPriority === "2순위" ? "#e3f2fd" : "white",
-                    borderColor: selectedPriority === "2순위" ? "#90caf9" : "gray",
+                    backgroundColor: selectedPriority === 2 ? "#e3f2fd" : "white",
+                    borderColor: selectedPriority === 2 ? "#90caf9" : "gray",
                     "&:hover": {
-                      backgroundColor: selectedPriority === "2순위" ? "#bbdefb" : "#f5f5f5",
+                      backgroundColor: selectedPriority === 2 ? "#bbdefb" : "#f5f5f5",
                     },
                   }}
                 >
@@ -224,10 +256,10 @@ const InputModal = () => {
                     padding: "30px",
                     textAlign: "left",
                     justifyContent: "flex-start",
-                    backgroundColor: selectedPriority === "3순위" ? "#e3f2fd" : "white",
-                    borderColor: selectedPriority === "3순위" ? "#90caf9" : "gray",
+                    backgroundColor: selectedPriority === 3 ? "#e3f2fd" : "white",
+                    borderColor: selectedPriority === 3 ? "#90caf9" : "gray",
                     "&:hover": {
-                      backgroundColor: selectedPriority === "3순위" ? "#bbdefb" : "#f5f5f5",
+                      backgroundColor: selectedPriority === 3 ? "#bbdefb" : "#f5f5f5",
                     },
                   }}
                 >
@@ -262,7 +294,7 @@ const InputModal = () => {
           )}
 
           {/* STEP 3: 1순위 조건 선택 */}
-          {step === 3 && selectedPriority === "1순위" && (
+          {step === 3 && selectedPriority === 1 && (
             <>
               <Typography variant="h6" component="h2" marginBottom={2}>
                 1순위 조건 선택 및 점수 계산
@@ -344,7 +376,7 @@ const InputModal = () => {
                 >
                   신청자의 부모가 무주택자인 경우
                   <Typography sx={{ marginLeft: "20px" }}>
-                    <strong>3점</strong>
+                    <strong>2점</strong>
                   </Typography>
                 </Button>
                 <Button
@@ -428,7 +460,7 @@ const InputModal = () => {
                 <Button
                     variant="contained"
                     onClick={() => {
-                      const totalScore = calculateTotalScore();
+                      handleSubmit();
                       alert(`제출 완료! \n선택한 순위: ${selectedPriority}\n총점: ${totalScore}점`);
                     }}>
                   확인하기
@@ -436,7 +468,7 @@ const InputModal = () => {
               </Box>
             </>
           )}
-          {step === 3 && (selectedPriority === "2순위" || selectedPriority === "3순위" ) && (
+          {step === 3 && (selectedPriority === 2 || selectedPriority === 3 ) && (
             <>
               
               <Typography variant="h6" component="h2" marginBottom={2}>
@@ -581,8 +613,8 @@ const InputModal = () => {
                 <Button
                     variant="contained"
                     onClick={() => {
-                      const totalScore = calculateTotalScore();
-                      alert(`제출 완료! \n선택한 순위: ${selectedPriority}\n총점: ${totalScore}점`);
+                      handleSubmit();
+            
                     }}>
                   확인하기
                 </Button>
