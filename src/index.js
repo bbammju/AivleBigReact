@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import AppSC from './AppSC';
-import AppBJ from './AppBJ';
 import AppMW from './AppMW';
 import AppJW from './AppJW';
 import reportWebVitals from './reportWebVitals';
@@ -13,7 +12,6 @@ root.render(
   <React.StrictMode>
     <App />
     <AppSC />
-    <AppBJ />
     <AppMW />
     <AppJW />
   </React.StrictMode>
