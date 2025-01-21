@@ -6,6 +6,7 @@ import DistrictModal from "../components/guModal";
 import SizeRangeModal from "../components/sizeRangeModal";
 import GuaranteeRangeModal from "../components/guaranteeModal";
 import MonthlyRangeModal from "../components/monthlyModal";
+import NaverMap from "../components/navermap";
 import { Box, Button, Typography, Chip, Card, CardContent, CardMedia } from "@mui/material";
 
 const seoulDistricts = [
@@ -106,6 +107,19 @@ const RsltList = () => {
       console.error("Error fetching data:", error);
     }
   };
+
+  const dtlHandler = async (sn) => {
+    try {
+      const response = await axios.get("http://localhost:7773/api/jutaek-dtl", sn );
+      
+      if (response.data) {
+        setResults(response.data.data);  // Store fetched data
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  
   useEffect(() => {
     listHandler();
   }, [pageNum]);
