@@ -82,7 +82,7 @@ const LoginModal = ({ open, onClose }) => {
 
   const handleFindPassword = () => {
     onClose();
-    navigate('/find-password');
+    navigate('/forgot-password');
   };
 
   return (
