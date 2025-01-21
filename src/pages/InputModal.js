@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Box, Button, Typography, LinearProgress } from "@mui/material";
 import axios from "axios";
-const InputModal = ({ open, onClose, gongo }) => {
+const InputModal = ({ open, onClose, gongo, userSn }) => {
   
   const [step, setStep] = useState(1); 
   const [selectedType, setSelectedType] = useState(""); 
@@ -10,15 +10,15 @@ const InputModal = ({ open, onClose, gongo }) => {
   const [totalScore, setTotalScore] = useState(0);
 
 
-const handleSubmit = async () => {
-  const as = calculateTotalScore()
-  const data = {
-    userSn: 1, 
-    gongoSn: 1, 
-    inputType:selectedType,
-    inputRank:selectedPriority,
-    inputScore: as
-  };
+  const handleSubmit = async () => {
+    const as = calculateTotalScore()
+    const data = {
+      userSn: userSn, 
+      gongoSn: gongo.gongoSn, 
+      inputType:selectedType,
+      inputRank:selectedPriority,
+      inputScore: as
+    };
 
   try {
     const response = await axios.post("http://localhost:7773/api/input", data);
