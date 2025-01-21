@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Mypage_Container from '../components/myPage_Container'; //React 컴포넌트 이름은 대문자로 시작해야 정상적으로 렌더링
+import Mypage_Container from '../components/MyPage_Container'; //React 컴포넌트 이름은 대문자로 시작해야 정상적으로 렌더링
 import axios from 'axios';
 
-import { Snackbar,
-  Alert
-} from '@mui/material';
 function Mypage() {
   const [formData, setFormData] = useState({
     name: '',
@@ -34,7 +31,7 @@ function Mypage() {
         userSn: userSn,
         userName: userInfo.userName,
         email: userInfo.email,
-        password: userInfo.password, //'', // 비밀번호는 일반적으로 클라이언트로 제공되지 않음
+        password: userInfo.password,  // 비밀번호는 일반적으로 클라이언트로 제공되지 않음
         gender: userInfo.gender,
         address: userInfo.address,
         zipCode: userInfo.zipCode,
@@ -65,7 +62,7 @@ function Mypage() {
       console.log('전송할 데이터:', formData); // 전송 데이터 확인
       const response = await axios.post(`http://localhost:7773/api/mypage`,
         formData, { headers: {
-      'Content-Type': 'application/json',} // json 타입으로 지정을 안해주면 spring에서 null로 받음음
+      'Content-Type': 'application/json',} // json 타입으로 지정을 안해주면 spring에서 null로 받음
     });
       alert('수정된 내용을 저장했습니다.');
     } catch (error) {
@@ -82,9 +79,9 @@ function Mypage() {
   return (
     <div>
       <Mypage_Container
-        // onInputChange={(field, value) => handleChange(field, value)}
         onUpdate={handleUpdate}
         onComplete={handleComplete}
+        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
         formData={formData}
         handleChange={handleChange}
       />
