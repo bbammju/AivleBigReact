@@ -24,6 +24,7 @@ const handleSubmit = async () => {
     const response = await axios.post("http://localhost:7773/api/input", data);
     if(response){
       alert(`제출 완료! \n선택한 순위: ${selectedPriority}\n총점: ${as}점`);
+      //확인하기 버튼 눌렀을때 모달 초기화 시키기
       alert("데이터 전송 성공: " + response.data);
       }
   } catch (error) {
@@ -459,10 +460,9 @@ const handleSubmit = async () => {
                 </Button>
                 <Button
                     variant="contained"
-                    onClick={() => {
-                      handleSubmit();
-                      alert(`제출 완료! \n선택한 순위: ${selectedPriority}\n총점: ${totalScore}점`);
-                    }}>
+                    onClick={ 
+                      handleSubmit
+                    }>
                   확인하기
                 </Button>
               </Box>
