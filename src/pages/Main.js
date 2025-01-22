@@ -72,7 +72,7 @@ function Main() {
 
  return (
   <>
-    <Header />
+    <Header selectedGongo={selectedGongo} />
     <Box
       sx={{
         height: '100vh',
