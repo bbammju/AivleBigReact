@@ -42,7 +42,7 @@ function stringAvatar(name) {
   };
 }
 
-const Header = () => {
+const Header = ({ selectedGongo }) => {
   const navigate = useNavigate();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   // 로그인 상태와 사용자 정보를 위한 state 추가
@@ -118,19 +118,31 @@ const Header = () => {
               alt="Logo"
               sx={{ 
                 height: 50,
-                marginRight: 2,
                 cursor: 'pointer' 
               }}
               onClick={handleLogoClick}
             />
-            <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
-              <Button color="inherit">청약정보</Button>
-              <Button color="inherit">청약일정</Button>
-              <Button color="inherit">커뮤니티</Button>
-            </Box>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-            {isLoggedIn ? (
+            <Box sx={{ flexGrow: 1 }} />
+            {selectedGongo && (
+              <Typography color="inherit"
+              sx={{ fontWeight: 'bold',whiteSpace: 'nowrap',textAlign: 'center',
+                flexGrow: 1,marginRight: 'auto', }}
+            >
+              {selectedGongo.gongoName}
+              </Typography>
+            )}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              {isLoggedIn ? (
                 <>
+                  {/* 커뮤니티 버튼 */}
+                  <Button 
+                    color="inherit"
+                    onClick={() => navigate('/community')} // 나중에 커뮤니티 주소
+                  >
+                    커뮤니티
+                  </Button>
+
+                  {/* 사용자 이름 및 아바타 */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography color="inherit">
                       {user?.userName}님
@@ -140,6 +152,8 @@ const Header = () => {
                       onClick={handleMenuClick}
                     />
                   </Box>
+
+                  {/* 드롭다운 메뉴 */}
                   <Menu
                     anchorEl={anchorEl}
                     open={open}
@@ -166,6 +180,7 @@ const Header = () => {
                 </>
               ) : (
                 <>
+                  {/* 비로그인 상태 */}
                   <Button 
                     color="inherit"
                     onClick={() => navigate('/signup')}
