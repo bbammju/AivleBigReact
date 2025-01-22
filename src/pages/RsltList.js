@@ -36,7 +36,12 @@ const RsltList = () => {
   const [isRangeModalOpen, setIsRangeModalOpen] = useState(false);
   const [isGuaranteeModalOpen, setIsGuaranteeModalOpen] = useState(false);
   const [isMonthlyModalOpen, setIsMonthlyModalOpen] = useState(false);
-  const [results, setResults] = useState([]);  // Store result list data
+  const [results, setResults] = useState([]); 
+  const [dtlData, setDtlData] = useState(); 
+  const [userLocation, setUserLocation] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [lat, setLat] = useState();
+  const [lng, setLng] = useState();
 
   const handleModalConfirm = () => {
     setLocation(selectedDistricts);
@@ -96,12 +101,16 @@ const RsltList = () => {
     ...(maxMonthly && { maxMonthly }),
   };
 
+  const jutaekDtlSn = {
+    pageSize
+  };
+
   const listHandler = async () => {
     try {
       const response = await axios.get("http://localhost:7773/api/rslt-list", { params });
 
       if (response.data) {
-        setResults(response.data.data);  // Store fetched data
+        setResults(response.data.data);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -110,19 +119,41 @@ const RsltList = () => {
 
   const dtlHandler = async (sn) => {
     try {
-      const response = await axios.get("http://localhost:7773/api/jutaek-dtl", sn );
+      const response = await axios.get("http://localhost:7773/api/jutaek-dtl", { params: { jutaekDtlSn: sn } } );
       
       if (response.data) {
-        setResults(response.data.data);  // Store fetched data
+        setDtlData(response.data.data);
+        setLat(response.data.data.latitude)
+        setLng(response.data.data.longitude)
       }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
-  
+
   useEffect(() => {
     listHandler();
+    // Get user location when component mounts
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            long: position.coords.longitude,
+          });
+          setLoading(false);
+        },
+        (error) => {
+          console.error("Error getting user location:", error);
+          setLoading(false);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported");
+      setLoading(false);
+    }
   }, [pageNum]);
+
   return (
     <>
       <Header />
@@ -172,7 +203,7 @@ const RsltList = () => {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              width: "10%",
+              width: "8%",
               padding: "8px 10px",
               border: "1px solid #ccc",
               borderRadius: "4px",
@@ -191,7 +222,7 @@ const RsltList = () => {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              width: "10%",
+              width: "8%",
               padding: "8px 10px",
               border: "1px solid #ccc",
               borderRadius: "4px",
@@ -233,7 +264,7 @@ const RsltList = () => {
       </Box>
 
       {/* Result List */}
-      <Box sx={{ display: "flex", height: "80vh" }}>
+      <Box sx={{ display: "flex", height: "85vh" }}>
         {/* Left Column - Results (35% width) */}
         <Box
           sx={{
@@ -252,8 +283,12 @@ const RsltList = () => {
               }}
             >
               {results.map((item) => (
-                <Card key={item.jutaekDtlSn} sx={{ maxWidth: "100%", boxShadow: 3 }}>
-                  <Box sx={{ height: 120, backgroundColor: "#e0e0e0" }} />  {/* Placeholder for Image */}
+                <Card
+                  key={item.jutaekDtlSn}
+                  sx={{ maxWidth: "100%", boxShadow: 3, cursor: "pointer" }}
+                  onClick={() => dtlHandler(item.jutaekDtlSn)}
+                >
+                  <Box sx={{ height: 120, backgroundColor: "#e0e0e0" }} />
                   <CardContent>
                     <Typography variant="h6" fontWeight="bold" fontSize="14px">
                       주택 유형: {item.jutaekType}
@@ -272,12 +307,42 @@ const RsltList = () => {
           )}
         </Box>
 
-        {/* Right Column - Empty Space (65%) for future content */}
-        <Box sx={{ width: "65%", backgroundColor: "#f5f5f5", p: 2 }}>
-          <Typography variant="h6" align="center" sx={{ color: "gray" }}>
-            여기에 추가 콘텐츠가 들어갈 수 있습니다.
-          </Typography>
-        </Box>
+      
+        {/* Right Column - Naver Map (65%) */}
+        <div style={{ display: "flex", flexDirection: "column", width: "65%", margin: "0 auto", gap: "16px" }}>
+          {/* Map Section */}
+          <Box sx={{ width: "96%", height: "60vh", backgroundColor: "#f5f5f5", p: 2, mt: 2 }}>
+            {loading ? (
+              <Typography>로딩 중...</Typography>
+            ) : dtlData ? (
+              <>
+                <NaverMap long={lng} lat={lat} />
+              </>
+            ) : (
+              <Typography>주택을 선택해주세요.</Typography>
+            )}
+          </Box>
+
+          {/* Housing Details Section */}
+          <Box sx={{ width: "96%", p: 2, backgroundColor: "white", borderRadius: "8px", boxShadow: 2 }}>
+            {dtlData ? (
+              <>
+                <Typography variant="h6" fontWeight="bold">
+                  {dtlData.jutaekName}
+                </Typography>
+                <Typography variant="body1">주소: {dtlData.jutaekAddress}</Typography>
+                <Typography variant="body1">크기: {dtlData.jutaekSize} m²</Typography>
+                <Typography variant="body1">주거 면적: {dtlData.residentialArea} m²</Typography>
+                <Typography variant="body1">공용 면적: {dtlData.commonArea} m²</Typography>
+                <Typography variant="body1">기타 면적: {dtlData.otherArea} m²</Typography>
+                <Typography variant="body1">보증금: {dtlData.guarantee ? `${dtlData.guarantee} 원` : "정보 없음"}</Typography>
+                <Typography variant="body1">월세: {dtlData.monthly ? `${dtlData.monthly} 원` : "정보 없음"}</Typography>
+              </>
+            ) : (
+              <Typography>주택 정보를 확인하려면 지도를 클릭하세요.</Typography>
+            )}
+          </Box>
+        </div>
       </Box>
       
 
