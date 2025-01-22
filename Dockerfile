@@ -1,5 +1,5 @@
 # 1단계: 빌드 단계
-FROM node:20.18.0-alpine AS build  # 최신 안정화 버전 사용
+FROM node:20.18.0-alpine AS build 
 
 # 작업 디렉토리 설정
 WORKDIR /app
