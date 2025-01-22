@@ -10,7 +10,7 @@ import FavoritesPage from './pages/FavoritesPage'; // 관심주택 페이지
 import PwChange from './pages/PwChange';
 import EditProfile from "./pages/EditProfile";
 import WithdrawalPage from "./pages/WithdrawalPage";
-// import Community from './pages/Community'; // 게시판
+import Board from './pages/Board'; // 게시판
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -32,6 +32,7 @@ function App() {
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/pwchange" element={<PwChange />} />
         <Route path="/withdrawal" element={<WithdrawalPage />} />
+        <Route path="/board" element={<Board />} />
       </Routes>
     </BrowserRouter>
   );
