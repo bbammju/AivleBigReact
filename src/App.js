@@ -33,6 +33,7 @@ function App() {
         <Route path="/pwchange" element={<PwChange />} />
         <Route path="/withdrawal" element={<WithdrawalPage />} />
         <Route path="/board" element={<Board />} />
+        <Route path="/board/:id" element={<Board />} />
       </Routes>
     </BrowserRouter>
   );
