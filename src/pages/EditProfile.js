@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Mypage_Container from '../components/MyPage_Container'; //React 컴포넌트 이름은 대문자로 시작해야 정상적으로 렌더링
 import axios from 'axios';
 
-function Mypage() {
+function EditProfile() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -60,7 +60,7 @@ function Mypage() {
     try {
       // const userSn = formData.userSn;
       console.log('전송할 데이터:', formData); // 전송 데이터 확인
-      const response = await axios.post(`http://localhost:7773/api/mypage`,
+      const response = await axios.post(`http://localhost:7773/api/editprofile`,
         formData, { headers: {
       'Content-Type': 'application/json',} // json 타입으로 지정을 안해주면 spring에서 null로 받음
     });
@@ -88,4 +88,4 @@ function Mypage() {
     </div>
   );
 }
-export default Mypage;
+export default EditProfile;

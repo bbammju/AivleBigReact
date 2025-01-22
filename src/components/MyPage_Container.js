@@ -59,14 +59,6 @@ import { Box, Typography, TextField, Button, Paper, Radio, RadioGroup, FormContr
             </Box>
         </Box>
         <FormField label="이메일" name="email" value={formData.email} onChange={handleChange} />
-        {/* <FormField 
-          label="비밀번호" 
-          name="password" 
-          value={formData.password} 
-          onChange={handleChange} 
-          type="password"
-          button={<Button variant="contained" size="small" sx={{ ml: 1 }}>변경</Button>}
-        /> */}
         <FormField label="주소" name="address" value={formData.address} onChange={handleChange} />
         <FormField label="우편번호" name="zipCode" value={formData.zipCode} onChange={handleChange} />
         <FormField label="전화번호" name="telno" value={formData.telno} onChange={handleChange} />

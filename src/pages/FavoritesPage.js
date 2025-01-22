@@ -21,12 +21,25 @@ const FavoritesPage = () => {
         const response = await axios.get(`http://localhost:7773/api/favorites?userSn=${userSn}`
         );
         const favoriteResponseList = response.data.favoriteResponseList; // JSON 응답에서 리스트 추출
-        setFavorites(favoriteResponseList);// 상태 업데이트
+        setFavorites(favoriteResponseList); // 상태 업데이트
         console.log(favoriteResponseList);
     } catch (error) {
       console.error('관심 주택 정보를 가져오는 중 오류 발생:', error);
     }
   };
+
+  // 관심주택 삭제 요청
+  const handleDelete = async (favoriteSn) => {
+    try {
+        await axios.delete(`http://localhost:7773/api/favorites?favoriteSn=${favoriteSn}`);
+        alert('관심 주택이 삭제되었습니다.');
+        // 삭제 후 새로고침
+        fetchFavorites();
+    } catch (error) {
+        console.error('관심 주택 삭제 중 오류 발생:', error);
+        alert('삭제에 실패했습니다.');
+    }
+};
 
   return (
     <>
@@ -35,14 +48,13 @@ const FavoritesPage = () => {
       display: 'flex',
       height: '100vh',
       backgroundColor: '#f5f5f5',
-      // borderRadius: 5,
       padding: 2 }}>
 
       {/* Left Sidebar */}
       <Sidebar />
       
       {/* Right Content */}
-        <Paper elevation={2} sx={{ flex: 1, padding: 2, borderRadius: 3 }}>
+      <Paper elevation={2} sx={{ flex: 1, padding: 2, borderRadius: 3 }}>
       <div style={{ padding: "20px" }}>
       <Typography variant="h4" gutterBottom>
         나의 관심 주택 리스트
@@ -70,7 +82,7 @@ const FavoritesPage = () => {
                   <Button size="small" color="primary">
                     자세히 보기
                   </Button>
-                  <Button size="small" color="secondary">
+                  <Button size="small" color="secondary" onClick={() => handleDelete(favorite.favoriteSn)}>
                     삭제
                   </Button>
                 </CardActions>

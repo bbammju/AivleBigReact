@@ -7,12 +7,12 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   return (
-    <Box sx={{ width: '20%', padding: 2, marginRight: 2 }}>
+    <Box sx={{ width: '20%', padding: 2, marginRight: 2}}>
       <Paper elevation={2} sx={{ borderRadius: 3 }}>
         <nav aria-label="main mailbox folders">
           <List>
             <ListItem disablePadding>
-              <ListItemButton onClick={() => navigate("/Mypage")}>
+              <ListItemButton onClick={() => navigate("/editprofile")}>
                 <ListItemIcon>
                   <Person />
                 </ListItemIcon>
@@ -20,7 +20,7 @@ const Sidebar = () => {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton onClick={() => navigate("/PwChange")}>
+              <ListItemButton onClick={() => navigate("/pwchange")}>
                 <ListItemIcon>
                   <Key />
                 </ListItemIcon>
@@ -28,7 +28,7 @@ const Sidebar = () => {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton onClick={() => navigate("/FavoritesPage")}>
+              <ListItemButton onClick={() => navigate("/favorites")}>
                 <ListItemIcon>
                   <Star />
                 </ListItemIcon>
@@ -36,7 +36,7 @@ const Sidebar = () => {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton onClick={() => navigate("/")}>
+              <ListItemButton onClick={() => navigate("/withdrawal")}>
                 <ListItemIcon>
                   <PersonRemove />
                 </ListItemIcon>
