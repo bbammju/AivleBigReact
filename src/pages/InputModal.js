@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { Modal, Box, Button, Typography, LinearProgress } from "@mui/material";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+
+
 const InputModal = ({ open, onClose, gongo, userSn }) => {
-  
+  const navigate = useNavigate();
   const [step, setStep] = useState(1); 
-  const [selectedType, setSelectedType] = useState(""); 
-  const [selectedPriority, setSelectedPriority] = useState(0); 
-  const [selectedConditions, setSelectedConditions] = useState([]); 
-  const [totalScore, setTotalScore] = useState(0);
+  const [selectedType, setSelectedType] = useState(""); //청년 or 신혼부부
+  const [selectedPriority, setSelectedPriority] = useState(0); //순위
+  const [selectedConditions, setSelectedConditions] = useState([]); //가산점 항목들
+  const [totalScore, setTotalScore] = useState(0);//총 스코어 저장
+  const [savingScore, setSavingScore] = useState(""); // 드롭다운 
 
 
   const handleSubmit = async () => {
@@ -24,8 +28,7 @@ const InputModal = ({ open, onClose, gongo, userSn }) => {
     const response = await axios.post("http://localhost:7773/api/input", data);
     if(response){
       alert(`제출 완료! \n선택한 순위: ${selectedPriority}\n총점: ${as}점`);
-      //확인하기 버튼 눌렀을때 모달 초기화 시키기
-      alert("데이터 전송 성공: " + response.data);
+      navigate('/list');
       }
   } catch (error) {
     console.error("데이터 전송 실패:", error);
@@ -37,7 +40,13 @@ const InputModal = ({ open, onClose, gongo, userSn }) => {
 
   // 모달 닫기 핸들러
   const handleClose = () => {
-    onClose();  // 부모 컴포넌트의 close 함수 호출
+    setStep(1);
+    setSelectedType("");
+    setSelectedPriority(0);
+    setSelectedConditions([]);
+    setTotalScore(0);
+    setSavingScore("");
+    onClose();  
   };
 
   // 스텝 이동 핸들러
@@ -71,7 +80,7 @@ const InputModal = ({ open, onClose, gongo, userSn }) => {
       }
     }); 
   };
-  const [savingScore, setSavingScore] = useState(""); // 드롭다운 값 상태
+  
 
   const handleSavingScoreChange = (event) => {
     setSavingScore(event.target.value); // 드롭다운 값 업데이트
@@ -425,7 +434,7 @@ const InputModal = ({ open, onClose, gongo, userSn }) => {
                 >
                   신청자의 부모 중 장애인등록증이 교부된 사람이 있는 경우
                   <Typography sx={{ marginLeft: "20px" }}>
-                    <strong>3점</strong>
+                    <strong>1점</strong>
                   </Typography>
                 </Button>
               </Box>
