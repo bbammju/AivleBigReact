@@ -1,5 +1,5 @@
 # 1단계: 빌드 단계
-FROM node:20.18.2-alpine AS build
+FROM node:20.18.0-alpine AS build  # 최신 안정화 버전 사용
 
 # 작업 디렉토리 설정
 WORKDIR /app
@@ -13,7 +13,7 @@ COPY . .
 RUN npm run build
 
 # 2단계: 런타임 단계
-FROM node:20.18.2-alpine
+FROM node:20.18.0-alpine
 
 # 작업 디렉토리 설정
 WORKDIR /app
