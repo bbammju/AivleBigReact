@@ -5,6 +5,7 @@ import api from '../utils/api';
 import Header from '../components/header';
 import LoginModal from '../components/LoginModal';
 import InputModal from './InputModal';
+import { useStore } from '../zustand/store';
 import {
  Box, 
  Container,
@@ -19,11 +20,12 @@ import {
 function Main() {
  const navigate = useNavigate();
  const [activeGongos, setActiveGongos] = useState([]);
- const [selectedGongo, setSelectedGongo] = useState('');
+ const {setGongoname} = useStore();
  const [isInputModalOpen, setIsInputModalOpen] = useState(false);
  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
  const [isDataFetched, setIsDataFetched] = useState(false);
  const [user, setUser] = useState(null);
+ const [selectedGongo, setSelectedGongo] = useState("");
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -56,6 +58,7 @@ function Main() {
 
  const handleGongoChange = (event) => {
    setSelectedGongo(event.target.value);
+   setGongoname(event.target.value)
  };
 
  const handlePredict = () => {
@@ -78,7 +81,7 @@ function Main() {
 
  return (
   <>
-    <Header selectedGongo={selectedGongo} />
+    <Header  />
     <Box
       sx={{
         height: '100vh',
@@ -113,27 +116,33 @@ function Main() {
           <FormControl fullWidth sx={{ mb: 3 }}>
             <InputLabel>현재 진행중인 공고</InputLabel>
             <Select
-              value={selectedGongo}
+              value={selectedGongo || ""} 
               label="현재 진행중인 공고"
               onChange={handleGongoChange}
               onOpen={fetchActiveGongos}
             >
-              {activeGongos.map((gongo) => (
-                <MenuItem key={gongo.gongoSn} value={gongo}>
-                  {gongo.gongoName}
+              {activeGongos && activeGongos.length > 0 ? (
+                activeGongos.map((gongo) => (
+                  <MenuItem key={gongo.gongoSn} value={gongo}>
+                    {gongo.gongoName}
+                  </MenuItem>
+                ))
+                ) : (
+                <MenuItem disabled>
+                  공고가 없습니다.
                 </MenuItem>
-              ))}
+                )}
             </Select>
           </FormControl>
 
           {selectedGongo && (
             <Box sx={{ mb: 3 }}>
-              <Typography variant="body1" gutterBottom>
+              {/* <Typography variant="body1" gutterBottom>
                 공고명: {selectedGongo.gongoName}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 공고 기간: {selectedGongo.scheduleStartDt} ~ {selectedGongo.scheduleEndDt}
-              </Typography>
+              </Typography> */}
             </Box>
           )}
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/zipline.png';
+import { useStore } from '../zustand/store';
 import {
   AppBar,
   Toolbar,
@@ -43,11 +44,12 @@ function stringAvatar(name) {
   };
 }
 
-const Header = ({ selectedGongo }) => {
+const Header = () => {
   const navigate = useNavigate();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   // 로그인 상태와 사용자 정보를 위한 state 추가
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const {gongoname} = useStore();
   const [user, setUser] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
   // 드롭다운 메뉴를 위한 state
@@ -140,14 +142,12 @@ const Header = ({ selectedGongo }) => {
               onClick={handleLogoClick}
             />
             <Box sx={{ flexGrow: 1 }} />
-            {selectedGongo && (
-              <Typography color="inherit"
-              sx={{ fontWeight: 'bold',whiteSpace: 'nowrap',textAlign: 'center',
-                flexGrow: 1,marginRight: 'auto', }}
-            >
-              {selectedGongo.gongoName}
-              </Typography>
-            )}
+            <Typography color="inherit"
+            sx={{ fontWeight: 'bold',whiteSpace: 'nowrap',textAlign: 'center',
+              flexGrow: 1,marginRight: 'auto', }}
+          >
+            {gongoname}
+            </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               {isLoggedIn ? (
                 <>
