@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/header";
+import BoardForm from "../components/BoardForm";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { Tabs, Tab, Table, TableHead, TableRow, TableCell, TableBody, Box, Typography,
-    Button,
+    Button, Paper,
   Pagination,
  } from "@mui/material";
 
@@ -105,7 +106,16 @@ const Board = () => {
                 setActiveTab={setActiveTab}
                 setCurrentPage={setCurrentPage}
             />
-
+          <Paper
+            elevation={2}
+            sx={{
+              flex: 1,
+              padding: 4,
+              borderRadius: 3,
+              margin: 2,
+              backgroundColor: "white",
+            }}
+          >
             <Box sx={{ mt: 4, width: "80%", margin: "0 auto" }}>
                 <Typography variant="h4" gutterBottom>
                 {post.title}
@@ -118,6 +128,7 @@ const Board = () => {
                 뒤로가기
                 </Button>
             </Box>
+            </Paper>
         </Box>
         </>
         );
@@ -179,7 +190,9 @@ const Board = () => {
         <>
           {/* 글쓰기 버튼 */}
           <Box sx={{ textAlign: "right", mt: 2 }}>
-            <Button variant="contained" color="primary" sx={{ mr: 2 }}>
+            <Button variant="contained" color="primary" 
+            onClick={() => navigate("/boardform")}
+            sx={{ mr: 2 }} >
               글쓰기
             </Button>
           </Box>
