@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/header";
 import axios from "axios";
+import api from "../utils/api";
 import { useNavigate, useParams } from "react-router-dom";
 import { Tabs, Tab, Table, TableHead, TableRow, TableCell, TableBody, Box, Typography,
     Button,
@@ -65,7 +66,7 @@ const Board = () => {
         const fetchData = async () => {
             if (tabs[activeTab] === "유저게시판") {
                 try {
-                    const response = await axios.get("http://localhost:7773/api/board");
+                    const response = await api.get("/board");
                     const boardListResponse = response.data.boardListResponse;
                     setData((prevData) => ({
                         ...prevData,

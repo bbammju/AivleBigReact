@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../utils/api";
 import Header from "../components/header";
 import Sidebar from "../components/Mypage_SideBar"; // Sidebar 컴포넌트 임포트
 import {
@@ -44,7 +45,7 @@ const WithdrawalPage = () => {
       }
     try {
       // 비밀번호 확인 및 회원 탈퇴 API 호출
-      const response = await fetch("http://localhost:7773/api/withdrawal", {
+      const response = await api.fetch("/withdrawal", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

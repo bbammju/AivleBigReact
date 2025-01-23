@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../utils/api';
 import {
   Dialog,
   DialogTitle,
@@ -24,7 +25,7 @@ const ForgotPassword = () => {
 
   const handleEmailSubmit = async () => {
     try {
-      const response = await fetch('/api/auth/forgot-password', {
+      const response = await api.fetch('/users/forgot-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,7 +46,7 @@ const ForgotPassword = () => {
 
   const handleVerificationSubmit = async () => {
     try {
-      const response = await fetch('/api/auth/verify-code', {
+      const response = await api.fetch('/users/verify-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,12 +54,13 @@ const ForgotPassword = () => {
         body: JSON.stringify({ email, verificationCode }),
       });
       
+      const responseData = await response.json();
+
       if (response.ok) {
-        const { temporaryPassword } = await response.json();
         setStep(3);
-        setMessage(`임시 비밀번호는 ${temporaryPassword} 입니다.`);
+        setMessage(`임시 비밀번호는 ${responseData.data.temporaryPassword} 입니다.`);
       } else {
-        setError('인증번호가 일치하지 않습니다.');
+        setError(responseData.message || '인증번호가 일치하지 않습니다.');
       }
     } catch (err) {
       setError('서버 오류가 발생했습니다.');

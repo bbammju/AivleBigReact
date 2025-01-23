@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../utils/api';
 import {
   Box,
   Button,
@@ -21,7 +22,7 @@ function EmailCheck() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:7773/api/users/check-email', {
+      const response = await api.fetch('/users/check-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

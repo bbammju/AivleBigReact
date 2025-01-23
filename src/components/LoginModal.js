@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import api from '../utils/api';
 import { 
   Dialog, 
   DialogTitle, 
@@ -16,12 +17,6 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
-const api = axios.create({
-  baseURL: 'http://localhost:7773/api/users',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
 
 const LoginModal = ({ open, onClose }) => {
   const [formData, setFormData] = useState({
@@ -36,19 +31,33 @@ const LoginModal = ({ open, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('로그인 시도', formData);
     try {
-      const response = await api.post('/login', formData);
+      const response = await api.post('/users/login', {
+        email: formData.email,
+        password: formData.password
+      });
       const data = response.data;
      
+      console.log('Axios 요청 데이터:', formData);
+      console.log('Axios 응답 데이터:', response.data);
+      
+
       if (data.resultCode == 200){
         // 로그인 성공 시 사용자 정보를 localStroage에 저장
-        localStorage.setItem('user', JSON.stringify(data.data));
+        const { user, token } = data;
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('accessToken', token.accessToken);
+        localStorage.setItem('refreshToken', token.refreshToken);
+
         setAlertSeverity('success');
         setAlertMessage('로그인 되었습니다.');
         setShowAlert(true);
+
         setTimeout(() => {
           setShowAlert(false);
         }, 3000);
+
         onClose();
         window.location.reload(); // 헤더 상태 업데이트를 위한 새로고침
       } else {
