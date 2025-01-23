@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Box, Button, Typography, LinearProgress } from "@mui/material";
 import axios from "axios";
+import api from "../utils/api";
 import { useNavigate } from 'react-router-dom';
 
 
@@ -25,7 +26,7 @@ const InputModal = ({ open, onClose, gongo, userSn }) => {
     };
 
   try {
-    const response = await axios.post("http://localhost:7773/api/input", data);
+    const response = await api.post("/input", data);
     if(response){
       alert(`제출 완료! \n선택한 순위: ${selectedPriority}\n총점: ${as}점`);
       navigate('/list');

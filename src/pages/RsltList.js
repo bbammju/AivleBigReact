@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/header";
 import DistrictModal from "../components/guModal";
@@ -107,7 +108,7 @@ const RsltList = () => {
 
   const listHandler = async () => {
     try {
-      const response = await axios.get("http://localhost:7773/api/rslt-list", { params });
+      const response = await api.get("/rslt-list", { params });
 
       if (response.data) {
         setResults(response.data.data);
@@ -119,7 +120,7 @@ const RsltList = () => {
 
   const dtlHandler = async (sn) => {
     try {
-      const response = await axios.get("http://localhost:7773/api/jutaek-dtl", { params: { jutaekDtlSn: sn } } );
+      const response = await api.get("/jutaek-dtl", { params: { jutaekDtlSn: sn } } );
       
       if (response.data) {
         setDtlData(response.data.data);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import api from '../utils/api';
 import Header from "../components/header";
 import {
   Box,
@@ -15,13 +16,6 @@ import {
   Alert,
 } from "@mui/material";
 
-// axios 인스턴스 생성
-const api = axios.create({
-  baseURL: 'http://localhost:7773/api/users',
-  headers: {
-    'Content-Type': 'application/json',
-  }
-});
 
 function Signup() {
   const location = useLocation();
@@ -196,7 +190,7 @@ function Signup() {
     const fullPhoneNumber = `010${formData.telnoMiddle}${formData.telnoLast}`;
 
     try {
-      const response = await api.post('/signup', {
+      const response = await api.post('/users/signup', {
         ...formData,
         telno: fullPhoneNumber
       });

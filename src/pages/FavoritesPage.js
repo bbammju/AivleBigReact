@@ -3,6 +3,7 @@ import Sidebar from "../components/Mypage_SideBar"; // Sidebar 컴포넌트 임�
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import api from '../utils/api';
 import { Box, Typography, Card , Button, Paper, CardContent , CardActions } from '@mui/material';
 import Grid from "@mui/material/Grid2";
 
@@ -18,7 +19,7 @@ const FavoritesPage = () => {
     // 관심주택 정보를 가져오는 함수
     const fetchFavorites = async () => {
     try {
-        const response = await axios.get(`http://localhost:7773/api/favorites?userSn=${userSn}`
+        const response = await api.get(`/favorites?userSn=${userSn}`
         );
         const favoriteResponseList = response.data.favoriteResponseList; // JSON 응답에서 리스트 추출
         setFavorites(favoriteResponseList); // 상태 업데이트
@@ -31,7 +32,7 @@ const FavoritesPage = () => {
   // 관심주택 삭제 요청
   const handleDelete = async (favoriteSn) => {
     try {
-        await axios.delete(`http://localhost:7773/api/favorites?favoriteSn=${favoriteSn}`);
+        await api.delete(`/favorites?favoriteSn=${favoriteSn}`);
         alert('관심 주택이 삭제되었습니다.');
         // 삭제 후 새로고침
         fetchFavorites();

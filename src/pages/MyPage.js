@@ -3,6 +3,7 @@ import { Box, Paper, Typography } from "@mui/material";
 import Header from "../components/header";
 import Sidebar from "../components/Mypage_SideBar";
 import axios from "axios";
+import api from '../utils/api';
 
 const MyPage = () => {
     const [user, setUserInfo] = useState({
@@ -14,7 +15,7 @@ const MyPage = () => {
     // 사용자 정보 가져오는 함수
     const fetchUserInfo = async () => {
         try {
-        const response = await axios.get(`http://localhost:7773/api/mypage?userSn=${userSn}`, {
+        const response = await api.get(`/mypage?userSn=${userSn}`, {
             // params: { userSn: 2 }, // 예제: userSn 2번 사용자
         });
         // 서버에서 받은 데이터를 상태에 설정
