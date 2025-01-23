@@ -20,7 +20,7 @@ import {
 function Main() {
  const navigate = useNavigate();
  const [activeGongos, setActiveGongos] = useState([]);
- const {setGongoname} = useStore();
+ const { setGongoname } = useStore();
  const [isInputModalOpen, setIsInputModalOpen] = useState(false);
  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
  const [isDataFetched, setIsDataFetched] = useState(false);
@@ -137,12 +137,12 @@ function Main() {
 
           {selectedGongo && (
             <Box sx={{ mb: 3 }}>
-              {/* <Typography variant="body1" gutterBottom>
+              <Typography variant="body1" gutterBottom>
                 공고명: {selectedGongo.gongoName}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 공고 기간: {selectedGongo.scheduleStartDt} ~ {selectedGongo.scheduleEndDt}
-              </Typography> */}
+              </Typography>
             </Box>
           )}
 
