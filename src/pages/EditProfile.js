@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Mypage_Container from '../components/MyPage_Container'; //React 컴포넌트 이름은 대문자로 시작해야 정상적으로 렌더링
 import axios from 'axios';
+import api from '../utils/api';
 
 function EditProfile() {
   const [formData, setFormData] = useState({
@@ -18,7 +19,7 @@ function EditProfile() {
   // 사용자 정보를 가져오는 함수
   const fetchUserInfo = async () => {
     try {
-      const response = await axios.get(`http://localhost:7773/api/mypage?userSn=${userSn}`
+      const response = await api.get(`/mypage?userSn=${userSn}`
       // , {
         // params: {
         //   userSn: userSn, // 백엔드 API에 필요한 사용자 고유 번호 전달
@@ -60,7 +61,7 @@ function EditProfile() {
     try {
       // const userSn = formData.userSn;
       console.log('전송할 데이터:', formData); // 전송 데이터 확인
-      const response = await axios.post(`http://localhost:7773/api/editprofile`,
+      const response = await api.post(`/editprofile`,
         formData, { headers: {
       'Content-Type': 'application/json',} // json 타입으로 지정을 안해주면 spring에서 null로 받음
     });

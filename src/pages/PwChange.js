@@ -3,6 +3,7 @@ import Header from '../components/header';
 import Sidebar from "../components/Mypage_SideBar"; // Sidebar 컴포넌트 임포트
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import api from '../utils/api';
 import { Box, Typography , Button, Paper, TextField, Stack } from '@mui/material';
 
 const PwChange = () => {
@@ -22,7 +23,7 @@ const PwChange = () => {
 
         try {
         // 서버 요청
-        const response = await axios.post("http://localhost:7773/api/change-password", {
+        const response = await api.post("/change-password", {
             userSn: userSn, // 사용자 고유 번호
             currentPassword,
             newPassword,

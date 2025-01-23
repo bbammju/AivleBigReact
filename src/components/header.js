@@ -15,6 +15,7 @@ import {
   Stack  
 } from '@mui/material'; 
 import LoginModal from './LoginModal';
+import api from '../utils/api';
 
 // 아바타 색상 생성 함수
 function stringToColor(string) {
@@ -79,17 +80,33 @@ const Header = ({ selectedGongo }) => {
     }
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    setIsLoggedIn(false);
-    setUser(null);
-    setShowAlert(true); // Alert 표시
-    handleMenuClose(); // 메뉴 닫기
-    // 3초 후 Alert 숨기기
-    setTimeout(() => {
-      setShowAlert(false);
-    }, 3000);
-  };  
+  const handleLogout = async () => {
+    try {
+      // 로그아웃 API 호출
+      await api.post('/users/logout');
+
+      // 로그아웃 성공 시 클라이언트 처리 (현재는 무조건 성공 응답, 추후 redis등 고도화 시 변경)
+      localStorage.removeItem('user'); // 사용자 정보 삭제
+      localStorage.removeItem('accessToken'); // 액세스 토큰 삭제
+      localStorage.removeItem('refreshToken'); // 리프레시 토큰 삭제
+      setIsLoggedIn(false);
+      setUser(null);
+
+      // 성공 알림 표시
+      setShowAlert(true); // Alert 표시
+      handleMenuClose(); // 메뉴 닫기    
+      // 3초 후 Alert 숨기기
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 3000);
+      navigate('/');
+    } catch (error) {   
+      console.error('로그아웃 중 오류 발생:', error);
+      alert('로그아웃 중 문제가 발생했습니다. 다시 시도해주세요.');
+    } finally {
+      handleMenuClose(); // 메뉴 닫기
+    }
+  };
 
   return (
     <>
