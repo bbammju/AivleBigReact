@@ -23,7 +23,7 @@ const Header = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   // 로그인 상태와 사용자 정보를 위한 state 추가
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const {gongoname} = useStore();
+  const { gongoName } = useStore();
   const [user, setUser] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
   // 드롭다운 메뉴를 위한 state
@@ -146,7 +146,7 @@ const Header = () => {
             sx={{ fontWeight: 'bold',whiteSpace: 'nowrap',textAlign: 'center',
               flexGrow: 1,marginRight: 'auto', }}
           >
-            {gongoname}
+            {gongoName}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               {isLoggedIn ? (

@@ -58,7 +58,7 @@ function Main() {
 
  const handleGongoChange = (event) => {
    setSelectedGongo(event.target.value);
-   setGongoname(event.target.value)
+   setGongoname(event.target.value.gongoName)
  };
 
  const handlePredict = () => {
