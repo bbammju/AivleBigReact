@@ -25,15 +25,9 @@ const ForgotPassword = () => {
 
   const handleEmailSubmit = async () => {
     try {
-      const response = await api.fetch('/users/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
+      const response = await api.post('/users/forgot-password', {email});
       
-      if (response.ok) {
+      if (response.status === 200) {
         setStep(2);
         setMessage('인증번호가 이메일로 전송되었습니다.');
       } else {
@@ -46,21 +40,13 @@ const ForgotPassword = () => {
 
   const handleVerificationSubmit = async () => {
     try {
-      const response = await api.fetch('/users/verify-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, verificationCode }),
-      });
-      
-      const responseData = await response.json();
-
-      if (response.ok) {
+      const response = await api.post('/users/verify-code', {email, code: verificationCode });
+    
+      if (response.status === 200) {
         setStep(3);
-        setMessage(`임시 비밀번호는 ${responseData.data.temporaryPassword} 입니다.`);
+        setMessage(`임시 비밀번호는 ${response.data.tempPassword} 입니다.`);
       } else {
-        setError(responseData.message || '인증번호가 일치하지 않습니다.');
+        setError(response.data.message || '인증번호가 일치하지 않습니다.');
       }
     } catch (err) {
       setError('서버 오류가 발생했습니다.');
