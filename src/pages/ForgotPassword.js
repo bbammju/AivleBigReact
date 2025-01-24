@@ -11,7 +11,8 @@ import {
   Alert,
   Typography,
   Container,
-  Paper
+  Paper,
+  CircularProgress
 } from "@mui/material";
 import Header from "../components/header";
 
@@ -22,6 +23,7 @@ const ForgotPassword = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleEmailSubmit = async () => {
     try {
@@ -35,6 +37,8 @@ const ForgotPassword = () => {
       }
     } catch (err) {
       setError('서버 오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -79,6 +83,17 @@ const ForgotPassword = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   fullWidth
                 />
+                {isLoading && (
+                  <CircularProgress 
+                    sx={{ 
+                      position: 'fixed', 
+                      top: '50%', 
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      zIndex: 9999
+                    }} 
+                  />
+                )}
                 <Button 
                   variant="contained" 
                   onClick={handleEmailSubmit}
