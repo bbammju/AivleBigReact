@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/header";
-import axios from "axios";
 import api from "../utils/api";
 import { useNavigate, useParams } from "react-router-dom";
 import { Tabs, Tab, Table, TableHead, TableRow, TableCell, TableBody, Box, Typography,

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Mypage_Container from '../components/MyPage_Container'; //React 컴포넌트 이름은 대문자로 시작해야 정상적으로 렌더링
-import axios from 'axios';
 import api from '../utils/api';
 
 function EditProfile() {

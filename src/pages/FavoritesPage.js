@@ -2,7 +2,6 @@ import Header from '../components/header';
 import Sidebar from "../components/Mypage_SideBar"; // Sidebar 컴포넌트 임포트
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import api from '../utils/api';
 import { Box, Typography, Card , Button, Paper, CardContent , CardActions } from '@mui/material';
 import Grid from "@mui/material/Grid2";
