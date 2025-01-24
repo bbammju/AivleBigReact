@@ -2,7 +2,6 @@ import React from 'react';
 import InputModal from './pages/InputModal'; // Input모달창창
 import Main from './pages/Main'; // 메인 페이지
 import RsltList from './pages/RsltList';
-// import EmailCheck from './pages/EmailCheck'; // 이메일 중복 체크 페이지
 import Signup from './pages/Signup'; // 회원가입
 import ForgotPassword  from './pages/ForgotPassword'; // 비밀번호 찾기
 import Mypage from './pages/Mypage'; // 마이페이지
