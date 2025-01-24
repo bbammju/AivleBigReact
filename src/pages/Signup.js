@@ -22,6 +22,33 @@ function Signup() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+
+  const handleEmailCheck = async () => {
+    if (!formData.email) {
+      setFieldErrors(prev => ({ ...prev, email: '이메일을 입력해주세요.' }));
+      return;
+    }
+    
+    try {
+      const response = await api.post('/users/check-email', {
+        email: formData.email
+      });
+      
+      if (!response.data.exists) {
+        setIsEmailVerified(true);
+        setAlertMessage('사용 가능한 이메일입니다.');
+        setShowAlert(true);
+      } else {
+        setIsEmailVerified(false);
+        setFieldErrors(prev => ({ ...prev, email: '이미 사용 중인 이메일입니다.' }));
+      }
+    } catch (error) {
+      setIsEmailVerified(false);
+      setAlertMessage('이메일 중복 확인 중 오류가 발생했습니다.');
+      setShowAlert(true);
+    }
+  };
   
   const [formData, setFormData] = useState({
     email: "",
@@ -36,18 +63,13 @@ function Signup() {
   });
 
   useEffect(() => {
-    if (!location.state?.email) {
-      navigate('/email-check');
-      return;
-    }
-    setFormData(prev => ({ ...prev, email: location.state.email }));
-
+    // 다음(Daum) 주소 검색 스크립트 로드
     if (!window.daum || !window.daum.Postcode) {
       const script = document.createElement('script');
       script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
       document.head.appendChild(script);
     }
-  }, [location.state, navigate]);
+}, []);
 
   const handleAddressSearch = () => {
     if (!window.daum || !window.daum.Postcode) {
@@ -91,6 +113,9 @@ function Signup() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'email') {
+      setIsEmailVerified(false);
+    }
     validateField(name, value);
   };
 
@@ -140,6 +165,12 @@ function Signup() {
   };
 
   const validateForm = () => {
+
+    if (!isEmailVerified) {
+      setFieldErrors(prev => ({ ...prev, email: '이메일 중복 확인이 필요합니다.' }));
+      return false;
+    }
+
     const requiredFields = ['email', 'password', 'userName', 'telnoMiddle', 'telnoLast', 'gender'];
     let isValid = true;
     let errors = { ...fieldErrors };
@@ -244,31 +275,52 @@ function Signup() {
           회원가입
         </Typography>
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                type="email"
-                label="이메일"
-                name="email"
-                value={formData.email}
-                disabled
-              />
-            </Grid>
+  <Grid container spacing={2}>  {/* 최상위 Grid container */}
+    
+    {/* 이메일 입력 필드와 중복 확인 버튼 */}
+    <Grid item xs={12}>
+      <Grid container spacing={1}>
+        <Grid item xs={8}>
+          <TextField
+            fullWidth
+            type="email"
+            label="이메일"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            error={!!fieldErrors.email}
+            helperText={fieldErrors.email}
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <Button
+            variant="outlined"
+            onClick={handleEmailCheck}
+            fullWidth
+            sx={{ height: '100%' }}
+          >
+            중복 확인
+          </Button>
+        </Grid>
+      </Grid>
+    </Grid>
 
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                type="password"
-                label="비밀번호"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                error={!!fieldErrors.password}
-                helperText={fieldErrors.password}
-              />
-            </Grid>
+    {/* 나머지 폼 필드들 */}
+    <Grid item xs={12}>
+      <TextField
+        fullWidth
+        type="password"
+        label="비밀번호"
+        name="password"
+        value={formData.password}
+        onChange={handleChange}
+        required
+        error={!!fieldErrors.password}
+        helperText={fieldErrors.password}
+      />
+    </Grid>
+
 
             <Grid item xs={12}>
               <TextField
