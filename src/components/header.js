@@ -18,32 +18,6 @@ import {
 import LoginModal from './LoginModal';
 import api from '../utils/api';
 
-// 아바타 색상 생성 함수
-function stringToColor(string) {
-  let hash = 0;
-  let i;
-  for (i = 0; i < string.length; i += 1) {
-    hash = string.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  let color = '#';
-  for (i = 0; i < 3; i += 1) {
-    const value = (hash >> (i * 8)) & 0xff;
-    color += `00${value.toString(16)}`.slice(-2);
-  }
-  return color;
-}
-
-// 아바타 속성 생성 함수
-function stringAvatar(name) {
-  return {
-    sx: {
-      bgcolor: stringToColor(name),
-      cursor: 'pointer'
-    },
-    children: name[0], // 이름의 첫 글자만 사용
-  };
-}
-
 const Header = () => {
   const navigate = useNavigate();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -55,6 +29,32 @@ const Header = () => {
   // 드롭다운 메뉴를 위한 state
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+
+  // 아바타 색상 생성 함수
+  const stringToColor = (string) => {
+    let hash = 0;
+    let i;
+    for (i = 0; i < string.length; i += 1) {
+      hash = string.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    let color = '#';
+    for (i = 0; i < 3; i += 1) {
+      const value = (hash >> (i * 8)) & 0xff;
+      color += `00${value.toString(16)}`.slice(-2);
+    }
+    return color;
+  };
+
+  // 아바타 속성 생성 함수
+  const stringAvatar = (name) => {
+    return {
+      sx: {
+        bgcolor: stringToColor(name),
+        cursor: 'pointer',
+      },
+      children: name[0], // 이름의 첫 글자만 사용
+    };
+  };
 
   const handleLogoClick = () => {
     navigate('/'); // 메인페이지로 이동동

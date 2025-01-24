@@ -22,17 +22,9 @@ function EmailCheck() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.fetch('/users/check-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email })
-      });
-
-      const data = await response.json();
-      
-      if (data.exists) {
+      const response = await api.post('/users/check-email', {email});
+            
+      if (response.data.exists) {
         // 이미 존재하는 이메일인 경우
         setAlertSeverity('info');
         setAlertMessage('이미 가입된 이메일입니다. 로그인해주세요.');
