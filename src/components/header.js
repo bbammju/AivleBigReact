@@ -129,6 +129,7 @@ const Header = () => {
         </Alert>
       )}
       <AppBar position="static">
+      {/* 여기 수정해서 화면크기 맞게 수정 */}
         <Container maxWidth="lg">
           <Toolbar>
             <Box

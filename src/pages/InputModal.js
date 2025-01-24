@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Modal, Box, Button, Typography, LinearProgress } from "@mui/material";
-import axios from "axios";
 import api from "../utils/api";
 import { useNavigate } from 'react-router-dom';
 

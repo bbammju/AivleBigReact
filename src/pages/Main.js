@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import api from '../utils/api';
 import Header from '../components/header';
 import LoginModal from '../components/LoginModal';
 import InputModal from './InputModal';
 import { useStore } from '../zustand/store';
+import apartmentImage from '../assets/apartmentimage.png';
 import {
  Box, 
  Container,
@@ -87,7 +87,7 @@ function Main() {
         height: '100vh',
         width: '100%',
         position: 'relative',
-        background: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/apartment-image.png")',
+        background: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${apartmentImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

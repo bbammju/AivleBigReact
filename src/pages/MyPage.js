@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Box, Paper, Typography } from "@mui/material";
 import Header from "../components/header";
 import Sidebar from "../components/Mypage_SideBar";
-import axios from "axios";
 import api from '../utils/api';
 
 const MyPage = () => {
