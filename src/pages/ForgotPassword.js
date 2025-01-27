@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import {
@@ -24,22 +24,49 @@ const ForgotPassword = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [timer, setTimer] = useState(300);
+  const [timerActive, setTimerActive] = useState(false);
+
+
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!regex.test(email)) {
+      setEmailError('유효한 이메일 주소를 입력해주세요');
+      return false;
+    }
+    setEmailError('');
+    return true;
+  }
 
   const handleEmailSubmit = async () => {
+    if (!validateEmail(email)) return;
+    setIsLoading(true);
     try {
+
       const response = await api.post('/users/forgot-password', {email});
-      
       if (response.status === 200) {
         setStep(2);
         setMessage('인증번호가 이메일로 전송되었습니다.');
+        setTimer(300);
+        setTimerActive(true);
       } else {
         setError('이메일 전송에 실패했습니다. 다시 시도해주세요.');
       }
     } catch (err) {
-      setError('서버 오류가 발생했습니다.');
+      setError(err.response?.data?.error || '서버 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const validateVerificationCode = (code) => {
+    const regex = /^\d{4}$/;
+    if (!regex.test(code)) {
+      setError('인증번호는 4자리 숫자로 입력해주세요.');
+      return false;
+    }
+    return true;
   };
 
   const handleVerificationSubmit = async () => {
@@ -50,16 +77,50 @@ const ForgotPassword = () => {
         setStep(3);
         setMessage(`임시 비밀번호는 ${response.data.tempPassword} 입니다.`);
       } else {
-        setError(response.data.message || '인증번호가 일치하지 않습니다.');
+        setError(response.data.resultMsg);
+        setVerificationCode('');
       }
     } catch (err) {
-      setError('서버 오류가 발생했습니다.');
+      setError(err.response?.data?.resultMsg || '인증번호 확인에 실패했습니다.');
+      setVerificationCode('');
     }
+  };
+
+  const handleRetry = () => {
+    if (step === 2 && !error.includes('만료')) {
+      // 단순 인증코드 검증 실패
+      setVerificationCode('');
+      setError('');
+    }
+    else {
+      // 이메일 관련 에러나 인증코드 만료된 경우
+      setStep(1);
+      setEmail('');
+      setVerificationCode('');
+      setMessage('');
+      setError('');
+      setTimer(300);
+      setTimerActive(false);
+    }    
   };
 
   const handleGoToLogin = () => {
     navigate('/');  // 메인으로 보내는데 로그인 모달 창 띄우는거 고려
   };
+
+  useEffect(() => {
+    let interval;
+    if (timerActive && timer > 0) {
+      interval = setInterval(() => {
+        setTimer(prev => prev - 1);
+      }, 1000);
+    }
+    if (timer == 0) {
+      setStep(1);
+      setError('인증 시간이 만료되었습니다. 다시 시도해주세요.');
+    }
+    return () => clearInterval(interval);
+  }, [timerActive, timer]);
 
 
   return (
@@ -71,7 +132,18 @@ const ForgotPassword = () => {
             비밀번호 찾기
           </Typography>
           <Stack spacing={3} sx={{ mt: 2 }}>
-            {error && <Alert severity="error">{error}</Alert>}
+            {error && (
+              <Alert 
+                severity="error" 
+                action={
+                  <Button color="inherit" size="small" onClick={handleRetry}>
+                    다시 시도
+                  </Button>
+                }
+              >
+                {error}
+              </Alert>
+            )}
             {message && <Alert severity="success">{message}</Alert>}
             
             {step === 1 && (
@@ -81,6 +153,8 @@ const ForgotPassword = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  error={!!emailError}
+                  helperText={emailError}
                   fullWidth
                 />
                 {isLoading && (
@@ -109,17 +183,22 @@ const ForgotPassword = () => {
                 <TextField
                   label="인증번호"
                   value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                  fullWidth
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^\d]/g, '').slice(0, 4);
+                    setVerificationCode(value);
+                  }}
+                  inputProps={{ maxLength: 4 }}
+                  helperText={`남은 시간: ${Math.floor(timer/60)}:${String(timer%60).padStart(2, '0')}`}
+                  fullWidth                
                 />
                 <Button 
                   variant="contained" 
                   onClick={handleVerificationSubmit}
-                  disabled={!verificationCode}
+                  disabled={verificationCode.length !== 4}
                 >
                   확인
-                </Button>
-              </>
+                </Button>     
+              </>      
             )}
 
             {step === 3 && (

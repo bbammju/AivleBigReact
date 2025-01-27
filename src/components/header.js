@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/zipline.png';
 import { useStore } from '../zustand/store';
+import { useLocation } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -20,15 +21,112 @@ import api from '../utils/api';
 
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  // 로그인 상태와 사용자 정보를 위한 state 추가
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { gongoName } = useStore();
-  const [user, setUser] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
   // 드롭다운 메뉴를 위한 state
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  // Zustand store에서 필요한 상태와 함수들 가져옴
+  const { gongoSn, gongoName } = useStore();
+  const { userSn } = useStore();  
+  // Local Stroage 대신 Zustand store의 userSn 사용해 로그인 상태 확인
+  const isLoggedIn = !!userSn;
+  // 사용자 정보 상태 
+  const [ userInfo, setUserInfo ] = useState(null);
+  // 공고명을 표시할 경로들
+  const showGongoRoutes = ['/', '/list']
+  const shoutShowGongo = showGongoRoutes.includes(location.pathname);
+
+  // 페이지 로드 시 초기 상태 설정
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token && !userSn) {
+      // 토큰은 있지만 userSn이 없는 경우 (새로고침 등)
+      api.get('users/me')
+        .then(response => {
+          if (response.data.resultCode === 200) {
+            useStore.getState().setUserSn(response.data.user.userSn);
+          }
+        })
+        .catch(error => {
+          console.error('사용자 정보 복원 실패:', error);
+          handleLogout();
+        });
+      }
+    }, []);
+
+  // userSn이 있을 때 사용자 정보 조회
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      if (userSn) {
+        try {
+          const response = await api.get('users/me');
+          if (response.data.resultCode === 200){
+          setUserInfo({
+            userName: response.data.user.userName
+          });
+          }
+        } catch (error) {
+          console.error('사용자 정보 조회 중 오류 발생:', error);
+          handleLogout();
+        }
+      }
+    };
+    fetchUserInfo();
+  }, [userSn]);
+
+
+  const handleLogout = async () => {
+    try {
+      // 로그아웃 API 호출
+      await api.post('/users/logout');
+
+      // 로그아웃 성공 시 클라이언트 처리 (현재는 무조건 backend에서 성공 응답, 추후 redis등 고도화 시 변경)
+      
+      // Zustand store 초기화
+      useStore.getState().setUserSn(null); // userSn 초기화
+      useStore.getState().setGongoInfo('',''); // gongo 정보 초기화
+      // 로컬 상태 초기화
+      setUserInfo(null);
+      //토큰 제거 (추후 변경 필요)
+      localStorage.removeItem('accessToken'); // 액세스 토큰 삭제
+      localStorage.removeItem('refreshToken'); // 리프레시 토큰 삭제
+            
+
+      // 성공 알림 표시
+      setShowAlert(true); // Alert 표시
+      handleMenuClose(); // 메뉴 닫기    
+      // 3초 후 Alert 숨기기
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 3000);
+      navigate('/');
+    } catch (error) {   
+      console.error('로그아웃 중 오류 발생:', error);
+      alert('로그아웃 중 문제가 발생했습니다. 다시 시도해주세요.');
+    } finally {
+      handleMenuClose(); // 메뉴 닫기
+    }
+  };
+
+  const handleLogoClick = () => {
+    navigate('/'); // 메인페이지로 이동동
+  };
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = (event) => {
+    setAnchorEl(null);
+  };
+
+  const handleMyPage = () => {
+    navigate('/mypage');
+    handleMenuClose();
+  };
+
 
   // 아바타 색상 생성 함수
   const stringToColor = (string) => {
@@ -56,59 +154,6 @@ const Header = () => {
     };
   };
 
-  const handleLogoClick = () => {
-    navigate('/'); // 메인페이지로 이동동
-  };
-
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = (event) => {
-    setAnchorEl(null);
-  };
-
-  const handleMyPage = () => {
-    navigate('/mypage');
-    handleMenuClose();
-  };
-
-  useEffect(() => {
-    // 컴포넌트가 마운트될 때 로그인 상태 확인
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      setIsLoggedIn(true);
-    }
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      // 로그아웃 API 호출
-      await api.post('/users/logout');
-
-      // 로그아웃 성공 시 클라이언트 처리 (현재는 무조건 성공 응답, 추후 redis등 고도화 시 변경)
-      localStorage.removeItem('user'); // 사용자 정보 삭제
-      localStorage.removeItem('accessToken'); // 액세스 토큰 삭제
-      localStorage.removeItem('refreshToken'); // 리프레시 토큰 삭제
-      setIsLoggedIn(false);
-      setUser(null);
-
-      // 성공 알림 표시
-      setShowAlert(true); // Alert 표시
-      handleMenuClose(); // 메뉴 닫기    
-      // 3초 후 Alert 숨기기
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 3000);
-      navigate('/');
-    } catch (error) {   
-      console.error('로그아웃 중 오류 발생:', error);
-      alert('로그아웃 중 문제가 발생했습니다. 다시 시도해주세요.');
-    } finally {
-      handleMenuClose(); // 메뉴 닫기
-    }
-  };
 
   return (
     <>
@@ -144,18 +189,25 @@ const Header = () => {
             />
             <Box sx={{ flexGrow: 1 }} />
             <Typography color="inherit"
-            sx={{ fontWeight: 'bold',whiteSpace: 'nowrap',textAlign: 'center',
-              flexGrow: 1,marginRight: 'auto', }}
+            sx={{ 
+              fontWeight: 'bold',
+              whiteSpace: 'nowrap',
+              textAlign: 'center',
+              flexGrow: 1,
+              marginRight: 'auto',
+              // 조건부 표시
+              display: shoutShowGongo ? 'block' : 'none'
+            }}
           >
             {gongoName}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              {isLoggedIn ? (
+              {isLoggedIn && userInfo ? (
                 <>
                   {/* 커뮤니티 버튼 */}
                   <Button 
                     color="inherit"
-                    onClick={() => navigate('/community')} // 나중에 커뮤니티 주소
+                    onClick={() => navigate('/board')} 
                   >
                     커뮤니티
                   </Button>
@@ -163,10 +215,10 @@ const Header = () => {
                   {/* 사용자 이름 및 아바타 */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography color="inherit">
-                      {user?.userName}님
+                      {userInfo.userName}님
                     </Typography>
                     <Avatar
-                      {...stringAvatar(user?.userName || '')}
+                      {...stringAvatar(userInfo.userName || '')}
                       onClick={handleMenuClick}
                     />
                   </Box>

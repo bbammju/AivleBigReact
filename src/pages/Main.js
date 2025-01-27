@@ -17,48 +17,47 @@ import {
  Button
 } from '@mui/material';
 
-function Main() {
+const Main = () => {
  const navigate = useNavigate();
  const [activeGongos, setActiveGongos] = useState([]);
  const { setGongoname } = useStore();
  const [isInputModalOpen, setIsInputModalOpen] = useState(false);
  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
  const [isDataFetched, setIsDataFetched] = useState(false);
- const [user, setUser] = useState(null);
  const [selectedGongo, setSelectedGongo] = useState("");
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    setUser(storedUser ? JSON.parse(storedUser) : null);
-  }, []);
+ // Zustand 스토어에서 필요한 상태와 액션 가져오기
+ const { userSn, setGongoInfo } = useStore();
 
 
-  const fetchActiveGongos = async () => {
-    if (isDataFetched) return;
+const fetchActiveGongos = async () => {
+if (isDataFetched) return;
 
-    try {
-      console.log('공고 목록 조회 요청');
-      const response = await api.get('/gongo/active');
-      console.log('공고 목록 조회 응답:', response);
+try {
+    console.log('공고 목록 조회 요청');
+    const response = await api.get('/gongo/active');
+    console.log('공고 목록 조회 응답:', response);
 
-      // SUCCESS는 code가 0, Spring BaseMsg에 이렇게 되어있어서 그럼. 
-      if (response.data?.resultCode === 0) {
+    // SUCCESS는 code가 0, Spring BaseMsg에 이렇게 되어있어서 그럼. 
+    if (response.data?.resultCode === 0) {
         setActiveGongos(response.data.data || []);
         setIsDataFetched(true);
-      } else {
+    } else {
         console.error('공고 목록 조회 실패:', response.data?.resultMsg);
-      }
-    } catch (error) {
-      console.error('공고 목록 조회 실패:', error);
-      console.error('에러 상세:', error.response);
     }
-  };
+} catch (error) {
+    console.error('공고 목록 조회 실패:', error);
+    console.error('에러 상세:', error.response);
+}
+};
 
 
 
  const handleGongoChange = (event) => {
-   setSelectedGongo(event.target.value);
-   setGongoname(event.target.value.gongoName)
+    const selectedGongo = event.target.value;
+   setSelectedGongo(selectedGongo);
+   // Zustand 스토어에 공고 정보 저장
+   setGongoInfo(selectedGongo.gongoSn, selectedGongo.gongoName);
  };
 
  const handlePredict = () => {
@@ -69,7 +68,7 @@ function Main() {
    }
    
   // 로그인 체크 (state 사용)
-  if(!user) {
+  if(!userSn) {
     setIsLoginModalOpen(true);
     return;
   }
@@ -161,9 +160,7 @@ function Main() {
       <InputModal
         open={isInputModalOpen}
         onClose={() => setIsInputModalOpen(false)}
-        gongo={selectedGongo}
-        userSn={user?.userSn}
-        
+                 
       />
 
       <LoginModal

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useStore } from '../zustand/store';
 import api from '../utils/api';
 import { 
   Dialog, 
@@ -28,25 +28,27 @@ const LoginModal = ({ open, onClose }) => {
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState('success');
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const { setUserSn } = useStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('로그인 시도', formData);
+    
     try {
       const response = await api.post('/users/login', {
         email: formData.email,
         password: formData.password
       });
       const data = response.data;
-     
-      console.log('Axios 요청 데이터:', formData);
-      console.log('Axios 응답 데이터:', response.data);
-      
 
-      if (data.resultCode == 200){
-        // 로그인 성공 시 사용자 정보를 localStroage에 저장
+      if (data.resultCode === 200){
+        
         const { user, token } = data;
-        localStorage.setItem('user', JSON.stringify(user));
+        
+        // Zustand 전역 상태에 userSn 설정
+        setUserSn(user.userSn);
+        
+
+        // 현재는 로컬 스토리지에 저장하지만 추후 쿠키로 변경 예정
         localStorage.setItem('accessToken', token.accessToken);
         localStorage.setItem('refreshToken', token.refreshToken);
 
@@ -56,10 +58,10 @@ const LoginModal = ({ open, onClose }) => {
 
         setTimeout(() => {
           setShowAlert(false);
-        }, 3000);
-
-        onClose();
-        window.location.reload(); // 헤더 상태 업데이트를 위한 새로고침
+          onClose();
+          navigate('/'); // 메인 페이지로 이동
+        }, 500);
+       
       } else {
         // 로그인 실패 (이메일/비밀번호 불일치 등)
         setFormData(prev => ({
