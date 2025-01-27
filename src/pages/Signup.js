@@ -12,11 +12,10 @@ import {
   Radio,
   RadioGroup,
   FormControlLabel,
-  Alert,
+  Alert,  
 } from "@mui/material";
 
-
-function Signup() {
+const Signup = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
@@ -25,20 +24,23 @@ function Signup() {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
 
   const handleEmailCheck = async () => {
-    if (!formData.email) {
-      setFieldErrors(prev => ({ ...prev, email: '이메일을 입력해주세요.' }));
-      return;
+    const email = formData.email;
+
+    // 이메일 유효성 검증
+    validateField('email', email);
+  
+    if (fieldErrors.email) {
+      return; // 오류가 있으면 요청하지 않음
     }
-    
+  
     try {
       const response = await api.post('/users/check-email', {
         email: formData.email
       });
       
       if (!response.data.exists) {
-        setIsEmailVerified(true);
-        setAlertMessage('사용 가능한 이메일입니다.');
-        setShowAlert(true);
+        setIsEmailVerified(true);        
+        setFieldErrors({});
       } else {
         setIsEmailVerified(false);
         setFieldErrors(prev => ({ ...prev, email: '이미 사용 중인 이메일입니다.' }));
@@ -56,6 +58,7 @@ function Signup() {
     password: "",
     passwordConfirm: "",
     address: "",
+    detailAddress: "",
     telnoMiddle: "",
     telnoLast: "",
     zipCode: "",
@@ -123,6 +126,18 @@ function Signup() {
     let errors = { ...fieldErrors };
     
     switch (fieldName) {
+
+      case 'email':
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 이메일 유효성 검증 정규식
+      if (!value) {
+        errors.email = '이메일을 입력해주세요.';
+      } else if (!emailRegex.test(value)) {
+        errors.email = '올바른 이메일 형식이 아닙니다.';
+      } else {
+        delete errors.email;
+      }
+      break;
+
       case 'password':
         if (value.length < 8) {
           errors.password = '비밀번호는 최소 8자 이상이어야 합니다.';
@@ -142,8 +157,13 @@ function Signup() {
         break;
         
       case 'userName':
-        if (value.length < 2) {
+        const koreanRegex = /^[가-힣]+$/; // 한글만 허용
+        if (!value.trim()) {
+          errors.userName = '이름을 입력해주세요.';
+        } else if (value.length < 2) {
           errors.userName = '이름은 최소 2자 이상이어야 합니다.';
+        } else if (!koreanRegex.test(value)) {
+          errors.userName = '이름은 한글만 입력 가능합니다.';
         } else {
           delete errors.userName;
         }
@@ -156,10 +176,20 @@ function Signup() {
           delete errors.gender;
         }
         break;
-
+                
+      case 'detailAddress':
+        if (value.trim() === '') {
+          errors.detailAddress = '상세 주소를 입력해주세요.';
+        } else {
+          delete errors.detailAddress;
+        }
+        break;
+    
       default:
         break;
+        
     }
+
     
     setFieldErrors(errors);
   };
@@ -218,11 +248,13 @@ function Signup() {
     }
 
     const fullPhoneNumber = `010${formData.telnoMiddle}${formData.telnoLast}`;
+    const fullAddress = `${formData.address} ${formData.detailAddress}`;
 
     try {
       const response = await api.post('/users/signup', {
         ...formData,
-        telno: fullPhoneNumber
+        telno: fullPhoneNumber,
+        address: fullAddress
       });
       
       if (response.data.resultCode === 200) {
@@ -281,17 +313,24 @@ function Signup() {
     <Grid item xs={12}>
       <Grid container spacing={1}>
         <Grid item xs={8}>
-          <TextField
-            fullWidth
-            type="email"
-            label="이메일"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            error={!!fieldErrors.email}
-            helperText={fieldErrors.email}
-          />
+          <Box sx={{ position: 'relative' }}>
+            <TextField
+              fullWidth
+              type="email"
+              label="이메일"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              error={!!fieldErrors.email}
+              helperText={fieldErrors.email}
+            />              
+            {isEmailVerified && (
+              <Typography color="success">
+                ✓ 사용 가능한 이메일입니다
+              </Typography>
+            )}
+          </Box>
         </Grid>
         <Grid item xs={4}>
           <Button
@@ -425,6 +464,16 @@ function Signup() {
                 name="address"
                 value={formData.address}
                 disabled
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="상세 주소"
+                name="detailAddress"
+                value={formData.detailAddress}
+                onChange={handleChange}
+                placeholder="상세 주소를 입력해주세요"
               />
             </Grid>
 
