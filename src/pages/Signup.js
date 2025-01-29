@@ -29,7 +29,7 @@ const Signup = () => {
     // 이메일 유효성 검증
     validateField('email', email);
   
-    if (fieldErrors.email) {
+    if (!email || fieldErrors.email) {
       return; // 오류가 있으면 요청하지 않음
     }
   
@@ -248,7 +248,7 @@ const Signup = () => {
     }
 
     const fullPhoneNumber = `010${formData.telnoMiddle}${formData.telnoLast}`;
-    const fullAddress = `${formData.address} ${formData.detailAddress}`;
+    const fullAddress = `${formData.address}, ${formData.detailAddress}`;
 
     try {
       const response = await api.post('/users/signup', {
