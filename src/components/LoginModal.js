@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../zustand/store';
 import api from '../utils/api';
@@ -16,6 +16,7 @@ import {
   Divider
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { use } from 'react';
 
 
 const LoginModal = ({ open, onClose }) => {
@@ -27,8 +28,13 @@ const LoginModal = ({ open, onClose }) => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState('success');
-  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const { setUserSn } = useStore();
+
+  useEffect(() => {
+    if (open) {
+      setFormData({ email: '', password: '' });
+    }
+  }, [open]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,16 +48,11 @@ const LoginModal = ({ open, onClose }) => {
 
       if (data.resultCode === 200){
         
-        const { user, token } = data;
+        const { user } = data;
         
         // Zustand 전역 상태에 userSn 설정
         setUserSn(user.userSn);
-        
-
-        // 현재는 로컬 스토리지에 저장하지만 추후 쿠키로 변경 예정
-        localStorage.setItem('accessToken', token.accessToken);
-        localStorage.setItem('refreshToken', token.refreshToken);
-
+                
         setAlertSeverity('success');
         setAlertMessage('로그인 되었습니다.');
         setShowAlert(true);
@@ -91,6 +92,11 @@ const LoginModal = ({ open, onClose }) => {
     }
 };
 
+  const handleClose = () => {
+    setFormData({ email: '', password: '' });
+    onClose();
+  };
+
   const handleFindPassword = () => {
     onClose();
     navigate('/forgot-password');
@@ -116,7 +122,7 @@ const LoginModal = ({ open, onClose }) => {
         <DialogTitle>
           로그인
           <IconButton
-            onClick={onClose}
+            onClick={handleClose}
             sx={{
               position: 'absolute',
               right: 8,
@@ -133,7 +139,13 @@ const LoginModal = ({ open, onClose }) => {
                 label="이메일"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\s/g, '');
+                  setFormData({...formData, email: e.target.value})                
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === ' ') e.preventDefault();
+                }}
                 required
                 fullWidth
               />
@@ -141,7 +153,13 @@ const LoginModal = ({ open, onClose }) => {
                 label="비밀번호"
                 type="password"
                 value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\s/g, '');
+                  setFormData({...formData, password: e.target.value})
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === ' ') e.preventDefault();
+                }}
                 required
                 fullWidth
               />

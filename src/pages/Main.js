@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Header from '../components/header';
+import Footer from '../components/footer';
 import LoginModal from '../components/LoginModal';
 import InputModal from './InputModal';
 import { useStore } from '../zustand/store';
@@ -168,6 +169,7 @@ try {
         onClose={() => setIsLoginModalOpen(false)}
       />
     </Box>
+    <Footer />
    </>
  );
 }
