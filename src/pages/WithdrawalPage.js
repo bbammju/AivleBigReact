@@ -50,9 +50,7 @@ const WithdrawalPage = () => {
       });
 
       if (response.data.resultCode === 200) {
-        alert("회원 탈퇴가 완료되었습니다.");
-        localStorage.removeItem("accessToken"); // 로컬 스토리지에서 토큰 제거
-        localStorage.removeItem("refreshToken"); // 로컬 스토리지에서 리프레시 토큰 제거
+        alert("회원 탈퇴가 완료되었습니다.");        
         navigate("/"); // 메인 페이지로 이동
       } else {
         setError(response.data.resultMsg || "회원 탈퇴 중 오류가 발생했습니다.");

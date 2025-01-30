@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Header from "../components/header";
@@ -12,16 +12,81 @@ import {
   Radio,
   RadioGroup,
   FormControlLabel,
-  Alert,  
+  Alert,
+  Stepper,
+  Step,
+  StepLabel,
+  Checkbox,
+  Paper,
 } from "@mui/material";
 
 const Signup = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [activeStep, setActiveStep] = useState(0);
+  const [termsAgreed, setTermsAgreed] = useState({
+    serviceTerms: false,
+    privacyTerms: false,
+  });
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState('error');  
   const [fieldErrors, setFieldErrors] = useState({});
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    userName: "",
+    password: "",
+    passwordConfirm: "",
+    address: "",
+    detailAddress: "",
+    telnoMiddle: "",
+    telnoLast: "",
+    zipCode: "",
+    gender: "",
+  });
+  const formRef = useRef(null);
+
+  const handleFormSubmit = () => {
+    formRef.current.requestSubmit();
+  };
+
+  // 약관 동의 처리
+  const handleTermsChange = (event) => {
+    const { name, checked } = event.target;
+    setTermsAgreed(prev => ({
+      ...prev,
+      [name]: checked
+    }));
+  };
+
+  // 전체 약관 동의 처리
+  const handleAllTermsChange = (event) => {
+    const { checked } = event.target;
+    setTermsAgreed({
+      serviceTerms: checked,
+      privacyTerms: checked,
+    });
+  };
+
+  // 다음 단계로 이동
+  const handleNext = () => {
+    if (activeStep === 0) {
+      if (!termsAgreed.serviceTerms || !termsAgreed.privacyTerms) {
+        setAlertMessage('모든 필수 약관에 동의해주세요.');
+        setShowAlert(true);
+        return;
+      }
+      setIsEmailVerified(false);
+    }
+    setActiveStep((prev) => prev + 1);
+  };
+
+  // 이전 단계로 이동
+  const handleBack = () => {
+    setActiveStep((prev) => prev - 1);
+  };
+
 
   const handleEmailCheck = async () => {
     const email = formData.email;
@@ -51,19 +116,6 @@ const Signup = () => {
       setShowAlert(true);
     }
   };
-  
-  const [formData, setFormData] = useState({
-    email: "",
-    userName: "",
-    password: "",
-    passwordConfirm: "",
-    address: "",
-    detailAddress: "",
-    telnoMiddle: "",
-    telnoLast: "",
-    zipCode: "",
-    gender: "",
-  });
 
   useEffect(() => {
     // 다음(Daum) 주소 검색 스크립트 로드
@@ -115,11 +167,35 @@ const Signup = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+
+    // 상세주소의 경우 공백 입력 허용, 나머지 필드는 공백 입력 차단
+    let newValue;
+    if (name === "detailAddress") {
+      // 연속된 공백을 하나의 공백으로 변경
+      newValue = value.replace(/\s+/g, ' ');
+    } else {
+      // 다른 필드들은 모든 공백 제거
+      newValue = value.replace(/\s/g, '');
+    }
+
+    setFormData(prev => ({ ...prev, [name]: newValue }));
+
     if (name === 'email') {
       setIsEmailVerified(false);
     }
-    validateField(name, value);
+
+    validateField(name, newValue);
+  };
+
+  // 상세주소 입력 칸에서 포커스 해제 시 앞뒤 공백 제거
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    
+    if (name === "detailAddress") {
+      const trimmedValue = value.trim();
+      setFormData(prev => ({ ...prev, [name]: trimmedValue }));
+      validateField(name, trimmedValue);
+    }
   };
 
   const validateField = (fieldName, value) => {
@@ -241,6 +317,11 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!termsAgreed.serviceTerms || !termsAgreed.privacyTerms) {
+      setAlertMessage('약관 동의가 필요합니다.');
+      setShowAlert(true);
+      return;
+    }
     if (!validateForm()) {
       setAlertMessage('입력 정보를 다시 확인해주세요.');
       setShowAlert(true);
@@ -258,9 +339,14 @@ const Signup = () => {
       });
       
       if (response.data.resultCode === 200) {
-        alert('회원가입이 완료되었습니다.');
-        navigate('/');
-      } else {
+        setAlertType('success');
+        setAlertMessage('회원가입이 완료되었습니다.');
+        setShowAlert(true);
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+      }  else {
+        setAlertType('error');
         setAlertMessage(response.data.message || '회원가입 중 오류가 발생했습니다.');
         setShowAlert(true);
       }
@@ -273,109 +359,138 @@ const Signup = () => {
     }
   };
 
-  return (
-    <>
-      <Header />
-      {showAlert && (
-        <Alert 
-          severity="error"
-          sx={{ 
-            position: 'fixed', 
-            top: 20, 
-            left: '50%', 
-            transform: 'translateX(-50%)',
-            zIndex: 9999,
-            boxShadow: 2
-          }}
-          onClose={() => setShowAlert(false)}
-        >
-          {alertMessage}
-        </Alert>
-      )}
-      <Box
-        sx={{
-          maxWidth: 500,
-          mx: "auto",
-          mt: 5,
-          p: 3,
-          border: "1px solid #ddd",
-          borderRadius: 2,
-          boxShadow: 2,
-        }}
-      >
-        <Typography variant="h4" component="h1" align="center" gutterBottom>
-          회원가입
-        </Typography>
-        <form onSubmit={handleSubmit}>
-  <Grid container spacing={2}>  {/* 최상위 Grid container */}
-    
-    {/* 이메일 입력 필드와 중복 확인 버튼 */}
-    <Grid item xs={12}>
-      <Grid container spacing={1}>
-        <Grid item xs={8}>
-          <Box sx={{ position: 'relative' }}>
-            <TextField
-              fullWidth
-              type="email"
-              label="이메일"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              error={!!fieldErrors.email}
-              helperText={fieldErrors.email}
-            />              
-            {isEmailVerified && (
-              <Typography color="success">
-                ✓ 사용 가능한 이메일입니다
-              </Typography>
-            )}
-          </Box>
-        </Grid>
-        <Grid item xs={4}>
-          <Button
-            variant="outlined"
-            onClick={handleEmailCheck}
-            fullWidth
-            sx={{ height: '100%' }}
-          >
-            중복 확인
-          </Button>
-        </Grid>
-      </Grid>
-    </Grid>
-
-    {/* 나머지 폼 필드들 */}
-    <Grid item xs={12}>
-      <TextField
-        fullWidth
-        type="password"
-        label="비밀번호"
-        name="password"
-        value={formData.password}
-        onChange={handleChange}
-        required
-        error={!!fieldErrors.password}
-        helperText={fieldErrors.password}
-      />
-    </Grid>
-
-
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                type="password"
-                label="비밀번호 확인"
-                name="passwordConfirm"
-                value={formData.passwordConfirm}
-                onChange={handleChange}
-                required
-                error={!!fieldErrors.passwordConfirm}
-                helperText={fieldErrors.passwordConfirm}
+  // 약관 동의 단계 렌더링
+  const renderTermsStep = () => {
+    return (
+      <Box sx={{ p: 3 }}>
+        <FormControl component="fieldset" fullWidth>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={termsAgreed.serviceTerms && termsAgreed.privacyTerms}
+                onChange={handleAllTermsChange}
+                color="primary"
               />
-            </Grid>
+            }
+            label="전체 약관 동의"
+          />
+          <Box sx={{ ml: 3, mt: 2 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={termsAgreed.serviceTerms}
+                  onChange={handleTermsChange}
+                  name="serviceTerms"
+                  color="primary"
+                  required
+                />
+              }
+              label="[필수] 서비스 이용약관 동의"
+            />
+            <Paper variant="outlined" sx={{ p: 2, my: 1, maxHeight: 150, overflow: 'auto' }}>
+              <Typography variant="body2">
+                서비스 이용약관 내용...
+                {/* 실제 서비스 이용약관 내용을 여기에 넣으세요 */}
+              </Typography>
+            </Paper>
+            
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={termsAgreed.privacyTerms}
+                  onChange={handleTermsChange}
+                  name="privacyTerms"
+                  color="primary"
+                  required
+                />
+              }
+              label="[필수] 개인정보 수집 및 이용 동의"
+            />
+            <Paper variant="outlined" sx={{ p: 2, my: 1, maxHeight: 150, overflow: 'auto' }}>
+              <Typography variant="body2">
+                개인정보 수집 및 이용 동의 내용...
+                {/* 실제 개인정보 처리방침 내용을 여기에 넣으세요 */}
+              </Typography>
+            </Paper>
+          </Box>
+        </FormControl>
+      </Box>
+    );
+  };
 
-            <Grid item xs={12}>
+ // 회원가입 폼 단계 렌더링
+ const renderFormStep = () => {
+  return (
+    <form ref={formRef} onSubmit={handleSubmit}>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Grid container spacing={1}>
+            <Grid item xs={8}>
+              <Box sx={{ position: 'relative' }}>
+                <TextField
+                  fullWidth
+                  type="email"
+                  label="이메일"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  onKeyDown={(e) => {
+                    if (e.key === ' ') e.preventDefault(); // 스페이스바 입력 방지
+                  }}
+                  required
+                  error={!!fieldErrors.email}
+                  helperText={fieldErrors.email}
+                />              
+                {isEmailVerified && (
+                  <Typography color="success">
+                    ✓ 사용 가능한 이메일입니다
+                  </Typography>
+                )}
+                
+              </Box>
+            </Grid>
+            <Grid item xs={4}>
+              <Button
+                variant="outlined"
+                onClick={handleEmailCheck}
+                fullWidth
+                sx={{ height: '100%' }}
+              >
+                중복 확인
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
+
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            type="password"
+            label="비밀번호"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            error={!!fieldErrors.password}
+            helperText={fieldErrors.password}
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            type="password"
+            label="비밀번호 확인"
+            name="passwordConfirm"
+            value={formData.passwordConfirm}
+            onChange={handleChange}
+            required
+            error={!!fieldErrors.passwordConfirm}
+            helperText={fieldErrors.passwordConfirm}
+          />
+        </Grid>
+
+        <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="이름"
@@ -386,6 +501,34 @@ const Signup = () => {
                 error={!!fieldErrors.userName}
                 helperText={fieldErrors.userName}
               />
+            </Grid>
+
+            <Grid item xs={12}>
+              <FormControl component="fieldset" error={!!fieldErrors.gender}>
+                <Typography component="legend" sx={{ mb: 1 }}>성별</Typography>
+                <RadioGroup
+                  row
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                >
+                  <FormControlLabel 
+                    value="male" 
+                    control={<Radio required />} 
+                    label="남성"
+                  />
+                  <FormControlLabel 
+                    value="female" 
+                    control={<Radio required />} 
+                    label="여성"
+                  />
+                </RadioGroup>
+                {fieldErrors.gender && (
+                  <Typography color="error" variant="caption">
+                    {fieldErrors.gender}
+                  </Typography>
+                )}
+              </FormControl>
             </Grid>
 
             <Grid item xs={12}>
@@ -473,54 +616,90 @@ const Signup = () => {
                 name="detailAddress"
                 value={formData.detailAddress}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="상세 주소를 입력해주세요"
               />
             </Grid>
-
-            <Grid item xs={12}>
-              <FormControl component="fieldset" error={!!fieldErrors.gender}>
-                <Typography component="legend" sx={{ mb: 1 }}>성별</Typography>
-                <RadioGroup
-                  row
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                >
-                  <FormControlLabel 
-                    value="male" 
-                    control={<Radio required />} 
-                    label="남성"
-                  />
-                  <FormControlLabel 
-                    value="female" 
-                    control={<Radio required />} 
-                    label="여성"
-                  />
-                </RadioGroup>
-                {fieldErrors.gender && (
-                  <Typography color="error" variant="caption">
-                    {fieldErrors.gender}
-                  </Typography>
-                )}
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                size="large"
-              >
-                가입하기
-              </Button>
-            </Grid>
           </Grid>
         </form>
-      </Box>
-    </>
   );
-}
+};
+
+return (
+  <>
+    <Header />
+    {showAlert && (
+      <Alert 
+        severity={alertType}
+        sx={{ 
+          position: 'fixed', 
+          top: 20, 
+          left: '50%', 
+          transform: 'translateX(-50%)',
+          zIndex: 9999,
+          boxShadow: 2
+        }}
+        onClose={() => setShowAlert(false)}
+      >
+        {alertMessage}
+      </Alert>
+    )}
+    <Box
+      sx={{
+        maxWidth: 500,
+        mx: "auto",
+        mt: 5,
+        p: 3,
+        border: "1px solid #ddd",
+        borderRadius: 2,
+        boxShadow: 2,
+      }}
+    >
+      <Typography variant="h4" component="h1" align="center" gutterBottom>
+        회원가입
+      </Typography>
+      
+      <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+        <Step>
+          <StepLabel>약관 동의</StepLabel>
+        </Step>
+        <Step>
+          <StepLabel>정보 입력</StepLabel>
+        </Step>
+      </Stepper>
+
+      {activeStep === 0 ? renderTermsStep() : renderFormStep()}
+
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+        {activeStep !== 0 && (
+          <Button onClick={handleBack}>
+            이전
+          </Button>
+        )}
+        {activeStep === 0 ? (
+          <Button
+            variant="contained"
+            onClick={handleNext}
+            fullWidth={activeStep === 0}
+          >
+            다음
+          </Button>
+        ) : (
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            size="large"
+            fullWidth
+            onClick={handleFormSubmit}           
+          >
+            가입하기
+          </Button>
+        )}
+      </Box>
+    </Box>
+  </>
+);
+};
 
 export default Signup;

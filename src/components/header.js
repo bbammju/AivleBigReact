@@ -40,21 +40,30 @@ const Header = () => {
 
   // 페이지 로드 시 초기 상태 설정
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token && !userSn) {
-      // 토큰은 있지만 userSn이 없는 경우 (새로고침 등)
-      api.get('users/me')
-        .then(response => {
+    const initializeUserInfo = async () => {
+    // userSn이 없는 상황
+      if (!userSn) {
+        try {
+          const response = await api.get('users/me');
           if (response.data.resultCode === 200) {
+            // zustand store에 userSn 설정
             useStore.getState().setUserSn(response.data.user.userSn);
+            // 사용자 정보도 설정
+            setUserInfo({
+              userName: response.data.user.userName
+            });            
           }
-        })
-        .catch(error => {
-          console.error('사용자 정보 복원 실패:', error);
-          handleLogout();
-        });
+        } catch (error) {
+          // 401 에러면 조용히 처리 (로그인 안된 상태)
+          if (error.response?.status !== 401) {
+            console.error('사용자 정보 초기화 실패:', error);
+          }
+        }      
       }
-    }, []);
+    };
+    
+    initializeUserInfo();
+  }, []);
 
   // userSn이 있을 때 사용자 정보 조회
   useEffect(() => {
@@ -88,11 +97,7 @@ const Header = () => {
       useStore.getState().setUserSn(null); // userSn 초기화
       useStore.getState().setGongoInfo('',''); // gongo 정보 초기화
       // 로컬 상태 초기화
-      setUserInfo(null);
-      //토큰 제거 (추후 변경 필요)
-      localStorage.removeItem('accessToken'); // 액세스 토큰 삭제
-      localStorage.removeItem('refreshToken'); // 리프레시 토큰 삭제
-            
+      setUserInfo(null);            
 
       // 성공 알림 표시
       setShowAlert(true); // Alert 표시
@@ -196,7 +201,7 @@ const Header = () => {
               flexGrow: 1,
               marginRight: 'auto',
               // 조건부 표시
-              display: shoutShowGongo ? 'block' : 'none'
+              display: isLoggedIn && shoutShowGongo ? 'block' : 'none'
             }}
           >
             {gongoName}
