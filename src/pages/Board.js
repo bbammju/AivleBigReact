@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/header";
-import BoardForm from "../components/BoardForm";
 import axios from "axios";
 import api from "../utils/api";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation  } from "react-router-dom";
 import { Tabs, Tab, Table, TableHead, TableRow, TableCell, TableBody, Box, Typography,
     Button, Paper,
   Pagination,
@@ -11,6 +10,7 @@ import { Tabs, Tab, Table, TableHead, TableRow, TableCell, TableBody, Box, Typog
 
 // CustomTabs 컴포넌트
 const CustomTabs = ({ tabs, activeTab, setActiveTab, setCurrentPage }) => {
+
     return (
       <Tabs
         value={activeTab}
@@ -26,10 +26,11 @@ const CustomTabs = ({ tabs, activeTab, setActiveTab, setCurrentPage }) => {
           margin: "0 auto",
         }}
       >
-        {tabs.map((tab, index) => (
+        {tabs.map((tab) => (
           <Tab
-            key={index}
-            label={tab}
+            key={tab.id}
+            label={tab.label}
+            value={tab.id}
             sx={{
               fontSize: "1.5rem",
               padding: "15px",
@@ -42,17 +43,25 @@ const CustomTabs = ({ tabs, activeTab, setActiveTab, setCurrentPage }) => {
   };
 
 const Board = () => {
-    const tabs = ["공고게시판", "유저게시판", "청약뉴스"];
-    const [activeTab, setActiveTab] = useState(0);
-    const [data, setData] = useState({ "공고게시판": [
+    // const tabs = ["공고게시판", "유저게시판", "청약뉴스"];
+    const location = useLocation();
+    const tabs = [
+      { id: "gongo", label: "공고게시판" },
+      { id: "user", label: "유저게시판" },
+      { id: "news", label: "청약뉴스" }
+    ];
+    
+    // tab.id
+    const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'gongo');
+    const [data, setData] = useState({ "gongo": [
         { no: 1, title: "공고 1", writer: "관리자", date: "2025-01-22", views: 10 },
             { no: 2, title: "공고 2", writer: "관리자", date: "2025-01-21", views: 8 },
             { no: 3, title: "공고 3", writer: "관리자", date: "2025-01-20", views: 6 },
             { no: 4, title: "공고 4", writer: "관리자", date: "2025-01-19", views: 7 },
             { no: 5, title: "공고 5", writer: "관리자", date: "2025-01-18", views: 9 },
     ], 
-        "유저게시판": [], 
-        "청약뉴스": [
+        "user": [], 
+        "news": [
             { no: 1, title: "청약 뉴스 1", writer: "기자1", date: "2025-01-18", views: 12 },
             { no: 2, title: "청약 뉴스 2", writer: "기자2", date: "2025-01-17", views: 20 },
             { no: 3, title: "청약 뉴스 3", writer: "기자3", date: "2025-01-16", views: 8 },
@@ -65,13 +74,13 @@ const Board = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (tabs[activeTab] === "유저게시판") {
+            if (activeTab === "user") {
                 try {
                     const response = await api.get("/board");
                     const boardListResponse = response.data.boardListResponse;
                     setData((prevData) => ({
                         ...prevData,
-                        유저게시판: boardListResponse,
+                        user:  boardListResponse || [],
                       }));
                     console.log(boardListResponse);
                 } catch (error) {
@@ -84,16 +93,17 @@ const Board = () => {
 
     // 페이지네이션 관련 데이터
     const itemsPerPage = 5;
-    const totalPages = Math.ceil((data[tabs[activeTab]]?.length || 0) / itemsPerPage);
-    const paginatedData = data[tabs[activeTab]].slice(
+    const activeTabData = data[activeTab] || [];
+    const totalPages = Math.ceil((activeTabData.length) / itemsPerPage);
+    const paginatedData = activeTabData.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
 
     // Render detailed post if an ID is provided
-    if (tabs[activeTab] === "유저게시판" && id ) {
-        const post = data[tabs[activeTab]]?.find((item) => item.boardSn === parseInt(id));
-
+    if (activeTab === "user" && id ) {
+        
+        const post = data[activeTab]?.find((item) => item.boardSn === parseInt(id));
         if (!post) return <Typography>Loading...</Typography>;
 
         return (
@@ -150,7 +160,7 @@ const Board = () => {
       {/* 게시판 내용 */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h5" sx={{ mb: 2 }}>
-          {tabs[activeTab]}
+        {tabs.find((tab) => tab.id === activeTab)?.label || ""}
         </Typography>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
@@ -187,7 +197,7 @@ const Board = () => {
       </Box>
       
       {/* 유저게시판 탭일 때만 글쓰기 버튼 표시 */}
-      {tabs[activeTab] === "유저게시판" && (
+      {activeTab === "user" && (
         <>
           {/* 글쓰기 버튼 */}
           <Box sx={{ textAlign: "right", mt: 2 }}>
