@@ -10,6 +10,7 @@ import PwChange from './pages/PwChange';
 import EditProfile from "./pages/EditProfile";
 import WithdrawalPage from "./pages/WithdrawalPage";
 import Board from './pages/Board'; // 게시판
+import BoardForm from './components/BoardForm';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         <Route path="/withdrawal" element={<WithdrawalPage />} />
         <Route path="/board" element={<Board />} />
         <Route path="/board/:id" element={<Board />} />
+        <Route path="/boardform" element={<BoardForm />} />
       </Routes>
     </BrowserRouter>
   );
