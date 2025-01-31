@@ -4,6 +4,10 @@ FROM node:20.18.0-alpine AS build
 # 작업 디렉토리 설정
 WORKDIR /app
 
+# 환경변수 설정 추가(1/31 4pm)
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
 # package.json 및 package-lock.json 복사 후 의존성 설치
 COPY package.json package-lock.json ./
 RUN npm install --frozen-lockfile
