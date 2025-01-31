@@ -8,7 +8,8 @@ import Grid from "@mui/material/Grid2";
 
 const FavoritesPage = () => {
     const navigate = useNavigate();
-    const [userSn] = useState(2); // 사용자 고유 번호(예: 1, 실제 데이터에 맞게 설정)
+    const [userSn] = useState(14); // 사용자 고유 번호(예: 1, 실제 데이터에 맞게 설정)
+    // const [userInfo, setUserInfo] = useState(null);
     const [favorites, setFavorites] = useState([]); // 관심주택 리스트 상태
 
     useEffect(() => {
