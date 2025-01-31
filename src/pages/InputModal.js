@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Modal, Box, Button, Typography, LinearProgress } from "@mui/material";
-import axios from "axios";
 import api from "../utils/api";
 import { useNavigate } from 'react-router-dom';
+import { useStore } from '../zustand/store';
 
 
-const InputModal = ({ open, onClose, gongo, userSn }) => {
+const InputModal = ({ open, onClose }) => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1); 
   const [selectedType, setSelectedType] = useState(""); //청년 or 신혼부부
@@ -14,12 +14,15 @@ const InputModal = ({ open, onClose, gongo, userSn }) => {
   const [totalScore, setTotalScore] = useState(0);//총 스코어 저장
   const [savingScore, setSavingScore] = useState(""); // 드롭다운 
 
+  //Zustand 스토어에서 필요한 상태와 액션 가져오기
+  const { userSn, gongoSn } = useStore();
+
 
   const handleSubmit = async () => {
     const as = calculateTotalScore()
     const data = {
-      userSn: userSn, 
-      gongoSn: gongo.gongoSn, 
+      userSn: userSn, // userSn도 삭제해도 상관없음. 다른 페이지에서도 zustand로 호출 가능
+      gongoSn: gongoSn, // 공고번호 전달 할 필요 없긴함. 
       inputType:selectedType,
       inputRank:selectedPriority,
       inputScore: as

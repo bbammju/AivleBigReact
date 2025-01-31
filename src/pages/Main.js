@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import api from '../utils/api';
 import Header from '../components/header';
+import Footer from '../components/footer';
 import LoginModal from '../components/LoginModal';
 import InputModal from './InputModal';
+import { useStore } from '../zustand/store';
+import apartmentImage from '../assets/apartmentimage.png';
 import {
  Box, 
  Container,
@@ -16,46 +18,47 @@ import {
  Button
 } from '@mui/material';
 
-function Main() {
+const Main = () => {
  const navigate = useNavigate();
  const [activeGongos, setActiveGongos] = useState([]);
- const [selectedGongo, setSelectedGongo] = useState('');
+ const { setGongoname } = useStore();
  const [isInputModalOpen, setIsInputModalOpen] = useState(false);
  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
  const [isDataFetched, setIsDataFetched] = useState(false);
- const [user, setUser] = useState(null);
+ const [selectedGongo, setSelectedGongo] = useState("");
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    setUser(storedUser ? JSON.parse(storedUser) : null);
-  }, []);
+ // Zustand 스토어에서 필요한 상태와 액션 가져오기
+ const { userSn, setGongoInfo } = useStore();
 
 
-  const fetchActiveGongos = async () => {
-    if (isDataFetched) return;
+const fetchActiveGongos = async () => {
+if (isDataFetched) return;
 
-    try {
-      console.log('공고 목록 조회 요청');
-      const response = await api.get('/gongo/active');
-      console.log('공고 목록 조회 응답:', response);
+try {
+    console.log('공고 목록 조회 요청');
+    const response = await api.get('/gongo/active');
+    console.log('공고 목록 조회 응답:', response);
 
-      // SUCCESS는 code가 0, Spring BaseMsg에 이렇게 되어있어서 그럼. 
-      if (response.data?.resultCode === 0) {
+    // SUCCESS는 code가 0, Spring BaseMsg에 이렇게 되어있어서 그럼. 
+    if (response.data?.resultCode === 0) {
         setActiveGongos(response.data.data || []);
         setIsDataFetched(true);
-      } else {
+    } else {
         console.error('공고 목록 조회 실패:', response.data?.resultMsg);
-      }
-    } catch (error) {
-      console.error('공고 목록 조회 실패:', error);
-      console.error('에러 상세:', error.response);
     }
-  };
+} catch (error) {
+    console.error('공고 목록 조회 실패:', error);
+    console.error('에러 상세:', error.response);
+}
+};
 
 
 
  const handleGongoChange = (event) => {
-   setSelectedGongo(event.target.value);
+    const selectedGongo = event.target.value;
+   setSelectedGongo(selectedGongo);
+   // Zustand 스토어에 공고 정보 저장
+   setGongoInfo(selectedGongo.gongoSn, selectedGongo.gongoName);
  };
 
  const handlePredict = () => {
@@ -66,7 +69,7 @@ function Main() {
    }
    
   // 로그인 체크 (state 사용)
-  if(!user) {
+  if(!userSn) {
     setIsLoginModalOpen(true);
     return;
   }
@@ -78,13 +81,13 @@ function Main() {
 
  return (
   <>
-    <Header selectedGongo={selectedGongo} />
+    <Header  />
     <Box
       sx={{
         height: '100vh',
         width: '100%',
         position: 'relative',
-        background: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/apartment-image.png")',
+        background: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${apartmentImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
@@ -113,16 +116,22 @@ function Main() {
           <FormControl fullWidth sx={{ mb: 3 }}>
             <InputLabel>현재 진행중인 공고</InputLabel>
             <Select
-              value={selectedGongo}
+              value={selectedGongo || ""} 
               label="현재 진행중인 공고"
               onChange={handleGongoChange}
               onOpen={fetchActiveGongos}
             >
-              {activeGongos.map((gongo) => (
-                <MenuItem key={gongo.gongoSn} value={gongo}>
-                  {gongo.gongoName}
+              {activeGongos && activeGongos.length > 0 ? (
+                activeGongos.map((gongo) => (
+                  <MenuItem key={gongo.gongoSn} value={gongo}>
+                    {gongo.gongoName}
+                  </MenuItem>
+                ))
+                ) : (
+                <MenuItem disabled>
+                  공고가 없습니다.
                 </MenuItem>
-              ))}
+                )}
             </Select>
           </FormControl>
 
@@ -152,9 +161,7 @@ function Main() {
       <InputModal
         open={isInputModalOpen}
         onClose={() => setIsInputModalOpen(false)}
-        gongo={selectedGongo}
-        userSn={user?.userSn}
-        
+                 
       />
 
       <LoginModal
@@ -162,6 +169,7 @@ function Main() {
         onClose={() => setIsLoginModalOpen(false)}
       />
     </Box>
+    <Footer />
    </>
  );
 }

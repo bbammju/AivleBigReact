@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useStore } from '../zustand/store';
 import api from '../utils/api';
 import { 
   Dialog, 
@@ -16,6 +16,7 @@ import {
   Divider
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { use } from 'react';
 
 
 const LoginModal = ({ open, onClose }) => {
@@ -27,39 +28,41 @@ const LoginModal = ({ open, onClose }) => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState('success');
-  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const { setUserSn } = useStore();
+
+  useEffect(() => {
+    if (open) {
+      setFormData({ email: '', password: '' });
+    }
+  }, [open]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('로그인 시도', formData);
+    
     try {
       const response = await api.post('/users/login', {
         email: formData.email,
         password: formData.password
       });
       const data = response.data;
-     
-      console.log('Axios 요청 데이터:', formData);
-      console.log('Axios 응답 데이터:', response.data);
-      
 
-      if (data.resultCode == 200){
-        // 로그인 성공 시 사용자 정보를 localStroage에 저장
-        const { user, token } = data;
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('accessToken', token.accessToken);
-        localStorage.setItem('refreshToken', token.refreshToken);
-
+      if (data.resultCode === 200){
+        
+        const { user } = data;
+        
+        // Zustand 전역 상태에 userSn 설정
+        setUserSn(user.userSn);
+                
         setAlertSeverity('success');
         setAlertMessage('로그인 되었습니다.');
         setShowAlert(true);
 
         setTimeout(() => {
           setShowAlert(false);
-        }, 3000);
-
-        onClose();
-        window.location.reload(); // 헤더 상태 업데이트를 위한 새로고침
+          onClose();
+          navigate('/'); // 메인 페이지로 이동
+        }, 500);
+       
       } else {
         // 로그인 실패 (이메일/비밀번호 불일치 등)
         setFormData(prev => ({
@@ -89,6 +92,11 @@ const LoginModal = ({ open, onClose }) => {
     }
 };
 
+  const handleClose = () => {
+    setFormData({ email: '', password: '' });
+    onClose();
+  };
+
   const handleFindPassword = () => {
     onClose();
     navigate('/forgot-password');
@@ -114,7 +122,7 @@ const LoginModal = ({ open, onClose }) => {
         <DialogTitle>
           로그인
           <IconButton
-            onClick={onClose}
+            onClick={handleClose}
             sx={{
               position: 'absolute',
               right: 8,
@@ -131,7 +139,13 @@ const LoginModal = ({ open, onClose }) => {
                 label="이메일"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\s/g, '');
+                  setFormData({...formData, email: e.target.value})                
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === ' ') e.preventDefault();
+                }}
                 required
                 fullWidth
               />
@@ -139,7 +153,13 @@ const LoginModal = ({ open, onClose }) => {
                 label="비밀번호"
                 type="password"
                 value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\s/g, '');
+                  setFormData({...formData, password: e.target.value})
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === ' ') e.preventDefault();
+                }}
                 required
                 fullWidth
               />
