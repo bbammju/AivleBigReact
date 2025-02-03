@@ -127,6 +127,13 @@ const Signup = () => {
 }, []);
 
   const handleAddressSearch = () => {
+
+    setFieldErrors(prev => {
+      const newErrors = {...prev};
+      delete newErrors.address;
+      return newErrors;
+    });
+
     if (!window.daum || !window.daum.Postcode) {
       setAlertMessage('주소 검색 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
       setShowAlert(true);
@@ -168,23 +175,24 @@ const Signup = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // 상세주소의 경우 공백 입력 허용, 나머지 필드는 공백 입력 차단
-    let newValue;
+    let processedValue;
+    // 상세주소의 경우 공백 입력 허용, 나머지 필드는 공백 입력 차단    
     if (name === "detailAddress") {
+      // 쉼표 제거
+      const valueWithoutComma = value.replace(/,/g, '');
       // 연속된 공백을 하나의 공백으로 변경
-      newValue = value.replace(/\s+/g, ' ');
+      processedValue = valueWithoutComma.replace(/\s+/g, ' ');      
     } else {
       // 다른 필드들은 모든 공백 제거
-      newValue = value.replace(/\s/g, '');
+      processedValue = value.replace(/\s/g, '');      
     }
-
-    setFormData(prev => ({ ...prev, [name]: newValue }));
-
+   
     if (name === 'email') {
       setIsEmailVerified(false);
     }
 
-    validateField(name, newValue);
+    setFormData(prev => ({ ...prev, [name]: processedValue }));
+    validateField(name, processedValue);
   };
 
   // 상세주소 입력 칸에서 포커스 해제 시 앞뒤 공백 제거
@@ -252,14 +260,22 @@ const Signup = () => {
           delete errors.gender;
         }
         break;
-                
-      case 'detailAddress':
-        if (value.trim() === '') {
-          errors.detailAddress = '상세 주소를 입력해주세요.';
+
+      case 'address':
+        if (!value) {
+          errors.address = '주소는 필수 입력 항목입니다.';
         } else {
-          delete errors.detailAddress;
+          delete errors.address;
         }
         break;
+                
+      // case 'detailAddress':
+      //   if (!value || value.trim() === '') {
+      //     errors.detailAddress = '상세 주소를 입력해주세요';
+      //   } else {
+      //     delete errors.detailAddress;
+      //   }
+      //   break;
     
       default:
         break;
@@ -277,7 +293,15 @@ const Signup = () => {
       return false;
     }
 
-    const requiredFields = ['email', 'password', 'userName', 'telnoMiddle', 'telnoLast', 'gender'];
+    const requiredFields = [
+      'email',
+      'password',
+      'userName',
+      'telnoMiddle',
+      'telnoLast',
+      'gender',
+      'address'
+      ];
     let isValid = true;
     let errors = { ...fieldErrors };
 
@@ -532,7 +556,17 @@ const Signup = () => {
             </Grid>
 
             <Grid item xs={12}>
-              <Typography variant="body2" sx={{ mb: 1 }}>전화번호</Typography>
+              <Typography 
+                variant="body2" 
+                sx={{
+                 mb: 1,
+                 '&::after': {
+                  content: '" *"',
+                  color: 'text.primary'
+                 }
+                }}>
+                  전화번호
+              </Typography>
               <Grid container spacing={1}>
                 <Grid item xs={3}>
                   <TextField
@@ -607,6 +641,9 @@ const Signup = () => {
                 name="address"
                 value={formData.address}
                 disabled
+                required
+                error={!!fieldErrors.address}
+                helperText={fieldErrors.address}
               />
             </Grid>
             <Grid item xs={12}>
@@ -617,7 +654,12 @@ const Signup = () => {
                 value={formData.detailAddress}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                placeholder="상세 주소를 입력해주세요"
+                placeholder="상세 주소를 입력해주세요(쉼표 입력 불가)"                         
+                error={!!fieldErrors.detailAddress}  
+                helperText={fieldErrors.detailAddress}  
+                inputProps={{
+                  pattern: '[^,]*' // HTML5 validation으로 쉼표 막기
+                }}
               />
             </Grid>
           </Grid>

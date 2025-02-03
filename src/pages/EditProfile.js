@@ -111,7 +111,9 @@ const EditProfile = () => {
 
   // TextField의 입력 처리
   const handleDetailAddressChange = (e) => {
-    const value = e.target.value.replace(/,/g, ''); // 쉼표 제거
+    const value = e.target.value
+      .replace(/,/g, '') // 쉼표 제거
+      .replace(/\s+/g, ' '); // 연속된 공백을 하나의 공백으로 변경
     setFormData(prev => ({
       ...prev,
       detailAddress: value
@@ -130,7 +132,10 @@ const EditProfile = () => {
   // 수정 버튼 클릭 핸들러
   const handleUpdate = async () => {
     try {
-      const fullAddress = `${formData.address}, ${formData.detailAddress}`.trim();
+      const trimmedDetailAddress = formData.detailAddress.trim();
+      const fullAddress = formData.address
+      ? `${formData.address}, ${trimmedDetailAddress}`.trim()
+      : '';
 
       const updateData = {
         address: fullAddress,
