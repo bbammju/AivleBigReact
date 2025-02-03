@@ -41,8 +41,12 @@ const Header = () => {
   // 페이지 로드 시 초기 상태 설정
   useEffect(() => {
     const initializeUserInfo = async () => {
-    // userSn이 없는 상황
-      if (!userSn) {
+      
+      // 쿠키에서 토큰 존재 여부 확인
+      const hasToken = document.cookie.includes('accessToken');
+
+      // userSn이 없는 상황
+      if (hasToken && !userSn) {
         try {
           const response = await api.get('users/me');
           if (response.data.resultCode === 200) {
@@ -55,7 +59,7 @@ const Header = () => {
           }
         } catch (error) {
           // 401 에러면 조용히 처리 (로그인 안된 상태)
-          if (error.response?.status !== 401) {
+          if (error.response?.status !== 401 && error.response?.status !== 403) {
             console.error('사용자 정보 초기화 실패:', error);
           }
         }      
@@ -77,12 +81,16 @@ const Header = () => {
           });
           }
         } catch (error) {
+          if (error.response?.status !== 401 && error.response?.status !== 403) {
           console.error('사용자 정보 조회 중 오류 발생:', error);
           handleLogout();
+          }
         }
       }
     };
-    fetchUserInfo();
+    if (userSn){
+      fetchUserInfo();
+    }
   }, [userSn]);
 
 
