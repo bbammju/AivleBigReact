@@ -140,8 +140,13 @@ const LoginModal = ({ open, onClose }) => {
                 type="email"
                 value={formData.email}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\s/g, '');
-                  setFormData({...formData, email: e.target.value})                
+                  const trimmedValue = e.target.value.trim();
+                  setFormData({...formData, email: trimmedValue})
+                }}
+                onPaste={(e) => {
+                  e.preventDefault();
+                  const pastedText = e.clipboardData.getData('text').trim();
+                  setFormData({...formData, email: pastedText});
                 }}
                 onKeyDown={(e) => {
                   if (e.key === ' ') e.preventDefault();
@@ -154,9 +159,17 @@ const LoginModal = ({ open, onClose }) => {
                 type="password"
                 value={formData.password}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\s/g, '');
-                  setFormData({...formData, password: e.target.value})
+                  // 입력값의 앞뒤 공백을 제거한 값을 저장
+                  const trimmedValue = e.target.value.trim();
+                  setFormData({...formData, password: trimmedValue})
                 }}
+                // 붙여넣기 이벤트 처리 추가
+                onPaste={(e) => {
+                  e.preventDefault();
+                  const pastedText = e.clipboardData.getData('text').trim();
+                  setFormData({...formData, password: pastedText});
+                }}
+                // 스페이스바 방지는 유지
                 onKeyDown={(e) => {
                   if (e.key === ' ') e.preventDefault();
                 }}
