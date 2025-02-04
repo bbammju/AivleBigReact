@@ -30,6 +30,8 @@ function App() {
         <Route path="/board" element={<Board />} />
         <Route path="/board/:id" element={<Board />} />
         <Route path="/boardform" element={<BoardForm />} />
+        <Route path="/gongoboard" element={<Board />} />
+        <Route path="/gongoboard/:id" element={<Board />} />
       </Routes>
     </BrowserRouter>
   );
