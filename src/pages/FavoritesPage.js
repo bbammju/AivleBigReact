@@ -1,4 +1,4 @@
-import Header from '../components/header';
+import Header from '../components/headersub';
 import Sidebar from "../components/Mypage_SideBar"; // Sidebar 컴포넌트 임포트
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from 'react';

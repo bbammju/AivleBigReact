@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Paper, Typography } from "@mui/material";
-import Header from "../components/header";
+import Header from "../components/headersub";
 import Sidebar from "../components/Mypage_SideBar";
 import api from '../utils/api';
 

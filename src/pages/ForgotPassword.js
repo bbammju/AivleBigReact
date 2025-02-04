@@ -14,7 +14,7 @@ import {
   Paper,
   CircularProgress
 } from "@mui/material";
-import Header from "../components/header";
+import Header from "../components/headersub";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
