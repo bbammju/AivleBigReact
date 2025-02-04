@@ -75,13 +75,13 @@ const ForgotPassword = () => {
     
       if (response.status === 200) {
         setStep(3);
-        setMessage(`임시 비밀번호는 ${response.data.tempPassword} 입니다.`);
+        setMessage(`임시 비밀번호는 ${response.data.data.tempPassword} 입니다.`);
       } else {
-        setError(response.data.resultMsg);
+        setError(response.data.message);
         setVerificationCode('');
       }
     } catch (err) {
-      setError(err.response?.data?.resultMsg || '인증번호 확인에 실패했습니다.');
+      setError(err.response?.data?.message || '인증번호 확인에 실패했습니다.');
       setVerificationCode('');
     }
   };

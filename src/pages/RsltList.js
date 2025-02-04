@@ -7,6 +7,7 @@ import SizeRangeModal from "../components/sizeRangeModal";
 import GuaranteeRangeModal from "../components/guaranteeModal";
 import MonthlyRangeModal from "../components/monthlyModal";
 import NaverMap from "../components/navermap";
+import { useStore } from '../zustand/store';
 import { Box, Button, Typography, Chip, Card, CardContent, CardMedia } from "@mui/material";
 
 const seoulDistricts = [
@@ -19,6 +20,7 @@ const seoulDistricts = [
 
 const RsltList = () => {
   const navigate = useNavigate();
+  const { gongoSn, userSn } = useStore();
   const [pageSize, setPageSize] = useState(10);
   const [pageNum, setPageNum] = useState(1);
   const [location, setLocation] = useState([]);
@@ -93,6 +95,8 @@ const RsltList = () => {
   const params = {
     pageSize,
     pageNum,
+    userSn,
+    gongoSn,
     ...(minSize && { minSize }),
     ...(maxSize && { maxSize }),
     ...(minGuarantee && { minGuarantee }),
@@ -107,7 +111,7 @@ const RsltList = () => {
 
   const listHandler = async () => {
     try {
-      const response = await api.get("/rslt-list", { params });
+      const response = await api.post("/rslt-list",  params);
 
       if (response.data) {
         setResults(response.data.data);

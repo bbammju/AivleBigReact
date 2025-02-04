@@ -127,6 +127,13 @@ const Signup = () => {
 }, []);
 
   const handleAddressSearch = () => {
+
+    setFieldErrors(prev => {
+      const newErrors = {...prev};
+      delete newErrors.address;
+      return newErrors;
+    });
+
     if (!window.daum || !window.daum.Postcode) {
       setAlertMessage('주소 검색 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
       setShowAlert(true);
@@ -168,23 +175,24 @@ const Signup = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // 상세주소의 경우 공백 입력 허용, 나머지 필드는 공백 입력 차단
-    let newValue;
+    let processedValue;
+    // 상세주소의 경우 공백 입력 허용, 나머지 필드는 공백 입력 차단    
     if (name === "detailAddress") {
+      // 쉼표 제거
+      const valueWithoutComma = value.replace(/,/g, '');
       // 연속된 공백을 하나의 공백으로 변경
-      newValue = value.replace(/\s+/g, ' ');
+      processedValue = valueWithoutComma.replace(/\s+/g, ' ');      
     } else {
       // 다른 필드들은 모든 공백 제거
-      newValue = value.replace(/\s/g, '');
+      processedValue = value.replace(/\s/g, '');      
     }
-
-    setFormData(prev => ({ ...prev, [name]: newValue }));
-
+   
     if (name === 'email') {
       setIsEmailVerified(false);
     }
 
-    validateField(name, newValue);
+    setFormData(prev => ({ ...prev, [name]: processedValue }));
+    validateField(name, processedValue);
   };
 
   // 상세주소 입력 칸에서 포커스 해제 시 앞뒤 공백 제거
@@ -252,14 +260,22 @@ const Signup = () => {
           delete errors.gender;
         }
         break;
-                
-      case 'detailAddress':
-        if (value.trim() === '') {
-          errors.detailAddress = '상세 주소를 입력해주세요.';
+
+      case 'address':
+        if (!value) {
+          errors.address = '주소는 필수 입력 항목입니다.';
         } else {
-          delete errors.detailAddress;
+          delete errors.address;
         }
         break;
+                
+      // case 'detailAddress':
+      //   if (!value || value.trim() === '') {
+      //     errors.detailAddress = '상세 주소를 입력해주세요';
+      //   } else {
+      //     delete errors.detailAddress;
+      //   }
+      //   break;
     
       default:
         break;
@@ -277,7 +293,15 @@ const Signup = () => {
       return false;
     }
 
-    const requiredFields = ['email', 'password', 'userName', 'telnoMiddle', 'telnoLast', 'gender'];
+    const requiredFields = [
+      'email',
+      'password',
+      'userName',
+      'telnoMiddle',
+      'telnoLast',
+      'gender',
+      'address'
+      ];
     let isValid = true;
     let errors = { ...fieldErrors };
 
@@ -387,11 +411,33 @@ const Signup = () => {
               }
               label="[필수] 서비스 이용약관 동의"
             />
-            <Paper variant="outlined" sx={{ p: 2, my: 1, maxHeight: 150, overflow: 'auto' }}>
-              <Typography variant="body2">
-                서비스 이용약관 내용...
-                {/* 실제 서비스 이용약관 내용을 여기에 넣으세요 */}
-              </Typography>
+            <Paper variant="outlined" sx={{ p: 2, my: 1, maxHeight: 150, overflow: 'auto' }}>  
+              <Typography variant="body2" component="pre" sx={{ whiteSpace: 'pre-line' }}>
+                {`
+                
+                제1조 (목적)
+                본 약관은 회원(이하 "이용자")이 [ZIPLINE]에서 제공하는 서비스(이하 "집라인")를 이용함에 있어 필요한 권리, 의무 및 책임사항을 규정하는 것을 목적으로 합니다.
+
+                제2조 (서비스 이용 및 제한)
+
+                이용자는 본 약관에 동의함으로써 서비스 이용이 가능합니다.
+                서비스 이용 시 관련 법령을 준수해야 하며, 불법적인 행위를 금합니다.
+
+                제3조 (이용자의 의무)
+
+                이용자는 서비스 이용 시 허위 정보를 제공해서는 안 됩니다.
+                타인의 계정을 도용하거나 부정한 방법으로 접근하는 행위를 금지합니다.
+
+                제4조 (서비스 제공의 변경 및 중단)
+
+                회사는 운영상 또는 기술상의 필요에 따라 서비스를 변경하거나 중단할 수 있습니다.
+                서비스 변경 또는 중단 시 사전에 공지합니다.
+
+                제5조 (약관의 개정)
+
+                본 약관은 필요 시 개정될 수 있으며, 개정 시 사전에 공지됩니다. 개정된 약관에 동의하지 않는 경우, 서비스 이용을 중단할 수 있습니다.
+                `.trim()}
+              </Typography>              
             </Paper>
             
             <FormControlLabel
@@ -406,11 +452,36 @@ const Signup = () => {
               }
               label="[필수] 개인정보 수집 및 이용 동의"
             />
-            <Paper variant="outlined" sx={{ p: 2, my: 1, maxHeight: 150, overflow: 'auto' }}>
-              <Typography variant="body2">
-                개인정보 수집 및 이용 동의 내용...
-                {/* 실제 개인정보 처리방침 내용을 여기에 넣으세요 */}
-              </Typography>
+            <Paper variant="outlined" sx={{ p: 2, my: 1, maxHeight: 150, overflow: 'auto' }}>  
+              <Typography variant="body2" component="pre" sx={{ whiteSpace: 'pre-line' }}>
+                {`              
+
+                1. 수집하는 개인정보 항목
+
+                필수 정보: 성명, 성별, 이메일 주소, 휴대전화번호, 비밀번호, 주소
+                선택 정보: 상세 주소
+
+                2. 개인정보의 수집 및 이용 목적
+
+                회원 가입 및 서비스 이용 관리
+                고객 문의 및 불만 처리
+                서비스 개선 및 맞춤형 콘텐츠 제공
+                
+                3. 개인정보의 보유 및 이용 기간
+
+                회원 탈퇴 시 즉시 파기됩니다. 단, 관련 법령에 따라 일정 기간 보관이 필요한 경우 해당 법령에 따릅니다.
+                
+                4. 개인정보 제3자 제공 및 위탁
+
+                이용자의 동의 없이 개인정보를 제3자에게 제공하지 않습니다.
+                서비스 운영을 위해 일부 업무를 외부에 위탁할 수 있으며, 위탁 시 사전에 공지합니다.
+                
+                5. 개인정보 보호 관련 권리
+
+                이용자는 언제든지 개인정보 열람, 정정, 삭제 요청을 할 수 있습니다.
+                서비스 내 설정을 통해 개인정보 처리에 대한 동의를 철회할 수 있습니다.
+                `.trim()}
+              </Typography>              
             </Paper>
           </Box>
         </FormControl>
@@ -532,7 +603,17 @@ const Signup = () => {
             </Grid>
 
             <Grid item xs={12}>
-              <Typography variant="body2" sx={{ mb: 1 }}>전화번호</Typography>
+              <Typography 
+                variant="body2" 
+                sx={{
+                 mb: 1,
+                 '&::after': {
+                  content: '" *"',
+                  color: 'text.primary'
+                 }
+                }}>
+                  전화번호
+              </Typography>
               <Grid container spacing={1}>
                 <Grid item xs={3}>
                   <TextField
@@ -607,6 +688,9 @@ const Signup = () => {
                 name="address"
                 value={formData.address}
                 disabled
+                required
+                error={!!fieldErrors.address}
+                helperText={fieldErrors.address}
               />
             </Grid>
             <Grid item xs={12}>
@@ -617,7 +701,12 @@ const Signup = () => {
                 value={formData.detailAddress}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                placeholder="상세 주소를 입력해주세요"
+                placeholder="상세 주소를 입력해주세요(쉼표 입력 불가)"                         
+                error={!!fieldErrors.detailAddress}  
+                helperText={fieldErrors.detailAddress}  
+                inputProps={{
+                  pattern: '[^,]*' // HTML5 validation으로 쉼표 막기
+                }}
               />
             </Grid>
           </Grid>

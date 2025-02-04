@@ -38,6 +38,15 @@ const WithdrawalPage = () => {
     setError(""); // 에러 메시지 초기화
   };
 
+  // 비밀번호 입력 처리 함수 추가
+  const handlePasswordChange = (e) => {
+  const noSpaceValue = e.target.value.replace(/\s/g, ''); // 모든 공백 제거
+  setPassword(noSpaceValue);
+  setError(''); // 에러 메시지 초기화
+  };
+
+
+
   const handleWithdrawal = async () => {
     if (!password) {
         setError("비밀번호를 입력해주세요.");
@@ -191,7 +200,10 @@ const WithdrawalPage = () => {
             fullWidth
             variant="outlined"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handlePasswordChange}
+            onKeyDown={(e) => {
+              if (e.key === ' ') e.preventDefault(); // 스페이스바 입력 방지
+            }}
             error={!!error}
             helperText={error}
             autoComplete="current-password"

@@ -78,13 +78,15 @@ const PasswordChange = () => {
  
   const handleChange = (e) => {
     const { name, value } = e.target;
+    const noSpaceValue = value.replace(/\s/g, '');
+    
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: noSpaceValue
     }));
     
     if (name !== 'currentPassword') {
-      validateField(name, value);
+      validateField(name, noSpaceValue);
     }
   };
  
@@ -167,6 +169,9 @@ const PasswordChange = () => {
                   name="currentPassword"
                   value={formData.currentPassword}
                   onChange={handleChange}
+                  onKeyDown={(e) => {
+                    if (e.key === ' ') e.preventDefault();
+                  }}
                   disabled={isCurrentPasswordVerified}
                   required
                 />
@@ -192,6 +197,9 @@ const PasswordChange = () => {
                   name="newPassword"
                   value={formData.newPassword}
                   onChange={handleChange}
+                  onKeyDown={(e) => {
+                    if (e.key === ' ') e.preventDefault();
+                  }}
                   required
                   error={!!fieldErrors.newPassword}
                   helperText={fieldErrors.newPassword}
@@ -206,6 +214,9 @@ const PasswordChange = () => {
                   name="newPasswordConfirm"
                   value={formData.newPasswordConfirm}
                   onChange={handleChange}
+                  onKeyDown={(e) => {
+                    if (e.key === ' ') e.preventDefault();
+                  }}
                   required
                   error={!!fieldErrors.newPasswordConfirm}
                   helperText={fieldErrors.newPasswordConfirm}
