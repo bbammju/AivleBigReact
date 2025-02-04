@@ -40,7 +40,15 @@ const CustomTabs = ({ tabs, activeTab, setActiveTab, setCurrentPage }) => {
       </Tabs>
     );
   };
-
+  
+  function sanitizeHtml(content) {
+    return content
+      .replace(/<p>\s*<\/p>/g, '')  // 빈 <p> 태그 제거
+      .replace(/<\/?p>/g, '<br>')   // <p> 태그를 줄바꿈으로 변환
+      .replace(/<(?!img)[^>]+>/g, '');  // img 태그 외 모든 태그 제거
+  }
+  
+  
 const Board = () => {
     // const tabs = ["공고게시판", "유저게시판", "청약뉴스"];
     const location = useLocation();
@@ -133,7 +141,13 @@ const Board = () => {
                 <Typography variant="subtitle1" sx={{ mb: 2 }}>
                 작성자: {post.userName} | 작성일: {post.createdDt}
                 </Typography>
-                <Typography variant="body1">{post.content}</Typography>
+                <Typography variant="body1">
+                  {/* {stripHtml(post.content) */}
+                  <div
+                    style={{ whiteSpace: 'pre-wrap' }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
+                  />
+                  </Typography>
                 <Button sx={{ mt: 4 }} variant="contained" onClick={() => navigate("/board")}>
                 뒤로가기
                 </Button>

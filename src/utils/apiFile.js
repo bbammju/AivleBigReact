@@ -44,7 +44,8 @@ apiFile.interceptors.response.use(
 apiFile.uploadFile = async (file, onProgress) => {
     const formData = new FormData();
     formData.append('file', file);
-
+    formData.append("refTable", "board"); // 🔥 필요한 테이블 이름 전달
+    formData.append("refSn", 28)
     try {
         const response = await apiFile.post('/files/upload', formData, {
             // 업로드 진행률 표시를 위한 설정 추가
