@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/header";
+import Header from "../components/headersub";
 import DistrictModal from "../components/guModal";
 import SizeRangeModal from "../components/sizeRangeModal";
 import GuaranteeRangeModal from "../components/guaranteeModal";

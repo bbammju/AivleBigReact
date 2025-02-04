@@ -19,7 +19,7 @@ import {
 import LoginModal from './LoginModal';
 import api from '../utils/api';
 
-const Header = () => {
+const Headersub = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -179,21 +179,9 @@ const Header = () => {
           로그아웃 되었습니다.
         </Alert>
       )}
-      <AppBar position="absolute"
-        sx={{
-          backgroundColor: 'transparent',
-          boxShadow: 'none',
-        }}>
+      <AppBar position="static">
         <Container maxWidth={false}>
-          <Toolbar
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: (isLoggedIn && shoutShowGongo)
-                ? 'auto 1fr auto'
-                : 'auto auto',
-              alignItems: 'center',
-            }}
-            >
+          <Toolbar>
             <Box
               component="img"
               src={logo}
@@ -204,12 +192,14 @@ const Header = () => {
               }}
               onClick={handleLogoClick}
             />
-            
+            <Box sx={{ flexGrow: 1 }} />
             <Typography color="inherit"
             sx={{ 
               fontWeight: 'bold',
               whiteSpace: 'nowrap',
               textAlign: 'center',
+              flexGrow: 1,
+              marginRight: 'auto',
               // 조건부 표시
               display: isLoggedIn && shoutShowGongo ? 'block' : 'none'
             }}
@@ -228,7 +218,7 @@ const Header = () => {
                   </Button>
 
                   {/* 사용자 이름 및 아바타 */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography color="inherit">
                       {userInfo.userName}님
                     </Typography>
@@ -293,4 +283,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default Headersub;
