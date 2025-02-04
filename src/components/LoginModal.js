@@ -169,7 +169,7 @@ const LoginModal = ({ open, onClose }) => {
                   const pastedText = e.clipboardData.getData('text').trim();
                   setFormData({...formData, password: pastedText});
                 }}
-                // 스페이스바 방지는 유지
+                // 스페이스바 방지
                 onKeyDown={(e) => {
                   if (e.key === ' ') e.preventDefault();
                 }}
