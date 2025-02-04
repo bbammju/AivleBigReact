@@ -6,7 +6,7 @@ export const useStore = create(
     (set) => ({
       // gongo 관련 상태
       gongoSn: '',
-      gongoname: '',
+      gongoName: '',
       setGongoInfo: (gongoSn, gongoName) => set({ gongoSn, gongoName }),
 
       // userSn 관련 상태 (persist 적용 안 함)

@@ -38,24 +38,21 @@ const Header = () => {
   const showGongoRoutes = ['/', '/list']
   const shoutShowGongo = showGongoRoutes.includes(location.pathname);
 
-  // 페이지 로드 시 초기 상태 설정
   useEffect(() => {
     const initializeUserInfo = async () => {
-    // userSn이 없는 상황
+      // userSn이 없는 상황
       if (!userSn) {
         try {
           const response = await api.get('users/me');
           if (response.data.resultCode === 200) {
-            // zustand store에 userSn 설정
             useStore.getState().setUserSn(response.data.user.userSn);
-            // 사용자 정보도 설정
             setUserInfo({
               userName: response.data.user.userName
             });            
           }
         } catch (error) {
-          // 401 에러면 조용히 처리 (로그인 안된 상태)
-          if (error.response?.status !== 401) {
+          // 401, 403 에러면 조용히 처리 (로그인 안된 상태)
+          if (error.response?.status !== 401 && error.response?.status !== 403) {
             console.error('사용자 정보 초기화 실패:', error);
           }
         }      
@@ -77,12 +74,16 @@ const Header = () => {
           });
           }
         } catch (error) {
+          if (error.response?.status !== 401 && error.response?.status !== 403) {
           console.error('사용자 정보 조회 중 오류 발생:', error);
           handleLogout();
+          }
         }
       }
     };
-    fetchUserInfo();
+    if (userSn){
+      fetchUserInfo();
+    }
   }, [userSn]);
 
 
