@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/header';
+import Header from '../components/headersub';
 import Sidebar from '../components/Mypage_SideBar';
 import api from '../utils/api';
 import { 
