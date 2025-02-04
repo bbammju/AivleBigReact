@@ -60,13 +60,7 @@ const Board = () => {
     
     // tab.id
     const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'gongo');
-    const [data, setData] = useState({ "gongo": [
-        { no: 1, title: "공고 1", writer: "관리자", date: "2025-01-22", views: 10 },
-            { no: 2, title: "공고 2", writer: "관리자", date: "2025-01-21", views: 8 },
-            { no: 3, title: "공고 3", writer: "관리자", date: "2025-01-20", views: 6 },
-            { no: 4, title: "공고 4", writer: "관리자", date: "2025-01-19", views: 7 },
-            { no: 5, title: "공고 5", writer: "관리자", date: "2025-01-18", views: 9 },
-    ], 
+    const [data, setData] = useState({ "gongo": [],
         "user": [], 
         "news": [
             { no: 1, title: "청약 뉴스 1", writer: "기자1", date: "2025-01-18", views: 12 },
@@ -93,7 +87,19 @@ const Board = () => {
                 } catch (error) {
                     console.error("Error fetching data:", error);
                 }
-            }
+            } else if (activeTab === "gongo") {
+              try {
+                  const response = await api.get("/gongoboard");
+                  const gongoListResponse = response.data.gongoListResponse;
+                  setData((prevData) => ({
+                      ...prevData,
+                      gongo:  gongoListResponse || [],
+                    }));
+                  // console.log(gongoListResponse);
+              } catch (error) {
+                  console.error("Error fetching data:", error);
+              }
+          }
         };
         fetchData();
     }, [activeTab]);
@@ -158,6 +164,55 @@ const Board = () => {
         );
     }
 
+    // 공고게시물 클릭시시
+    if (activeTab === "gongo" && id ) {
+      const post = data[activeTab]?.find((item) => item.gongoSn === parseInt(id));
+      if (!post) return <Typography>Loading...</Typography>;
+
+      return (
+          <>
+          <Header />
+          <Box sx={{ width: "80%", margin: "0 auto", textAlign: "center", mt: 4,
+           }}>
+          <CustomTabs
+              tabs={tabs}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              setCurrentPage={setCurrentPage}
+          />
+        <Paper
+          elevation={2}
+          sx={{
+            flex: 1,
+            padding: 4,
+            borderRadius: 3,
+            margin: 2,
+            backgroundColor: "white",
+          }}
+        >
+          <Box sx={{ mt: 4, width: "80%", margin: "0 auto" }}>
+              <Typography variant="h4" gutterBottom>
+                {post.gongoName}
+              </Typography>
+              <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                공고 유형: {post.gongoType}
+            </Typography>
+              <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                작성일: {post.createdDt}
+              </Typography>
+              <Typography variant="subtitle2" sx={{ mb: 2 }}>
+              시작일: {post.scheduleStartDt} | 종료일: {post.scheduleEndDt}
+            </Typography>
+              <Button sx={{ mt: 4 }} variant="contained" onClick={() => navigate("/board")}>
+              뒤로가기
+              </Button>
+          </Box>
+          </Paper>
+      </Box>
+      </>
+      );
+  }
+
   return (
     <>
       <Header />
@@ -180,17 +235,27 @@ const Board = () => {
             <TableRow>
               <TableCell>No</TableCell>
               <TableCell>제목</TableCell>
-              <TableCell>글쓴이</TableCell>
+              {activeTab === "user" && <TableCell>글쓴이</TableCell>}
               <TableCell>작성일</TableCell>
               {/* <TableCell>조회수</TableCell> */}
             </TableRow>
           </TableHead>
           <TableBody>
             {paginatedData.map((item, index) => (
-              <TableRow key={item.boardSn}  onClick={() => navigate(`/board/${item.boardSn}`)} sx={{ cursor: "pointer" }}>
+              <TableRow 
+              key={activeTab === "gongo" ? item.gongoSn : item.boardSn}
+              onClick={() => {
+                if (activeTab === "gongo") {
+                  navigate(`/gongoboard/${item.gongoSn}`);
+                } else {
+                  navigate(`/board/${item.boardSn}`);
+                }
+              }}
+                sx={{ cursor: "pointer" }}
+              >
                 <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
-                <TableCell>{item.title}</TableCell>
-                <TableCell>{item.userName}</TableCell>
+                <TableCell>{activeTab === "gongo" ? item.gongoName : item.title}</TableCell>
+                {activeTab === "user" && <TableCell>{item.userName}</TableCell>}
                 <TableCell>{item.createdDt}</TableCell>
                 {/* <TableCell>{item.views}</TableCell> */}
               </TableRow>
