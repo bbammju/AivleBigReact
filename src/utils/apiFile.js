@@ -1,4 +1,5 @@
 import axios from 'axios';
+import api from './api'; // api.js를 가져와서 사용용
 
 
 // 파일 전용 API 생성 (파일 관련 코드짜는 사람이 업로드/다운로드 함수 바꾸면 됩니다. )
@@ -39,6 +40,32 @@ apiFile.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+
+// // ✅ `api.js`에서 이미 토큰 갱신 로직이 구현되어 있으므로, 그대로 활용
+// apiFile.interceptors.response.use(
+//     (response) => response,
+//     async (error) => {
+//         const originalRequest = error.config;
+
+//         if (error.response?.status === 401) {
+//             console.warn('🔄 401 오류 발생! 재발급 또는 로그아웃 확인');
+
+//             try {
+//                 // ✅ `api.js`에서 이미 관리하는 토큰 갱신 로직 활용
+//                 await api.post('/users/reissue');
+//                 return apiFile(originalRequest); // 🔄 원래 요청 재시도
+//             } catch (refreshError) {
+//                 console.error('❌ Refresh Token도 만료됨. 로그아웃 진행.');
+//                 window.location.href = '/';
+//                 return Promise.reject(refreshError);
+//             }
+//         }
+
+//         return Promise.reject(error);
+//     }
+// );
+
 
 // 🔹 파일 업로드 함수(필요시 변경)
 apiFile.uploadFile = async (file, onProgress) => {
