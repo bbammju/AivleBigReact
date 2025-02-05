@@ -50,7 +50,6 @@ const CustomTabs = ({ tabs, activeTab, setActiveTab, setCurrentPage }) => {
   
   
 const Board = () => {
-    // const tabs = ["공고게시판", "유저게시판", "청약뉴스"];
     const location = useLocation();
     const tabs = [
       { id: "gongo", label: "공고게시판" },
@@ -114,11 +113,26 @@ const Board = () => {
     );
 
     // Render detailed post if an ID is provided
-    if (activeTab === "user" && id ) {
-        
+    const [images, setImages] = useState([]);
+        useEffect(() => {
+          // 이미지 정보 가져오기
+          const fetchImages = async () => {
+            if (activeTab === "user" && id ) {
+              try {
+                const response = await api.get(`/board/images?boardSn=${id}`); // 서버 이미지 API 호출
+                setImages(response.data);
+              } catch (error) {
+                console.error("이미지를 가져오는 중 오류가 발생했습니다.", error);
+             }
+            }
+          };
+          fetchImages();
+        }, [activeTab, id]);
+
+
+      if (activeTab === "user" && id ) {
         const post = data[activeTab]?.find((item) => item.boardSn === parseInt(id));
         if (!post) return <Typography>Loading...</Typography>;
-
         return (
             <>
             <Header />
@@ -148,12 +162,25 @@ const Board = () => {
                 작성자: {post.userName} | 작성일: {post.createdDt}
                 </Typography>
                 <Typography variant="body1">
-                  {/* {stripHtml(post.content) */}
                   <div
                     style={{ whiteSpace: 'pre-wrap' }}
                     dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
                   />
                   </Typography>
+                  {/* 이미지 렌더링 */}
+                <Box sx={{ mt: 4 }}>
+                  <Typography variant="h6">첨부 이미지</Typography>
+                  <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mt: 2 }}>
+                    {images.map((image) => (
+                      <img
+                        key={image.fileName}
+                        src={`${image.path}${image.fileName}`}
+                        alt={image.oriFileName}
+                        style={{ maxWidth: "100%", maxHeight: "200px", borderRadius: "8px" }}
+                      />
+                    ))}
+                  </Box>
+                  </Box>
                 <Button sx={{ mt: 4 }} variant="contained" onClick={() => navigate("/board")}>
                 뒤로가기
                 </Button>

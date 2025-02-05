@@ -13,7 +13,7 @@ import { Tabs, Tab, Box, Typography, Paper
 const BoardForm = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [activeTab, setActiveTab] = useState('user');
   const navigate = useNavigate();
   const quillRef = useRef();
@@ -21,14 +21,15 @@ const BoardForm = () => {
 
   // 파일 선택 핸들러
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFiles = Array.from(e.target.files);
+    
+    // 이미지 파일만 필터링
+    const validFiles = selectedFiles.filter(file => file.type.startsWith('image/'));
+    if (validFiles.length < selectedFiles.length) {
+      alert('이미지 파일만 업로드 가능합니다.');
+    }
+    setFiles(validFiles);
   };
-
-  // const tabs = [
-  //   { id: "gongo", label: "공고게시판" },
-  //   { id: "user", label: "유저게시판" },
-  //   { id: "news", label: "청약뉴스" }
-  // ];
 
   // 게시글 등록 핸들러
   const handleSubmit = async (e) => {
@@ -37,20 +38,19 @@ const BoardForm = () => {
     // FormData 생성 및 데이터 추가
     const formData = new FormData();
     formData.append('title', title);
-    // const sanitizedContent = content.replace(/<img[^>]*>/g, ''); // 이미지 태그 제거
-    // formData.append('content', sanitizedContent);
     formData.append('content', content);
     formData.append('userSn', userSn);
+
+    // 다중 파일 추가
+    files.forEach(file => formData.append('files', file));
     
     try {
-      // 파일 업로드 진행률 관리 예시
-      let uploadedFileUrl = null;
-      if (file) {
-        const response = await apiFile.uploadFile(file);
-        uploadedFileUrl = response.url; // 서버에서 반환하는 URL 사용
-      }
-
-      formData.append('fileUrl', uploadedFileUrl);
+      // // 파일 업로드 진행률 관리 예시
+      // let uploadedFileUrl = null;
+      // if (file) {
+      //   const response = await apiFile.uploadFile(file);
+      //   uploadedFileUrl = response.url; // 서버에서 반환하는 URL 사용
+      // }
       const response = await api.post('/post-board', formData,
         { headers: { 'Content-Type': "multipart/form-data" },
       });
@@ -69,40 +69,40 @@ const BoardForm = () => {
   };
 
 // 이미지 핸들러
-  const imageHandler = useCallback(() => {
-    const input = document.createElement("input");
-    input.setAttribute("type", "file");
-    input.setAttribute("accept", "image/*");
-    input.click();
+  // const imageHandler = useCallback(() => {
+  //   const input = document.createElement("input");
+  //   input.setAttribute("type", "file");
+  //   input.setAttribute("accept", "image/*");
+  //   input.click();
 
-    input.onchange = async () => {
-      const file = input.files[0];
-      const formData = new FormData();
-      formData.append("image", file);
+  //   input.onchange = async () => {
+  //     const file = input.files[0];
+  //     const formData = new FormData();
+  //     formData.append("image", file);
 
-      try {
-        const refSn = 28;
-        const res = await apiFile.uploadFile(file);
-        // const res = await api.post(`/files/upload?refTable=board&refSn=${refSn}`, formData); // 이미지 업로드 API 경로
-        const url = res.data?.url || res.url || res.fileUrl;
-        if (!url) {
-          alert("이미지 업로드 실패: 유효한 URL을 받지 못했습니다.");
-          return;
-        }
+  //     try {
+  //       const refSn = 28;
+  //       const res = await apiFile.uploadFile(file);
+  //       // const res = await api.post(`/files/upload?refTable=board&refSn=${refSn}`, formData); // 이미지 업로드 API 경로
+  //       const url = res.data?.url || res.url || res.fileUrl;
+  //       if (!url) {
+  //         alert("이미지 업로드 실패: 유효한 URL을 받지 못했습니다.");
+  //         return;
+  //       }
 
-        const quill = quillRef.current.getEditor();
-        const range = quill.getSelection()?.index;
-        if (typeof range !== "number") return;
-        quill.setSelection(range, 1);
-        quill.clipboard.dangerouslyPasteHTML(
-          range,
-          `<img src=${url} alt="image" />`
-        );
-      } catch (error) {
-        alert("이미지 업로드에 실패했습니다.");
-      }
-    };
-  }, []);
+  //       const quill = quillRef.current.getEditor();
+  //       const range = quill.getSelection()?.index;
+  //       if (typeof range !== "number") return;
+  //       quill.setSelection(range, 1);
+  //       quill.clipboard.dangerouslyPasteHTML(
+  //         range,
+  //         `<img src=${url} alt="image" />`
+  //       );
+  //     } catch (error) {
+  //       alert("이미지 업로드에 실패했습니다.");
+  //     }
+  //   };
+  // }, []);
 
     const modules = useMemo(
       () => ({
@@ -117,13 +117,13 @@ const BoardForm = () => {
                       { indent: "+1" },
                       { align: [] },
                   ],
-                  ["image"],
               ],
-              handlers: { // 위에서 만든 이미지 핸들러 사용하도록 설정
-                  image: imageHandler,
-              },
+              // handlers: { // 위에서 만든 이미지 핸들러 사용하도록 설정
+              //     // image: imageHandler,
+              // },
           },
-      }), [imageHandler]);
+      }), );
+      // [imageHandler]
 
   return (
     <>
@@ -178,7 +178,7 @@ const BoardForm = () => {
             />
         </div>
             <label htmlFor="file">파일 업로드:</label>
-            <input id="file" type="file" onChange={handleFileChange} />
+            <input id="file" type="file" multiple accept="image/*" onChange={handleFileChange} />
             <button type="submit" style={{ marginTop: "20px" }}>
               게시글 등록
             </button>
