@@ -141,30 +141,30 @@ const RsltList = () => {
     }
   };
 
-  const favHandler = async (jutaekDtlSn) => {
-    const params = {
-      userSn,
-      gongoSn,
-      jutaekDtlSn, // this parameter controls each data's unique identifier
-    };
-  
-    try {
-      const response = await api.post("/fav-ctl", params);
-      if (response.data) {
-        // Optionally update UI (for example, toggle favYn in your state)
-        // For example, you could map through results and update the specific item:
-        setResults((prevResults) =>
-          prevResults.map((item) =>
-            item.jutaekDtlSn === jutaekDtlSn
-              ? { ...item, favYn: item.favYn === "Y" ? "N" : "Y" }
-              : item
-          )
-        );
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+const favHandler = async (jutaekDtlSn) => {
+  const params = {
+    userSn,
+    gongoSn,
+    jutaekDtlSn, // this parameter controls each data's unique identifier
   };
+
+  try {
+    const response = await api.post("/fav-ctl", params);
+    if (response.data) {
+      // Optionally update UI (for example, toggle favYn in your state)
+      // For example, you could map through results and update the specific item:
+      setResults((prevResults) =>
+        prevResults.map((item) =>
+          item.jutaekDtlSn === jutaekDtlSn
+            ? { ...item, favYn: item.favYn === "Y" ? "N" : "Y" }
+            : item
+        )
+      );
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
 
   useEffect(() => {
     listHandler();
@@ -320,7 +320,12 @@ const RsltList = () => {
               {results.map((item) => (
                 <Card
                   key={item.jutaekDtlSn}
-                  sx={{ maxWidth: "100%", boxShadow: 3, cursor: "pointer" }}
+                  sx={{
+                    position: "relative",  // <-- Make the card the container for absolute positioning
+                    maxWidth: "100%",
+                    boxShadow: 3,
+                    cursor: "pointer",
+                  }}
                   onClick={() => dtlHandler(item.jutaekDtlSn)}
                 >
                   {/* Star icon positioned at the top-right corner */}
