@@ -8,6 +8,8 @@ import GuaranteeRangeModal from "../components/guaranteeModal";
 import MonthlyRangeModal from "../components/monthlyModal";
 import NaverMap from "../components/navermap";
 import { useStore } from '../zustand/store';
+import StarIcon from "@mui/icons-material/Star";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
 import { Box, Button, Typography, Chip, Card, CardContent, CardMedia, Pagination } from "@mui/material";
 
 const seoulDistricts = [
@@ -98,6 +100,7 @@ const RsltList = () => {
     pageNum,
     userSn,
     gongoSn,
+    location,
     ...(minSize && { minSize }),
     ...(maxSize && { maxSize }),
     ...(minGuarantee && { minGuarantee }),
@@ -137,6 +140,31 @@ const RsltList = () => {
       console.error("Error fetching data:", error);
     }
   };
+
+const favHandler = async (jutaekDtlSn) => {
+  const params = {
+    userSn,
+    gongoSn,
+    jutaekDtlSn, // this parameter controls each data's unique identifier
+  };
+
+  try {
+    const response = await api.post("/fav-ctl", params);
+    if (response.data) {
+      // Optionally update UI (for example, toggle favYn in your state)
+      // For example, you could map through results and update the specific item:
+      setResults((prevResults) =>
+        prevResults.map((item) =>
+          item.jutaekDtlSn === jutaekDtlSn
+            ? { ...item, favYn: item.favYn === "Y" ? "N" : "Y" }
+            : item
+        )
+      );
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
 
   useEffect(() => {
     listHandler();
@@ -292,9 +320,35 @@ const RsltList = () => {
               {results.map((item) => (
                 <Card
                   key={item.jutaekDtlSn}
-                  sx={{ maxWidth: "100%", boxShadow: 3, cursor: "pointer" }}
+                  sx={{
+                    position: "relative",  // <-- Make the card the container for absolute positioning
+                    maxWidth: "100%",
+                    boxShadow: 3,
+                    cursor: "pointer",
+                  }}
                   onClick={() => dtlHandler(item.jutaekDtlSn)}
                 >
+                  {/* Star icon positioned at the top-right corner */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: 8,
+                      right: 8,
+                      zIndex: 2, // ensures the star is above other elements
+                      cursor: "pointer",
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent card click event
+                      favHandler(item.jutaekDtlSn); // pass the current card's jutaekDtlSn to the favHandler
+                    }}
+                  >
+                    {item.favYn === "Y" ? (
+                      <StarIcon sx={{ color: "yellow" }} />
+                    ) : (
+                      <StarBorderIcon sx={{ color: "black" }} />
+                    )}
+                  </Box>
+                  {/* Image area */}
                   <Box
                     sx={{
                       height: 120,

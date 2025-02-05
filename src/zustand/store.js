@@ -18,7 +18,8 @@ export const useStore = create(
       name: "gongo-store", // localstorage에 저장될 key 이름
       partialize: (state) => ({
         gongoSn: state.gongoSn,
-        gongoName: state.gongoName
+        gongoName: state.gongoName,
+        userSn: state.userSn,        
        }),
     }
   )
