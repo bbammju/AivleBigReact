@@ -33,7 +33,7 @@ const Headersub = () => {
   // Local Stroage 대신 Zustand store의 userSn 사용해 로그인 상태 확인
   const isLoggedIn = !!userSn;
   // 사용자 정보 상태 
-  const [ userInfo, setUserInfo ] = useState(null);
+  const [ displayName, setDisplayName ] = useState(null);
   // 공고명을 표시할 경로들
   const showGongoRoutes = ['/', '/list']
   const shoutShowGongo = showGongoRoutes.includes(location.pathname);
@@ -45,8 +45,10 @@ const Headersub = () => {
         try {
           const response = await api.get('users/me');
           if (response.data.resultCode === 200) {
-            useStore.getState().setUserSn(response.data.user.userSn);
-            setUserInfo({
+            useStore.getState().setUserAuth(
+              response.data.user.userSn,
+              response.data.user.role);
+            setDisplayName({
               userName: response.data.user.userName
             });            
           }
@@ -69,7 +71,7 @@ const Headersub = () => {
         try {
           const response = await api.get('users/me');
           if (response.data.resultCode === 200){
-          setUserInfo({
+          setDisplayName({
             userName: response.data.user.userName
           });
           }
@@ -95,10 +97,10 @@ const Headersub = () => {
       // 로그아웃 성공 시 클라이언트 처리 (현재는 무조건 backend에서 성공 응답, 추후 redis등 고도화 시 변경)
       
       // Zustand store 초기화
-      useStore.getState().setUserSn(null); // userSn 초기화
+      useStore.getState().setUserAuth(null, null); // userSn 초기화
       useStore.getState().setGongoInfo('',''); // gongo 정보 초기화
       // 로컬 상태 초기화
-      setUserInfo(null);            
+      setDisplayName(null);            
 
       // 성공 알림 표시
       setShowAlert(true); // Alert 표시
@@ -207,7 +209,7 @@ const Headersub = () => {
             {gongoName}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              {isLoggedIn && userInfo ? (
+              {isLoggedIn && displayName ? (
                 <>
                   {/* 커뮤니티 버튼 */}
                   <Button 
@@ -220,10 +222,10 @@ const Headersub = () => {
                   {/* 사용자 이름 및 아바타 */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography color="inherit">
-                      {userInfo.userName}님
+                      {displayName.userName}님
                     </Typography>
                     <Avatar
-                      {...stringAvatar(userInfo.userName || '')}
+                      {...stringAvatar(displayName.userName || '')}
                       onClick={handleMenuClick}
                     />
                   </Box>

@@ -28,7 +28,7 @@ const LoginModal = ({ open, onClose }) => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState('success');
-  const { setUserSn } = useStore();
+  const { setUserAuth } = useStore();
 
   useEffect(() => {
     if (open) {
@@ -51,8 +51,10 @@ const LoginModal = ({ open, onClose }) => {
         const { user } = data;
         
         // Zustand 전역 상태에 userSn 설정
-        setUserSn(user.userSn);
-                
+        setUserAuth(user.userSn, user.role);
+
+        console.log(`로그인 시 설정된 userSn: ${user.userSn}, userRole: ${user.role}`)        
+        
         setAlertSeverity('success');
         setAlertMessage('로그인 되었습니다.');
         setShowAlert(true);
@@ -169,7 +171,7 @@ const LoginModal = ({ open, onClose }) => {
                   const pastedText = e.clipboardData.getData('text').trim();
                   setFormData({...formData, password: pastedText});
                 }}
-                // 스페이스바 방지는 유지
+                // 스페이스바 방지
                 onKeyDown={(e) => {
                   if (e.key === ' ') e.preventDefault();
                 }}

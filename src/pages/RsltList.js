@@ -8,7 +8,7 @@ import GuaranteeRangeModal from "../components/guaranteeModal";
 import MonthlyRangeModal from "../components/monthlyModal";
 import NaverMap from "../components/navermap";
 import { useStore } from '../zustand/store';
-import { Box, Button, Typography, Chip, Card, CardContent, CardMedia } from "@mui/material";
+import { Box, Button, Typography, Chip, Card, CardContent, CardMedia, Pagination } from "@mui/material";
 
 const seoulDistricts = [
   "강남구", "강동구", "강북구", "강서구", "관악구",
@@ -44,6 +44,7 @@ const RsltList = () => {
   const [loading, setLoading] = useState(true);
   const [lat, setLat] = useState();
   const [lng, setLng] = useState();
+  const [totalPages, setTotalPages] = useState(1);
 
   const handleModalConfirm = () => {
     setLocation(selectedDistricts);
@@ -111,10 +112,12 @@ const RsltList = () => {
 
   const listHandler = async () => {
     try {
-      const response = await api.post("/rslt-list",  params);
-
+      const response = await api.post("/rslt-list", params);
       if (response.data) {
         setResults(response.data.data);
+        // Calculate total pages using totalCount
+        const totalCount = response.data.totalCount || 0;
+        setTotalPages(Math.ceil(totalCount / pageSize));
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -292,7 +295,17 @@ const RsltList = () => {
                   sx={{ maxWidth: "100%", boxShadow: 3, cursor: "pointer" }}
                   onClick={() => dtlHandler(item.jutaekDtlSn)}
                 >
-                  <Box sx={{ height: 120, backgroundColor: "#e0e0e0" }} />
+                  <Box
+                    sx={{
+                      height: 120,
+                      backgroundImage: item.jutaekImg && item.jutaekImg.length > 0 
+                        ? `url(${item.jutaekImg[0]})`
+                        : "none",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                    }}
+                  />
                   <CardContent>
                     <Typography variant="h6" fontWeight="bold" fontSize="14px">
                       주택 유형: {item.jutaekType}
@@ -309,6 +322,16 @@ const RsltList = () => {
               검색 결과가 없습니다.
             </Typography>
           )}
+
+            {/* Pagination */}
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+            <Pagination
+              count={totalPages}
+              page={pageNum}
+              onChange={(event, value) => setPageNum(value)}
+              color="primary"
+            />
+          </Box>
         </Box>
 
       
