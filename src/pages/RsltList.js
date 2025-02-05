@@ -98,6 +98,7 @@ const RsltList = () => {
     pageNum,
     userSn,
     gongoSn,
+    location,
     ...(minSize && { minSize }),
     ...(maxSize && { maxSize }),
     ...(minGuarantee && { minGuarantee }),
