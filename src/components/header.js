@@ -30,6 +30,7 @@ const Header = () => {
   // Zustand store에서 필요한 상태와 함수들 가져옴
   const { gongoSn, gongoName } = useStore();
   const { userSn } = useStore();  
+  const [ isLoading, setIsloading ] = useState(true);
   // Local Stroage 대신 Zustand store의 userSn 사용해 로그인 상태 확인
   const isLoggedIn = !!userSn;
   // 사용자 정보 상태 
@@ -38,53 +39,26 @@ const Header = () => {
   const showGongoRoutes = ['/', '/list']
   const shoutShowGongo = showGongoRoutes.includes(location.pathname);
 
+
+  
+
+  // userSn이 있는 경우만 '/users/me' 요청 
   useEffect(() => {
-    const initializeUserInfo = async () => {
-      // userSn이 없는 상황
-      if (!userSn) {
-        try {
-          const response = await api.get('users/me');
+    if (userSn) {
+      api.get('users/me')
+        .then(response => {
           if (response.data.resultCode === 200) {
-            useStore.getState().setUserAuth(
-              response.data.user.userSn,
-              response.data.user.role);
             setDisplayName({
               userName: response.data.user.userName
-            });            
+            });
           }
-        } catch (error) {
-          // 401, 403 에러면 조용히 처리 (로그인 안된 상태)
-          if (error.response?.status !== 401 && error.response?.status !== 403) {
-            console.error('사용자 정보 초기화 실패:', error);
-          }
-        }      
-      }
-    };
-    
-    initializeUserInfo();
-  }, []);
-
-  // userSn이 있을 때 사용자 정보 조회
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      if (userSn) {
-        try {
-          const response = await api.get('users/me');
-          if (response.data.resultCode === 200){
-          setDisplayName({
-            userName: response.data.user.userName
-          });
-          }
-        } catch (error) {
-          if (error.response?.status !== 401 && error.response?.status !== 403) {
-          console.error('사용자 정보 조회 중 오류 발생:', error);
-          handleLogout();
-          }
-        }
-      }
-    };
-    if (userSn){
-      fetchUserInfo();
+        })
+        .catch(error => {
+          console.error('사용자 정보 조회 실패:', error);
+        })
+        .finally(() => setIsloading(false));
+    } else {
+      setIsloading(false);
     }
   }, [userSn]);
 
@@ -100,7 +74,7 @@ const Header = () => {
       useStore.getState().setUserAuth(null, null); // userAuth 초기화
       useStore.getState().setGongoInfo('',''); // gongo 정보 초기화
       // 로컬 상태 초기화
-      setDisplayName(null);            
+      setDisplayName(null);       
 
       // 성공 알림 표시
       setShowAlert(true); // Alert 표시

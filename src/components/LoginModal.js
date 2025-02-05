@@ -43,17 +43,13 @@ const LoginModal = ({ open, onClose }) => {
       const response = await api.post('/users/login', {
         email: formData.email,
         password: formData.password
-      });
-      const data = response.data;
+      });      
 
-      if (data.resultCode === 200){
-        
-        const { user } = data;
-        
-        // Zustand 전역 상태에 userSn 설정
-        setUserAuth(user.userSn, user.role);
-
-        console.log(`로그인 시 설정된 userSn: ${user.userSn}, userRole: ${user.role}`)        
+      if (response.data.resultCode === 200){
+        setUserAuth(
+          response.data.user.userSn,
+          response.data.user.role
+        );
         
         setAlertSeverity('success');
         setAlertMessage('로그인 되었습니다.');
@@ -72,7 +68,7 @@ const LoginModal = ({ open, onClose }) => {
           password: '' // 비밀번호 초기화
         }));
         setAlertSeverity('error');
-        setAlertMessage(data.resultMsg);
+        setAlertMessage(response.data.resultMsg);
         setShowAlert(true);
         setTimeout(() => {
           setShowAlert(false);
