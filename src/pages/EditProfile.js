@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 // import Mypage_Container from '../components/MyPage_Container'; //React 컴포넌트 이름은 대문자로 시작해야 정상적으로 렌더링
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/headersub';
+import Header from '../components/header';
 import Sidebar from '../components/Mypage_SideBar';
 import api from '../utils/api';
 import { 

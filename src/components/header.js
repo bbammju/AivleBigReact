@@ -189,10 +189,8 @@ const Header = () => {
         <Container maxWidth={false}>
           <Toolbar
             sx={{
-              display: 'grid',
-              gridTemplateColumns: (isLoggedIn && shoutShowGongo)
-                ? 'auto 1fr auto'
-                : 'auto auto',
+              display: 'flex',
+              justifyContent: 'space-between',
               alignItems: 'center',
             }}
             >
