@@ -11,7 +11,8 @@ export const useStore = create(
 
       // userSn 관련 상태 (persist 적용 안 함)
       userSn: null,
-      setUserSn: (userSn) => set({ userSn }),
+      userRole: null, // 권한 추가
+      setUserAuth: (userSn, userRole) => set({ userSn, userRole }),
     }),
     {
       name: "gongo-store", // localstorage에 저장될 key 이름
