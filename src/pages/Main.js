@@ -108,14 +108,28 @@ try {
 
         
         <Box sx={{ 
-          bgcolor: 'white', 
-          p: 4, 
+          backgroundColor: 'transparent',                             
+          p: 4,
           borderRadius: 2,
           maxWidth: '600px'
         }}>
-          <FormControl fullWidth sx={{ mb: 3 }}>
-            <InputLabel>현재 진행중인 공고</InputLabel>
+          <FormControl  fullWidth 
+            variant="outlined"  
+            sx={{ 
+              mb: 3,
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#000',       
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#000',       
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#000',       
+              }
+            }}>
+            <InputLabel sx={{ color: '#fff' }}>현재 진행중인 공고</InputLabel>
             <Select
+              sx  ={{color: '#fff'}}
               value={selectedGongo || ""} 
               label="현재 진행중인 공고"
               onChange={handleGongoChange}
@@ -137,10 +151,10 @@ try {
 
           {selectedGongo && (
             <Box sx={{ mb: 3 }}>
-              <Typography variant="body1" gutterBottom>
+              <Typography variant="body1"  gutterBottom sx={{ color: '#fff' }}>
                 공고명: {selectedGongo.gongoName}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{ color: '#fff' }}>
                 공고 기간: {selectedGongo.scheduleStartDt} ~ {selectedGongo.scheduleEndDt}
               </Typography>
             </Box>
@@ -152,6 +166,17 @@ try {
             onClick={handlePredict}
             disabled={!selectedGongo}
             fullWidth
+            sx={{
+            backgroundColor: '#fff',
+            color: '#000',
+            '&:hover': {
+              backgroundColor: '#f0f0f0',
+            },
+            '&.Mui-disabled': {
+              backgroundColor: 'transparent', 
+              color: 'transparent',    
+            }
+            }}
           >
             당첨 예측하기
           </Button>
