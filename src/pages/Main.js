@@ -111,25 +111,34 @@ try {
           backgroundColor: 'transparent',                             
           p: 4,
           borderRadius: 2,
-          maxWidth: '600px'
+          maxWidth: '600px',
+          marginTop: 20,  // 위쪽 여백
+          marginLeft: -4, // 왼쪽 여백
         }}>
           <FormControl  fullWidth 
-            variant="outlined"  
+            variant="standard"  
             sx={{ 
               mb: 3,
-              '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#000',       
-              },
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#000',       
-              },
-              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#000',       
-              }
+              borderBottom: '1px solid #fff',
             }}>
-            <InputLabel sx={{ color: '#fff' }}>현재 진행중인 공고</InputLabel>
+            <InputLabel sx={{ 
+               color: '#fff',
+               fontWeight: 'bold',
+               fontSize: '1.2rem'
+             }}>현재 진행중인 공고</InputLabel>
             <Select
-              sx  ={{color: '#fff'}}
+              disableUnderline
+              sx={{
+                color: '#fff',
+                '& .MuiSelect-icon': {
+                  color: '#fff',
+                },
+                '& .MuiSelect-select': {
+                  fontWeight: 'bold',
+                  fontSize: '1.2rem'
+                },
+                paddingY: 0.5,
+              }}
               value={selectedGongo || ""} 
               label="현재 진행중인 공고"
               onChange={handleGongoChange}
@@ -151,10 +160,10 @@ try {
 
           {selectedGongo && (
             <Box sx={{ mb: 3 }}>
-              <Typography variant="body1"  gutterBottom sx={{ color: '#fff' }}>
+              <Typography variant="body1"  gutterBottom sx={{ color: '#fff',fontWeight: 'bold',fontSize: '1.2rem' }}>
                 공고명: {selectedGongo.gongoName}
               </Typography>
-              <Typography variant="body2" sx={{ color: '#fff' }}>
+              <Typography variant="body2" sx={{ color: '#fff',fontWeight: 'bold',fontSize: '1.2rem' }}>
                 공고 기간: {selectedGongo.scheduleStartDt} ~ {selectedGongo.scheduleEndDt}
               </Typography>
             </Box>
