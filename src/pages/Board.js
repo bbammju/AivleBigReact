@@ -7,6 +7,7 @@ import { Tabs, Tab, Table, TableHead, TableRow, TableCell, TableBody, Box, Typog
   Pagination,
  } from "@mui/material";
 import { useStore } from '../zustand/store';
+// import DOMPurify from 'dompurify';
 
 // CustomTabs 컴포넌트
 const CustomTabs = ({ tabs, activeTab, setActiveTab, setCurrentPage }) => {
@@ -53,27 +54,17 @@ const Board = () => {
     const tabs = [
       { id: "gongo", label: "공고게시판" },
       { id: "user", label: "유저게시판" },
-      { id: "news", label: "청약뉴스" }
     ];
     
     const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'gongo');
-    const [data, setData] = useState({ "gongo": [],
-        "user": [], 
-        "news": [
-            { no: 1, title: "청약 뉴스 1", writer: "기자1", date: "2025-01-18", views: 12 },
-            { no: 2, title: "청약 뉴스 2", writer: "기자2", date: "2025-01-17", views: 20 },
-            { no: 3, title: "청약 뉴스 3", writer: "기자3", date: "2025-01-16", views: 8 },
-            { no: 4, title: "청약 뉴스 4", writer: "기자4", date: "2025-01-15", views: 14 },
-            { no: 5, title: "청약 뉴스 5", writer: "기자5", date: "2025-01-14", views: 18 },
-        ] });
+    const [data, setData] = useState({ "gongo": [], "user": []});
     const [currentPage, setCurrentPage] = useState(1);
     const navigate = useNavigate();
     const { id } = useParams();
     const { userSn } = useStore();
 
-    const handleEditPost = (post) => {
-      // navigate(`/edit-post/${boardSn}`);
-      navigate("/boardform", { state: { post } });
+    const handleEditPost = (post, imgs) => {
+      navigate("/boardform", { state: { post, imgs } });
     };
     
     const handleDeletePost = async (boardSn) => {
@@ -132,36 +123,37 @@ const Board = () => {
     // Render detailed post if an ID is provided
     const [images, setImages] = useState([]);
     const [post, setPost] = useState(null);
-    const [isOwner, setIsOwner] = useState(false); 
-    useEffect(() => {
-      // 이미지 정보 가져오기
-      const fetchImages = async () => {
-        if (activeTab === "user" && id ) {
-          try {
-            const response = await api.get(`/board/images?boardSn=${id}`); // 서버 이미지 API 호출
-            setImages(response.data);
-          } catch (error) {
-            console.error("이미지를 가져오는 중 오류가 발생했습니다.", error);
-          }
-        }
-      };
-      fetchImages();
-    }, [activeTab, id]);
+    const [isOwner, setIsOwner] = useState(false);
+
+    // useEffect(() => {
+    //   // 이미지 정보 가져오기
+    //   const fetchImages = async () => {
+    //     if (activeTab === "user" && id ) {
+    //       try {
+    //         const response = await api.get(`/board/images?boardSn=${id}`); // 서버 이미지 API 호출
+    //         setImages(response.data);
+    //       } catch (error) {
+    //         console.error("이미지를 가져오는 중 오류가 발생했습니다.", error);
+    //       }
+    //     }
+    //   };
+    //   fetchImages();
+    // }, [activeTab, id]);
 
       useEffect(() => {
-        const fetchPost = async () => {
+        const fetchPostDetails = async () => {
           if (activeTab === "user" && id) {
             try {
               const response = await api.get(`/board/detail?boardSn=${id}&userSn=${userSn}`);
               setPost(response.data.post);
               setIsOwner(response.data.isOwner);
-              // setImages(response.data.imgs);
+              setImages(response.data.imgs || []);
             } catch (error) {
               console.error("게시글을 가져오는 중 오류가 발생했습니다.", error);
             }
           }
         };
-        fetchPost();
+        fetchPostDetails();
       }, [activeTab, id, userSn]);
 
       if (activeTab === "user" && id ) {
@@ -194,8 +186,9 @@ const Board = () => {
                 <Typography variant="body1">
                   <div
                     style={{ whiteSpace: 'pre-wrap' }}
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content)}}
                   />
+                  {/*  __html: DOMPurify.sanitize(post.content) */}
                   </Typography>
                   {/* 이미지 렌더링 */}
                 <Box sx={{ mt: 4 }}>
@@ -213,7 +206,7 @@ const Board = () => {
                   </Box>
                   {isOwner && (
                     <div style={{ marginTop: "20px" }}>
-                      <Button variant="outlined" onClick={() => handleEditPost(post)}>수정</Button>
+                      <Button variant="outlined" onClick={() => handleEditPost(post, images)}>수정</Button>
                       <Button variant="contained" color="error" onClick={() => handleDeletePost(post.boardSn)}>삭제</Button>
                     </div>
               )}

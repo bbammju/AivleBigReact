@@ -17,29 +17,23 @@ const BoardForm = () => {
   const { userSn } = useStore();
   const location = useLocation();
   const post = location.state?.post; // 전달받은 게시글 데이터
+  const imgs = location.state?.imgs;
 
   const [title, setTitle] = useState(post?.title || "");
   const [content, setContent] = useState(post?.content || "");
-  const [files, setFiles] = useState([]);
-  const [existingImages, setExistingImages] = useState([]);
+  const [files, setFiles] = useState([]); // 사용자가 새로 추가한 이미지 파일 목록
+  const [existingImages, setExistingImages] = useState([]); // 서버로부터 받은 이미지
   const [deletedFileIds, setDeletedFileIds] = useState([]);
 
   useEffect(() => {
     if (post) {
       setTitle(post.title);
       setContent(post.content);
-      fetchExistingImages();
     }
-  }, [post]);
-
-  const fetchExistingImages = async () => {
-    try {
-      const response = await api.get(`/board/images?boardSn=${post.boardSn}`);
-      setExistingImages(response.data);
-    } catch (error) {
-      console.error('Failed to fetch existing images:', error);
+    if (imgs) {
+      setExistingImages(imgs);
     }
-  };
+  }, [post, imgs]);
 
   // 파일 선택 핸들러
   const handleFileChange = (e) => {
@@ -50,12 +44,13 @@ const BoardForm = () => {
     if (validFiles.length < selectedFiles.length) {
       alert('이미지 파일만 업로드 가능합니다.');
     }
-    setFiles(validFiles);
+    setFiles(prevFiles => [...prevFiles, ...validFiles]);
   };
 
   const handleDeleteExistingImage = (imageId) => {
     setDeletedFileIds(prevIds => [...prevIds, imageId]);
-    setExistingImages(prevImages => prevImages.filter(img => img.id !== imageId));
+    setExistingImages(prevImages => prevImages.filter(img => img.imgSn !== imageId));
+    console.log(`이미지 ${imageId} 삭제 요청됨`);
   };
 
   // 게시글 등록 핸들러
@@ -68,6 +63,7 @@ const BoardForm = () => {
     formData.append('title', title);
     formData.append('content', content);
     formData.append('userSn', userSn);
+    formData.append('existingImages', imgs);
 
     // 다중 파일 추가
     files.forEach(file => formData.append('files', file));
@@ -122,7 +118,6 @@ const BoardForm = () => {
     setActiveTab(newValue);
     if (newValue === 'gongo') navigate('/board', { state: { activeTab: 'gongo' }});
     if (newValue === 'user') navigate('/board', { state: { activeTab: 'user' }});
-    if (newValue === 'news') navigate('/board', { state: { activeTab: 'news' }});
   };
 
   return (
@@ -130,7 +125,7 @@ const BoardForm = () => {
     <Header />
     <Box sx={{ width: "80%", margin: "0 auto", textAlign: "center", mt: 4 }}>
       <Tabs value={activeTab} onChange={handleTabChange} centered>
-          {["공고게시판", "유저게시판", "청약뉴스"].map((label, id) => (
+          {["공고게시판", "유저게시판"].map((label, id) => (
             <Tab key={id} label={label} value={label.toLowerCase()} />
           ))}
       </Tabs>
@@ -179,11 +174,20 @@ const BoardForm = () => {
         </div>
             <label htmlFor="file">파일 업로드:</label>
             <input id="file" type="file" multiple accept="image/*" onChange={handleFileChange} />
-            {existingImages.map(img => (
-                <div key={img.id}>
-                  <img src={img.path} alt={img.oriFileName} style={{ maxWidth: '100px' }} />
-                  <button type="button" onClick={() => handleDeleteExistingImage(img.id)}>삭제</button>
-                </div>
+            {files.map((file, index) => (
+              <li key={index}>{file.name}</li>
+            ))}
+            {existingImages && existingImages.map(img => (
+                // <div key={img.id}>
+                //   <img src={img.path} alt={img.oriFileName} style={{ maxWidth: '100px' }} />
+                //   <button type="button" onClick={() => handleDeleteExistingImage(img.id)}>삭제</button>
+                // </div>
+                img && img.path ? (
+                  <div key={img.imgSn}>
+                    <img src={`${img.path}${img.fileName}`} alt={img.oriFileName || '이미지'} style={{ maxWidth: '100px' }} />
+                    <button type="button" onClick={() => handleDeleteExistingImage(img.imgSn)}>삭제</button>
+                  </div>
+                ) : null
               ))}
             <button type="submit" style={{ marginTop: "20px" }}>{post ? "수정하기" : "게시글 등록"}</button>
             <button sx={{ ml: 2 }} variant="outlined" onClick={() => navigate("/board")}>취소</button>
