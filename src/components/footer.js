@@ -7,13 +7,14 @@ import {
   Link, 
   Divider 
 } from '@mui/material';
+import { grey, blueGrey } from '@mui/material/colors'; 
 
 const Footer = () => {
   return (
     <Box
       component="footer"
       sx={{
-        backgroundColor: "primary.main",
+        backgroundColor: grey[900],
         color: "white",
         py: 2,
         mt: "auto",

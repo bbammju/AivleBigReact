@@ -160,12 +160,14 @@ const Header = () => {
           backgroundColor: 'transparent',
           boxShadow: 'none',
         }}>
-        <Container maxWidth={false}>
+        <Container maxWidth={false} sx={{ px: 4}}>
           <Toolbar
             sx={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
+              ml: 3, // 로고 위치 조정
+              mr: 3, // 회원가입, 로그인 버튼 조정정
             }}
             >
             <Box
@@ -174,7 +176,8 @@ const Header = () => {
               alt="Logo"
               sx={{ 
                 height: 50,
-                cursor: 'pointer' 
+                cursor: 'pointer',
+                
               }}
               onClick={handleLogoClick}
             />
