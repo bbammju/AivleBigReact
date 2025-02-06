@@ -112,8 +112,8 @@ try {
           p: 4,
           borderRadius: 2,
           maxWidth: '600px',
-          marginTop: 20,  // 위쪽 여백
-          marginLeft: -4, // 왼쪽 여백
+          marginTop: 20,  
+          marginLeft: -4,
         }}>
           <FormControl  fullWidth 
             variant="standard"  
