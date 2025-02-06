@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../assets/zipline.png';
 import { useStore } from '../zustand/store';
 import { useLocation } from 'react-router-dom';
+import apartmentImage from '../assets/apartmentimage.png';
 import {
   AppBar,
   Toolbar,
@@ -152,7 +153,15 @@ const Headersub = () => {
           로그아웃 되었습니다.
         </Alert>
       )}
-      <AppBar position="static">
+      <AppBar position="static"
+        sx={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${apartmentImage})`, 
+          backgroundSize: "cover",
+          backgroundPosition: "top",
+          backgroundRepeat: "no-repeat",
+          backgroundColor: "transparent",
+          boxShadow: "none",
+        }}>
         <Container maxWidth={false}>
           <Toolbar>
             <Box
