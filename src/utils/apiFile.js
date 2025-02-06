@@ -1,5 +1,9 @@
 import axios from 'axios';
+<<<<<<< HEAD
 // import Client from 'ftp';
+=======
+import api from './api'; // api.js를 가져와서 사용용
+>>>>>>> a7a0e213b7f212c49f456d9c7c2caafef9a1a6c9
 
 // // FTP 서버 정보
 // const FTP_CONFIG = {
