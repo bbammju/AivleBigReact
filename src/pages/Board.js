@@ -6,10 +6,10 @@ import { Tabs, Tab, Table, TableHead, TableRow, TableCell, TableBody, Box, Typog
     Button, Paper,
   Pagination,
  } from "@mui/material";
+import { useStore } from '../zustand/store';
 
 // CustomTabs 컴포넌트
 const CustomTabs = ({ tabs, activeTab, setActiveTab, setCurrentPage }) => {
-
     return (
       <Tabs
         value={activeTab}
@@ -48,7 +48,6 @@ const CustomTabs = ({ tabs, activeTab, setActiveTab, setCurrentPage }) => {
       .replace(/<(?!img)[^>]+>/g, '');  // img 태그 외 모든 태그 제거
   }
   
-  
 const Board = () => {
     const location = useLocation();
     const tabs = [
@@ -57,7 +56,6 @@ const Board = () => {
       { id: "news", label: "청약뉴스" }
     ];
     
-    // tab.id
     const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'gongo');
     const [data, setData] = useState({ "gongo": [],
         "user": [], 
@@ -71,33 +69,52 @@ const Board = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const navigate = useNavigate();
     const { id } = useParams();
+    const { userSn } = useStore();
+
+    const handleEditPost = (post) => {
+      // navigate(`/edit-post/${boardSn}`);
+      navigate("/boardform", { state: { post } });
+    };
+    
+    const handleDeletePost = async (boardSn) => {
+      if (!window.confirm("정말 삭제하시겠습니까?")) return;
+      try {
+        await api.put(`/board/${boardSn}?userSn=${userSn}`);
+        alert("게시글이 삭제되었습니다.");
+        // 게시글 삭제 후 데이터 새로 불러오기
+      if (activeTab === "user") {
+        fetchUserBoardList(); // 사용자 게시판 새로고침
+      }
+        navigate("/board");
+      } catch (error) {
+        console.error("게시글 삭제 오류:", error);
+        alert("게시글 삭제 중 오류가 발생했습니다.");
+      }
+    };
+    
+    const fetchUserBoardList = async () => {
+      try {
+        const response = await api.get("/board");
+        setData((prevData) => ({
+          ...prevData,
+          user: response.data.boardListResponse || [],
+        }));
+      } catch (error) {
+        console.error("Error fetching user board data:", error);
+      }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
+          try {
             if (activeTab === "user") {
-                try {
-                    const response = await api.get("/board");
-                    const boardListResponse = response.data.boardListResponse;
-                    setData((prevData) => ({
-                        ...prevData,
-                        user:  boardListResponse || [],
-                      }));
-                    console.log(boardListResponse);
-                } catch (error) {
-                    console.error("Error fetching data:", error);
-                }
+              fetchUserBoardList(); // 사용자 게시판 로드
             } else if (activeTab === "gongo") {
-              try {
-                  const response = await api.get("/gongoboard");
-                  const gongoListResponse = response.data.gongoListResponse;
-                  setData((prevData) => ({
-                      ...prevData,
-                      gongo:  gongoListResponse || [],
-                    }));
-                  // console.log(gongoListResponse);
-              } catch (error) {
-                  console.error("Error fetching data:", error);
-              }
+              const response = await api.get("/gongoboard");
+              setData((prevData) => ({ ...prevData, gongo: response.data.gongoListResponse || [] }));
+            }
+          } catch (error) {
+            console.error("Error fetching data:", error);
           }
         };
         fetchData();
@@ -114,46 +131,59 @@ const Board = () => {
 
     // Render detailed post if an ID is provided
     const [images, setImages] = useState([]);
-        useEffect(() => {
-          // 이미지 정보 가져오기
-          const fetchImages = async () => {
-            if (activeTab === "user" && id ) {
-              try {
-                const response = await api.get(`/board/images?boardSn=${id}`); // 서버 이미지 API 호출
-                setImages(response.data);
-              } catch (error) {
-                console.error("이미지를 가져오는 중 오류가 발생했습니다.", error);
-             }
-            }
-          };
-          fetchImages();
-        }, [activeTab, id]);
+    const [post, setPost] = useState(null);
+    const [isOwner, setIsOwner] = useState(false); 
+    useEffect(() => {
+      // 이미지 정보 가져오기
+      const fetchImages = async () => {
+        if (activeTab === "user" && id ) {
+          try {
+            const response = await api.get(`/board/images?boardSn=${id}`); // 서버 이미지 API 호출
+            setImages(response.data);
+          } catch (error) {
+            console.error("이미지를 가져오는 중 오류가 발생했습니다.", error);
+          }
+        }
+      };
+      fetchImages();
+    }, [activeTab, id]);
 
+      useEffect(() => {
+        const fetchPost = async () => {
+          if (activeTab === "user" && id) {
+            try {
+              const response = await api.get(`/board/detail?boardSn=${id}&userSn=${userSn}`);
+              setPost(response.data.post);
+              setIsOwner(response.data.isOwner);
+              // setImages(response.data.imgs);
+            } catch (error) {
+              console.error("게시글을 가져오는 중 오류가 발생했습니다.", error);
+            }
+          }
+        };
+        fetchPost();
+      }, [activeTab, id, userSn]);
 
       if (activeTab === "user" && id ) {
-        const post = data[activeTab]?.find((item) => item.boardSn === parseInt(id));
         if (!post) return <Typography>Loading...</Typography>;
         return (
-            <>
+          <>
             <Header />
-            <Box sx={{ width: "80%", margin: "0 auto", textAlign: "center", mt: 4,
-             }}>
-            <CustomTabs
-                tabs={tabs}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                setCurrentPage={setCurrentPage}
-            />
-          <Paper
-            elevation={2}
-            sx={{
-              flex: 1,
-              padding: 4,
-              borderRadius: 3,
-              margin: 2,
-              backgroundColor: "white",
-            }}
-          >
+            <Box sx={{ width: "80%", margin: "0 auto", textAlign: "center", mt: 4 }}>
+              <CustomTabs
+                  tabs={tabs}
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  setCurrentPage={setCurrentPage}
+              />
+              <Paper
+                elevation={2}
+                sx={{
+                  flex: 1,
+                  padding: 4,
+                  borderRadius: 3,
+                  margin: 2,
+                  backgroundColor: "white" }}>
             <Box sx={{ mt: 4, width: "80%", margin: "0 auto" }}>
                 <Typography variant="h4" gutterBottom>
                 {post.title}
@@ -181,9 +211,13 @@ const Board = () => {
                     ))}
                   </Box>
                   </Box>
-                <Button sx={{ mt: 4 }} variant="contained" onClick={() => navigate("/board")}>
-                뒤로가기
-                </Button>
+                  {isOwner && (
+                    <div style={{ marginTop: "20px" }}>
+                      <Button variant="outlined" onClick={() => handleEditPost(post)}>수정</Button>
+                      <Button variant="contained" color="error" onClick={() => handleDeletePost(post.boardSn)}>삭제</Button>
+                    </div>
+              )}
+                <Button sx={{ mt: 4 }} variant="contained" onClick={() => navigate("/board")}>뒤로가기</Button>
             </Box>
             </Paper>
         </Box>
@@ -191,32 +225,30 @@ const Board = () => {
         );
     }
 
-    // 공고게시물 클릭시시
+    // 공고게시물 클릭시
     if (activeTab === "gongo" && id ) {
       const post = data[activeTab]?.find((item) => item.gongoSn === parseInt(id));
       if (!post) return <Typography>Loading...</Typography>;
 
       return (
-          <>
+        <>
           <Header />
-          <Box sx={{ width: "80%", margin: "0 auto", textAlign: "center", mt: 4,
-           }}>
-          <CustomTabs
-              tabs={tabs}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              setCurrentPage={setCurrentPage}
-          />
-        <Paper
-          elevation={2}
-          sx={{
-            flex: 1,
-            padding: 4,
-            borderRadius: 3,
-            margin: 2,
-            backgroundColor: "white",
-          }}
-        >
+          <Box sx={{ width: "80%", margin: "0 auto", textAlign: "center", mt: 4 }}>
+            <CustomTabs
+                tabs={tabs}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                setCurrentPage={setCurrentPage}
+            />
+          <Paper
+            elevation={2}
+            sx={{
+              flex: 1,
+              padding: 4,
+              borderRadius: 3,
+              margin: 2,
+              backgroundColor: "white",
+            }}>
           <Box sx={{ mt: 4, width: "80%", margin: "0 auto" }}>
               <Typography variant="h4" gutterBottom>
                 {post.gongoName}
@@ -255,7 +287,7 @@ const Board = () => {
       {/* 게시판 내용 */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h5" sx={{ mb: 2 }}>
-        {tabs.find((tab) => tab.id === activeTab)?.label || ""}
+          {tabs.find((tab) => tab.id === activeTab)?.label || ""}
         </Typography>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
@@ -264,27 +296,25 @@ const Board = () => {
               <TableCell>제목</TableCell>
               {activeTab === "user" && <TableCell>글쓴이</TableCell>}
               <TableCell>작성일</TableCell>
-              {/* <TableCell>조회수</TableCell> */}
             </TableRow>
           </TableHead>
           <TableBody>
             {paginatedData.map((item, index) => (
               <TableRow 
-              key={activeTab === "gongo" ? item.gongoSn : item.boardSn}
-              onClick={() => {
-                if (activeTab === "gongo") {
-                  navigate(`/gongoboard/${item.gongoSn}`);
-                } else {
-                  navigate(`/board/${item.boardSn}`);
-                }
-              }}
-                sx={{ cursor: "pointer" }}
+                key={activeTab === "gongo" ? item.gongoSn : item.boardSn}
+                onClick={() => {
+                  if (activeTab === "gongo") {
+                    navigate(`/gongoboard/${item.gongoSn}`);
+                  } else {
+                    navigate(`/board/${item.boardSn}`);
+                  }
+                }}
+                  sx={{ cursor: "pointer" }}
               >
                 <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
                 <TableCell>{activeTab === "gongo" ? item.gongoName : item.title}</TableCell>
                 {activeTab === "user" && <TableCell>{item.userName}</TableCell>}
                 <TableCell>{item.createdDt}</TableCell>
-                {/* <TableCell>{item.views}</TableCell> */}
               </TableRow>
             ))}
           </TableBody>

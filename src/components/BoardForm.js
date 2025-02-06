@@ -1,23 +1,45 @@
 // src/components/BoardForm.js
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import api from '../utils/api';
-import apiFile from '../utils/apiFile';
+// import apiFile from '../utils/apiFile';
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import Header from "../components/header";
 import { Tabs, Tab, Box, Typography, Paper
  } from "@mui/material";
- import { useNavigate } from "react-router-dom";
+ import { useNavigate, useLocation  } from "react-router-dom";
  import { useStore } from '../zustand/store';
 
 const BoardForm = () => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [files, setFiles] = useState([]);
   const [activeTab, setActiveTab] = useState('user');
   const navigate = useNavigate();
   const quillRef = useRef();
   const { userSn } = useStore();
+  const location = useLocation();
+  const post = location.state?.post; // 전달받은 게시글 데이터
+
+  const [title, setTitle] = useState(post?.title || "");
+  const [content, setContent] = useState(post?.content || "");
+  const [files, setFiles] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
+  const [deletedFileIds, setDeletedFileIds] = useState([]);
+
+  useEffect(() => {
+    if (post) {
+      setTitle(post.title);
+      setContent(post.content);
+      fetchExistingImages();
+    }
+  }, [post]);
+
+  const fetchExistingImages = async () => {
+    try {
+      const response = await api.get(`/board/images?boardSn=${post.boardSn}`);
+      setExistingImages(response.data);
+    } catch (error) {
+      console.error('Failed to fetch existing images:', error);
+    }
+  };
 
   // 파일 선택 핸들러
   const handleFileChange = (e) => {
@@ -31,78 +53,52 @@ const BoardForm = () => {
     setFiles(validFiles);
   };
 
+  const handleDeleteExistingImage = (imageId) => {
+    setDeletedFileIds(prevIds => [...prevIds, imageId]);
+    setExistingImages(prevImages => prevImages.filter(img => img.id !== imageId));
+  };
+
   // 게시글 등록 핸들러
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // FormData 생성 및 데이터 추가
     const formData = new FormData();
+    formData.append('boardSn', post?.boardSn || '');
     formData.append('title', title);
     formData.append('content', content);
     formData.append('userSn', userSn);
 
     // 다중 파일 추가
     files.forEach(file => formData.append('files', file));
+    deletedFileIds.forEach(id => formData.append('deletedFileIds', id));
     
     try {
-      // // 파일 업로드 진행률 관리 예시
-      // let uploadedFileUrl = null;
-      // if (file) {
-      //   const response = await apiFile.uploadFile(file);
-      //   uploadedFileUrl = response.url; // 서버에서 반환하는 URL 사용
-      // }
-      const response = await api.post('/post-board', formData,
-        { headers: { 'Content-Type': "multipart/form-data" },
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        alert('게시글이 등록되었습니다!');
-        // 게시글 등록 성공 후 /board 페이지로 리다이렉트
-        navigate('/board', { state: { activeTab: 'user' } });
+      if (post) {
+        // 게시글 수정 요청
+        await api.post(`/board`, formData,
+          { headers: { 'Content-Type': "multipart/form-data" },
+        }
+        );
+        alert("게시글이 수정되었습니다.");
       } else {
-        alert('게시글 등록에 실패했습니다.');
+        // 새 게시글 등록 요청
+        const response = await api.post('/post-board', formData,
+          { headers: { 'Content-Type': "multipart/form-data" },
+        });
+
+        if (response.status === 200 || response.status === 201) {
+          alert('게시글이 등록되었습니다!');
+        } else {
+          alert('게시글 등록에 실패했습니다.');
+        }
       }
+      navigate('/board', { state: { activeTab: 'user' } });
     } catch (error) {
       console.error('Error:', error);
       alert('오류가 발생했습니다.');
     }
   };
-
-// 이미지 핸들러
-  // const imageHandler = useCallback(() => {
-  //   const input = document.createElement("input");
-  //   input.setAttribute("type", "file");
-  //   input.setAttribute("accept", "image/*");
-  //   input.click();
-
-  //   input.onchange = async () => {
-  //     const file = input.files[0];
-  //     const formData = new FormData();
-  //     formData.append("image", file);
-
-  //     try {
-  //       const refSn = 28;
-  //       const res = await apiFile.uploadFile(file);
-  //       // const res = await api.post(`/files/upload?refTable=board&refSn=${refSn}`, formData); // 이미지 업로드 API 경로
-  //       const url = res.data?.url || res.url || res.fileUrl;
-  //       if (!url) {
-  //         alert("이미지 업로드 실패: 유효한 URL을 받지 못했습니다.");
-  //         return;
-  //       }
-
-  //       const quill = quillRef.current.getEditor();
-  //       const range = quill.getSelection()?.index;
-  //       if (typeof range !== "number") return;
-  //       quill.setSelection(range, 1);
-  //       quill.clipboard.dangerouslyPasteHTML(
-  //         range,
-  //         `<img src=${url} alt="image" />`
-  //       );
-  //     } catch (error) {
-  //       alert("이미지 업로드에 실패했습니다.");
-  //     }
-  //   };
-  // }, []);
 
     const modules = useMemo(
       () => ({
@@ -118,18 +114,22 @@ const BoardForm = () => {
                       { align: [] },
                   ],
               ],
-              // handlers: { // 위에서 만든 이미지 핸들러 사용하도록 설정
-              //     // image: imageHandler,
-              // },
           },
-      }), );
-      // [imageHandler]
+      }), []);
+
+  // 탭 클릭 시 페이지 이동
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+    if (newValue === 'gongo') navigate('/board', { state: { activeTab: 'gongo' }});
+    if (newValue === 'user') navigate('/board', { state: { activeTab: 'user' }});
+    if (newValue === 'news') navigate('/board', { state: { activeTab: 'news' }});
+  };
 
   return (
     <>
     <Header />
     <Box sx={{ width: "80%", margin: "0 auto", textAlign: "center", mt: 4 }}>
-      <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)} centered>
+      <Tabs value={activeTab} onChange={handleTabChange} centered>
           {["공고게시판", "유저게시판", "청약뉴스"].map((label, id) => (
             <Tab key={id} label={label} value={label.toLowerCase()} />
           ))}
@@ -179,9 +179,14 @@ const BoardForm = () => {
         </div>
             <label htmlFor="file">파일 업로드:</label>
             <input id="file" type="file" multiple accept="image/*" onChange={handleFileChange} />
-            <button type="submit" style={{ marginTop: "20px" }}>
-              게시글 등록
-            </button>
+            {existingImages.map(img => (
+                <div key={img.id}>
+                  <img src={img.path} alt={img.oriFileName} style={{ maxWidth: '100px' }} />
+                  <button type="button" onClick={() => handleDeleteExistingImage(img.id)}>삭제</button>
+                </div>
+              ))}
+            <button type="submit" style={{ marginTop: "20px" }}>{post ? "수정하기" : "게시글 등록"}</button>
+            <button sx={{ ml: 2 }} variant="outlined" onClick={() => navigate("/board")}>취소</button>
           </form>
     </div>
     </Paper>
