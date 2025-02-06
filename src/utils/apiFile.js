@@ -1,8 +1,15 @@
 import axios from 'axios';
+// import Client from 'ftp';
 
+// // FTP 서버 정보
+// const FTP_CONFIG = {
+//     host: '4.217.186.166',
+//     port: 21,
+//     user: 'aivler',
+//     password: 'aivle202406'
+//   };
 
-// 파일 전용 API 생성 (파일 관련 코드짜는 사람이 업로드/다운로드 함수 바꾸면 됩니다. )
-// 요청, 응답 인터셉터는 api와 동일하게 설정(백엔드에서 jwt 인증 통과하기 위해 필요)
+// 파일 전용 API 생성
 const apiFile = axios.create({
     baseURL: process.env.REACT_APP_API_URL,
     headers: {
@@ -25,7 +32,6 @@ apiFile.interceptors.response.use(
 
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
-
             try {
                 await axios.post(`${process.env.REACT_APP_API_URL}/users/reissue`, {}, { withCredentials: true });
                 return apiFile.request(originalRequest);
@@ -35,23 +41,54 @@ apiFile.interceptors.response.use(
                 return Promise.reject(err);
             }
         }
-
         return Promise.reject(error);
     }
 );
 
-// 🔹 파일 업로드 함수(필요시 변경)
-apiFile.uploadFile = async (file, onProgress) => {
+// 🔹 파일 업로드 함수 (FTP 서버에 저장 후 MySQL에 주소 저장)
+apiFile.uploadFile = async (file, refTable = 'board', refSn = 0) => {
+    // if (!file) throw new Error('파일이 필요합니다.');
+
+    // const ftpClient = new Client();
+    // const filePath = `/uploads/${file.name}`;
+    
+    // return new Promise((resolve, reject) => {
+    //     ftpClient.on('ready', () => {
+    //     ftpClient.put(file, filePath, async (err) => {
+    //         if (err) {
+    //         reject(err);
+    //         } else {
+    //         ftpClient.end();
+    //         const fileUrl = `http://ftp.example.com/uploads/${file.name}`;
+
+    //         try {
+    //             // MySQL에 파일 주소 저장 요청
+    //             await apiFile.post('/files/save', {
+    //             fileUrl,
+    //             refTable,
+    //             refSn
+    //             });
+    //             resolve(fileUrl);
+    //         } catch (dbError) {
+    //             reject(dbError);
+    //         }
+    //         }
+    //     });
+    //     });
+
+    //     ftpClient.on('error', reject);
+    //     ftpClient.connect(FTP_CONFIG);
+    // });
     const formData = new FormData();
     formData.append('file', file);
-    formData.append("refTable", "board"); // 🔥 필요한 테이블 이름 전달
-    formData.append("refSn", 28)
+    formData.append("refTable", refTable); // 🔥 필요한 테이블 이름 전달
+    formData.append("refSn", refSn)
     try {
         const response = await apiFile.post('/files/upload', formData, {
             // 업로드 진행률 표시를 위한 설정 추가
             onUploadProgress: (progressEvent) => {
                 const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                onProgress?.(percentage);
+                // onProgress?.(percentage);
             },
         });
         return response.data;
@@ -61,6 +98,24 @@ apiFile.uploadFile = async (file, onProgress) => {
         }
         throw error;
     }
+    // const ftpClient = new Client();
+    // return new Promise((resolve, reject) => {
+    //     ftpClient.on('ready', () => {
+    //     const filePath = `/uploads/${file.name}`;
+    //     ftpClient.put(file, filePath, (err) => {
+    //         if (err) {
+    //         reject(err);
+    //         } else {
+    //         // 성공적으로 업로드된 파일의 URL 반환
+    //         resolve(`http://ftp.example.com/uploads/${file.name}`);
+    //         }
+    //         ftpClient.end();
+    //     });
+    //     });
+
+    //     ftpClient.on('error', reject);
+    //     ftpClient.connect(FTP_CONFIG);
+    // });
 };
 
 // 🔹 파일 다운로드 함수(필요시 변경)
