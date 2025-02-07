@@ -39,7 +39,7 @@ const MyPage = () => {
           <Box
             sx={{
                 width: '100%',
-                height: '380px',
+                height: '240px',
                 position: 'relative',
                 background: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${apartmentImage})`, // 불투명도 0.3 -> 0.7로 증가
                 backgroundSize: 'cover',
@@ -90,23 +90,26 @@ const MyPage = () => {
           <Box sx={{ 
               display: "flex", 
               backgroundColor: "#f8fafc",
-              minHeight: 'calc(100vh - 380px)', // 배너 높이만큼 뺌
-              py: 6, // 상하 패딩 추가가
+              // 헤더는 absolute라서 영역을 차지하지 않으므로, banner(240px)와 footer(52px)만 빼면 됨
+              height: 'calc(100vh - 340px)', // 배너 높이만큼 뺌
+              py: 6, // 상하 패딩 추가
           }}>
               {/* Left Sidebar */}
               <Box sx={{ 
                   width: 240, 
                   backgroundColor: 'white',
                   borderRight: '1px solid #e2e8f0',
-                  minHeight: '600px',
+                  height: '100%',
               }}>
                   <Sidebar />
               </Box>
 
               {/* Main Content */}
               <Box sx={{ flex: 1,
-                         p: 4,
-                         minHeight: '600px', //최소 높이 설정정
+                         pt: 0,
+                         px: 4,
+                         pb: 4,
+                         height: '100%', //최소 높이 설정정
                          }}>
                   <Container maxWidth="lg">
                       <Paper
@@ -116,7 +119,7 @@ const MyPage = () => {
                               borderRadius: 2,
                               backgroundColor: "white",
                               border: '1px solid #e2e8f0',
-                              minHeight: '500px', // 최소 높이 설정
+                              height: '100%', // 최소 높이 설정
                           }}
                       >
                           {loading ? (

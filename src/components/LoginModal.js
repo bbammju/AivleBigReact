@@ -116,7 +116,13 @@ const LoginModal = ({ open, onClose }) => {
           {alertMessage}
         </Alert>
       )}
-      <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+      <Dialog 
+        open={open}
+        onClose={onClose} 
+        maxWidth="xs" 
+        fullWidth
+        disableScrollLock={true}
+        >
         <DialogTitle>
           로그인
           <IconButton
@@ -151,6 +157,16 @@ const LoginModal = ({ open, onClose }) => {
                 }}
                 required
                 fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#2B4155'
+                    }
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#2B4155'
+                  }
+                }}
               />
               <TextField
                 label="비밀번호"
@@ -173,6 +189,16 @@ const LoginModal = ({ open, onClose }) => {
                 }}
                 required
                 fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#2B4155'
+                    }
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#2B4155'
+                  }
+                }}
               />
               <Typography
                 variant="body2"
@@ -195,6 +221,13 @@ const LoginModal = ({ open, onClose }) => {
               variant="contained" 
               type="submit" 
               fullWidth
+              sx={{
+                backgroundColor: '#2B4155', // 더 어두운 파란색
+                '&:hover': {
+                  backgroundColor: '#3A5268', // hover 시 좀 더 밝은 톤
+                },
+                transition: 'background-color 0.3s' // 부드러운 색상 전환 효과
+              }}
             >
               로그인
             </Button>

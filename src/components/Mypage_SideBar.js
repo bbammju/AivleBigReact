@@ -16,13 +16,13 @@ import { Person, Key, Star, PersonRemove } from "@mui/icons-material";
 const SidebarListItemButton = styled(ListItemButton)(({ theme }) => ({
   padding: theme.spacing(2),
   '&.Mui-selected': {
-    backgroundColor: theme.palette.action.selected,
+    backgroundColor: 'rgba(43, 65, 85, 0.1)', // #2B4155 with opacity
     '&:hover': {
-      backgroundColor: theme.palette.action.selected,
+      backgroundColor: 'rgba(43, 65, 85, 0.15)',
     },
   },
   '&:hover': {
-    backgroundColor: theme.palette.action.hover,
+    backgroundColor: 'rgba(43, 65, 85, 0.05)',
   },
 }));
 
@@ -56,7 +56,7 @@ const Sidebar = () => {
                 <ListItemIcon 
                   sx={(theme) => ({
                     color: location.pathname === item.path 
-                      ? theme.palette.primary.main 
+                      ? '#2B4155'  // 선택된 아이콘 색상
                       : theme.palette.text.primary,
                     minWidth: 40
                   })}
@@ -69,7 +69,7 @@ const Sidebar = () => {
                     '& .MuiTypography-root': {
                       fontWeight: location.pathname === item.path ? 600 : 400,
                       color: location.pathname === item.path 
-                        ? theme.palette.primary.main 
+                        ? '#2B4155'  // 선택된 텍스트 색상
                         : theme.palette.text.primary,
                     }
                   })}

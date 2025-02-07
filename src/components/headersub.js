@@ -162,8 +162,16 @@ const Headersub = () => {
           backgroundColor: "transparent",
           boxShadow: "none",
         }}>
-        <Container maxWidth={false}>
-          <Toolbar>
+        <Container maxWidth={false} sx={{ px: 4}}>
+          <Toolbar
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              ml: 3, // 로고 위치 조정
+              mr: 3, // 회원가입, 로그인 버튼 조정
+            }}
+            >
             <Box
               component="img"
               src={logo}
@@ -174,14 +182,14 @@ const Headersub = () => {
               }}
               onClick={handleLogoClick}
             />
-            <Box sx={{ flexGrow: 1 }} />
+            {/* <Box sx={{ flexGrow: 1 }} /> */}
             <Typography color="inherit"
             sx={{ 
               fontWeight: 'bold',
               whiteSpace: 'nowrap',
               textAlign: 'center',
-              flexGrow: 1,
-              marginRight: 'auto',
+              // flexGrow: 1,
+              // marginRight: 'auto',
               // 조건부 표시
               display: isLoggedIn && shoutShowGongo ? 'block' : 'none'
             }}
@@ -194,13 +202,21 @@ const Headersub = () => {
                   {/* 커뮤니티 버튼 */}
                   <Button 
                     color="inherit"
-                    onClick={() => navigate('/board')} 
+                    onClick={() => navigate('/board')}
+                    sx={{ 
+                      minWidth: '80px',  // 버튼의 최소 너비 설정
+                      textAlign: 'center'
+                    }}  
                   >
                     커뮤니티
                   </Button>
 
                   {/* 사용자 이름 및 아바타 */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'flex-end',
+                    gap: 1 }}>
                     <Typography color="inherit">
                       {displayName.userName}님
                     </Typography>
@@ -215,6 +231,7 @@ const Headersub = () => {
                     anchorEl={anchorEl}
                     open={open}
                     onClose={handleMenuClose}
+                    disableScrollLock={true}
                     anchorOrigin={{
                       vertical: 'bottom',
                       horizontal: 'right',
