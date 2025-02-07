@@ -7,7 +7,7 @@ import SizeRangeModal from "../components/sizeRangeModal";
 import GuaranteeRangeModal from "../components/guaranteeModal";
 import MonthlyRangeModal from "../components/monthlyModal";
 import NaverMap from "../components/navermap";
-import { useStore } from '../zustand/store';
+import { useStore } from "../zustand/store";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import { Box, Button, Typography, Chip, Card, CardContent, CardMedia, Pagination } from "@mui/material";
@@ -129,7 +129,7 @@ const RsltList = () => {
 
   const dtlHandler = async (sn) => {
     try {
-      const response = await api.get("/jutaek-dtl", { params: { jutaekDtlSn: sn } } );
+      const response = await api.get("/jutaek-dtl", { params: { jutaekDtlSn: sn, userSn: userSn, gongoSn: gongoSn } } );
       
       if (response.data) {
         setDtlData(response.data.data);
@@ -141,30 +141,29 @@ const RsltList = () => {
     }
   };
 
-const favHandler = async (jutaekDtlSn) => {
-  const params = {
-    userSn,
-    gongoSn,
-    jutaekDtlSn, // this parameter controls each data's unique identifier
-  };
+  const favHandler = async (jutaekDtlSn) => {
+    const params = {
+      userSn,
+      gongoSn,
+      jutaekDtlSn, // this parameter controls each data's unique identifier
+    };
 
-  try {
-    const response = await api.post("/fav-ctl", params);
-    if (response.data) {
-      // Optionally update UI (for example, toggle favYn in your state)
-      // For example, you could map through results and update the specific item:
-      setResults((prevResults) =>
-        prevResults.map((item) =>
-          item.jutaekDtlSn === jutaekDtlSn
-            ? { ...item, favYn: item.favYn === "Y" ? "N" : "Y" }
-            : item
-        )
-      );
+    try {
+      const response = await api.post("/fav-ctl", params);
+      if (response.data) {
+        // Optionally update UI (for example, toggle favYn in your state)
+        setResults((prevResults) =>
+          prevResults.map((item) =>
+            item.jutaekDtlSn === jutaekDtlSn
+              ? { ...item, favYn: item.favYn === "Y" ? "N" : "Y" }
+              : item
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
-};
+  };
 
   useEffect(() => {
     listHandler();
@@ -206,7 +205,7 @@ const favHandler = async (jutaekDtlSn) => {
               borderRadius: "4px",
               cursor: "pointer",
               backgroundColor: "white",
-              '&:hover': { borderColor: "#888" },
+              "&:hover": { borderColor: "#888" },
             }}
           >
             <Typography>지역(구)</Typography>
@@ -225,7 +224,7 @@ const favHandler = async (jutaekDtlSn) => {
               borderRadius: "4px",
               cursor: "pointer",
               backgroundColor: "white",
-              '&:hover': { borderColor: "#888" },
+              "&:hover": { borderColor: "#888" },
             }}
           >
             <Typography>면적 선택</Typography>
@@ -244,7 +243,7 @@ const favHandler = async (jutaekDtlSn) => {
               borderRadius: "4px",
               cursor: "pointer",
               backgroundColor: "white",
-              '&:hover': { borderColor: "#888" },
+              "&:hover": { borderColor: "#888" },
             }}
           >
             <Typography>보증금 선택</Typography>
@@ -263,7 +262,7 @@ const favHandler = async (jutaekDtlSn) => {
               borderRadius: "4px",
               cursor: "pointer",
               backgroundColor: "white",
-              '&:hover': { borderColor: "#888" },
+              "&:hover": { borderColor: "#888" },
             }}
           >
             <Typography>월세 선택</Typography>
@@ -274,27 +273,27 @@ const favHandler = async (jutaekDtlSn) => {
             검색
           </Button>
           {/* Hashtags */}
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 2 }}>
-              {location.map((loc, index) => (
-                <Chip
-                  key={index}
-                  label={`#${loc}`}
-                  onDelete={() => {
-                    setLocation((prev) => prev.filter((item) => item !== loc));
-                    setSelectedDistricts((prev) => prev.filter((item) => item !== loc));
-                  }}
-                />
-              ))}
-              {sizeRange.length > 0 && (
-                <Chip label={`#${sizeRange[0]} ~ ${sizeRange[1]} m²`} onDelete={clearSizeRange} />
-              )}
-              {guaranteeRange.length > 0 && (
-                <Chip label={`#${guaranteeRange[0]} ~ ${guaranteeRange[1]}`} onDelete={clearGuaranteeRange} />
-              )}
-              {monthlyRange.length > 0 && (
-                <Chip label={`#${monthlyRange[0]} ~ ${monthlyRange[1]}`} onDelete={clearMonthlyRange} />
-              )}
-            </Box>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 2 }}>
+            {location.map((loc, index) => (
+              <Chip
+                key={index}
+                label={`#${loc}`}
+                onDelete={() => {
+                  setLocation((prev) => prev.filter((item) => item !== loc));
+                  setSelectedDistricts((prev) => prev.filter((item) => item !== loc));
+                }}
+              />
+            ))}
+            {sizeRange.length > 0 && (
+              <Chip label={`#${sizeRange[0]} ~ ${sizeRange[1]} m²`} onDelete={clearSizeRange} />
+            )}
+            {guaranteeRange.length > 0 && (
+              <Chip label={`#${guaranteeRange[0]} ~ ${guaranteeRange[1]}`} onDelete={clearGuaranteeRange} />
+            )}
+            {monthlyRange.length > 0 && (
+              <Chip label={`#${monthlyRange[0]} ~ ${monthlyRange[1]}`} onDelete={clearMonthlyRange} />
+            )}
+          </Box>
         </Box>
       </Box>
 
@@ -313,63 +312,79 @@ const favHandler = async (jutaekDtlSn) => {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: "repeat(2, 1fr)",  // Ensuring 2 items per row
+                gridTemplateColumns: "repeat(2, 1fr)",
                 gap: 2,
               }}
             >
-              {results.map((item) => (
-                <Card
-                  key={item.jutaekDtlSn}
-                  sx={{
-                    position: "relative",  // <-- Make the card the container for absolute positioning
-                    maxWidth: "100%",
-                    boxShadow: 3,
-                    cursor: "pointer",
-                  }}
-                  onClick={() => dtlHandler(item.jutaekDtlSn)}
-                >
-                  {/* Star icon positioned at the top-right corner */}
-                  <Box
+              {results.map((item) => {
+                // Calculate the difference between inputWholeScore and qtyPred
+                const diff = item.inputWholeScore - item.qtyPred;
+                const absDiff = Math.abs(diff);
+                return (
+                  <Card
+                    key={item.jutaekDtlSn}
                     sx={{
-                      position: "absolute",
-                      top: 8,
-                      right: 8,
-                      zIndex: 2, // ensures the star is above other elements
+                      position: "relative",
+                      maxWidth: "100%",
+                      boxShadow: 3,
                       cursor: "pointer",
                     }}
-                    onClick={(e) => {
-                      e.stopPropagation(); // prevent card click event
-                      favHandler(item.jutaekDtlSn); // pass the current card's jutaekDtlSn to the favHandler
-                    }}
+                    onClick={() => dtlHandler(item.jutaekDtlSn)}
                   >
-                    {item.favYn === "Y" ? (
-                      <StarIcon sx={{ color: "yellow" }} />
-                    ) : (
-                      <StarBorderIcon sx={{ color: "black" }} />
-                    )}
-                  </Box>
-                  {/* Image area */}
-                  <Box
-                    sx={{
-                      height: 120,
-                      backgroundImage: item.jutaekImg && item.jutaekImg.length > 0 
-                        ? `url(${item.jutaekImg[0]})`
-                        : "none",
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      backgroundRepeat: "no-repeat",
-                    }}
-                  />
-                  <CardContent>
-                    <Typography variant="h6" fontWeight="bold" fontSize="14px">
-                      주택 유형: {item.jutaekType}
-                    </Typography>
-                    <Typography variant="body2" fontSize="12px">크기: {item.jutaekSize} m²</Typography>
-                    <Typography variant="body2" fontSize="12px">보증금: {item.guarantee} 원</Typography>
-                    <Typography variant="body2" fontSize="12px">월세: {item.monthly} 원</Typography>
-                  </CardContent>
-                </Card>
-              ))}
+                    {/* Star icon positioned at the top-right corner */}
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        zIndex: 2,
+                        cursor: "pointer",
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        favHandler(item.jutaekDtlSn);
+                      }}
+                    >
+                      {item.favYn === "Y" ? (
+                        <StarIcon sx={{ color: "yellow" }} />
+                      ) : (
+                        <StarBorderIcon sx={{ color: "black" }} />
+                      )}
+                    </Box>
+                    {/* Image area */}
+                    <Box
+                      sx={{
+                        height: 120,
+                        backgroundImage:
+                          item.jutaekImg && item.jutaekImg.length > 0
+                            ? `url(${item.jutaekImg[0]})`
+                            : "none",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                      }}
+                    />
+                    <CardContent>
+                      <Typography variant="h6" fontWeight="bold" fontSize="14px">
+                        {item.jutaekName} {item.jutaekType}
+                      </Typography>
+                      <Typography variant="body2" fontSize="12px">
+                        {diff === 0 ? (
+                          "내 순위와 동일합니다"
+                        ) : (
+                          <>
+                            내 순위와{" "}
+                            <span style={{ color: diff < 0 ? "red" : "green" }}>
+                              {absDiff}점
+                            </span>{" "}
+                            차이납니다
+                          </>
+                        )}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </Box>
           ) : (
             <Typography variant="h6" align="center" sx={{ mt: 3, color: "gray" }}>
@@ -377,7 +392,7 @@ const favHandler = async (jutaekDtlSn) => {
             </Typography>
           )}
 
-            {/* Pagination */}
+          {/* Pagination */}
           <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
             <Pagination
               count={totalPages}
@@ -388,44 +403,78 @@ const favHandler = async (jutaekDtlSn) => {
           </Box>
         </Box>
 
-      
         {/* Right Column - Naver Map (65%) */}
         <div style={{ display: "flex", flexDirection: "column", width: "65%", margin: "0 auto", gap: "16px" }}>
           {/* Map Section */}
-          <Box sx={{ width: "96%", height: "60vh", backgroundColor: "#f5f5f5", p: 2, mt: 2 }}>
+          <Box sx={{ width: "96%", height: "65vh", backgroundColor: "#f5f5f5", p: 2, mt: 2 }}>
             {loading ? (
               <Typography>로딩 중...</Typography>
             ) : dtlData ? (
-              <>
-                <NaverMap long={lng} lat={lat} />
-              </>
+              <NaverMap long={lng} lat={lat} />
             ) : (
               <Typography>주택을 선택해주세요.</Typography>
             )}
           </Box>
 
           {/* Housing Details Section */}
-          <Box sx={{ width: "96%", p: 2, backgroundColor: "white", borderRadius: "8px", boxShadow: 2 }}>
+          <Box
+            sx={{
+              width: "96%",
+              p: 2,
+              backgroundColor: "white",
+              borderRadius: "8px",
+              boxShadow: 2,
+            }}
+          >
             {dtlData ? (
-              <>
-                <Typography variant="h6" fontWeight="bold">
-                  {dtlData.jutaekName}
-                </Typography>
-                <Typography variant="body1">주소: {dtlData.jutaekAddress}</Typography>
-                <Typography variant="body1">크기: {dtlData.jutaekSize} m²</Typography>
-                <Typography variant="body1">주거 면적: {dtlData.residentialArea} m²</Typography>
-                <Typography variant="body1">공용 면적: {dtlData.commonArea} m²</Typography>
-                <Typography variant="body1">기타 면적: {dtlData.otherArea} m²</Typography>
-                <Typography variant="body1">보증금: {dtlData.guarantee ? `${dtlData.guarantee} 원` : "정보 없음"}</Typography>
-                <Typography variant="body1">월세: {dtlData.monthly ? `${dtlData.monthly} 원` : "정보 없음"}</Typography>
-              </>
+              <Box sx={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2 }}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      단지명
+                    </Typography>
+                    <Typography variant="body2">
+                      {dtlData.jutaekName}
+                    </Typography>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      크기
+                    </Typography>
+                    <Typography variant="body2">
+                      {dtlData.jutaekSize} m²
+                    </Typography>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      보증금
+                    </Typography>
+                    <Typography variant="body2">
+                      {dtlData.guarantee ? `${dtlData.guarantee} 원` : "정보 없음"}
+                    </Typography>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      월임대료
+                    </Typography>
+                    <Typography variant="body2">
+                      {dtlData.monthly ? `${dtlData.monthly} 원` : "정보 없음"}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Box>
             ) : (
               <Typography>주택 정보를 확인하려면 지도를 클릭하세요.</Typography>
             )}
           </Box>
         </div>
       </Box>
-      
 
       {/* Modals */}
       <DistrictModal
@@ -457,7 +506,6 @@ const favHandler = async (jutaekDtlSn) => {
         initialMin={minGuarantee}
         initialMax={maxGuarantee}
       />
-      
     </>
   );
 };
