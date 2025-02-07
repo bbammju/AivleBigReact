@@ -150,6 +150,13 @@ try {
             sx={{ 
               mb: 3,
               borderBottom: '1px solid #fff',
+              '& .MuiInputLabel-root.Mui-focused': {  // 포커스 됐을 때
+                color: 'rgba(255, 255, 255, 0.9)'  // 더 진한 흰색
+              },
+              '& .MuiInputLabel-root.MuiInputLabel-shrink': {  // float 상태일 때
+                color: 'rgba(255, 255, 255, 0.9)',  // 더 진한 흰색
+                fontSize: '1rem'  // 글자 크기 조정
+              }
             }}>
             <InputLabel sx={{ 
                color: '#fff',
@@ -158,6 +165,16 @@ try {
              }}>현재 진행중인 공고</InputLabel>
             <Select
               disableUnderline
+              disableScrollLock={true}
+              MenuProps={{
+                disableScrollLock: true,
+                PaperProps: {
+                  sx: {
+                    backgroundColor: 'rgba(33, 33, 33, 0.9)',
+                    color: '#fff'
+                  }
+                }
+              }}
               sx={{
                 color: '#fff',
                 '& .MuiSelect-icon': {
@@ -189,36 +206,38 @@ try {
           </FormControl>
 
           {selectedGongo && (
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="body1"  gutterBottom sx={{ color: '#fff',fontWeight: 'bold',fontSize: '1.2rem' }}>
-                공고명: {selectedGongo.gongoName}
-              </Typography>
-              <Typography variant="body2" sx={{ color: '#fff',fontWeight: 'bold',fontSize: '1.2rem' }}>
-                공고 기간: {selectedGongo.scheduleStartDt} ~ {selectedGongo.scheduleEndDt}
-              </Typography>
-            </Box>
-          )}
+            <>
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="body1" gutterBottom sx={{ color: '#fff', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                  공고명: {selectedGongo.gongoName}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#fff', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                  공고 기간: {selectedGongo.scheduleStartDt} ~ {selectedGongo.scheduleEndDt}
+                </Typography>
+              </Box>
 
-          <Button
-            variant="contained"
-            size="large"
-            onClick={handlePredict}
-            disabled={!selectedGongo}
-            fullWidth
-            sx={{
-            backgroundColor: '#fff',
-            color: '#000',
-            '&:hover': {
-              backgroundColor: '#f0f0f0',
-            },
-            '&.Mui-disabled': {
-              backgroundColor: 'transparent', 
-              color: 'transparent',    
-            }
-            }}
-          >
-            당첨 예측하기
-          </Button>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={handlePredict}
+                fullWidth
+                sx={{
+                  backgroundColor: '#2B4155',
+                  padding: '12px 24px',
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold',
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                  '&:hover': {
+                    backgroundColor: '#3A5268',
+                    transform: 'translateY(-2px)',
+                    transition: 'all 0.2s'
+                  }
+                }}
+              >
+                당첨 예측하기
+              </Button>
+            </>
+          )}
         </Box>
       </Grid>
       {/* 오른쪽 영역 - 정보 카드 */}
