@@ -45,14 +45,14 @@ const GuaranteeRangeModal = ({ isOpen, onClose, handleConfirm, initialMin, initi
         </Typography>
         <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
           <TextField
-            label="최소 보증금"
+            label="최소 금액(원)"
             value={minValue}
             onChange={(e) => setMinValue(e.target.value)}
             fullWidth
             type="number"
           />
           <TextField
-            label="최대 보증금"
+            label="최대 금액(원)"
             value={maxValue}
             onChange={(e) => setMaxValue(e.target.value)}
             fullWidth
