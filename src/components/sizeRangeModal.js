@@ -45,14 +45,14 @@ const SizeRangeModal = ({ isOpen, onClose, handleConfirm, initialMin, initialMax
         </Typography>
         <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
           <TextField
-            label="최소 면적"
+            label="최소 면적(m²)"
             value={minValue}
             onChange={(e) => setMinValue(e.target.value)}
             fullWidth
             type="number"
           />
           <TextField
-            label="최대 면적"
+            label="최대 면적(m²)"
             value={maxValue}
             onChange={(e) => setMaxValue(e.target.value)}
             fullWidth

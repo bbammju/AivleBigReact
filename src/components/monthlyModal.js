@@ -45,14 +45,14 @@ const MonthlyRangeModal = ({ isOpen, onClose, handleConfirm, initialMin, initial
         </Typography>
         <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
           <TextField
-            label="최소 월세"
+            label="최소 금액(원)"
             value={minValue}
             onChange={(e) => setMinValue(e.target.value)}
             fullWidth
             type="number"
           />
           <TextField
-            label="최대 월세"
+            label="최대 금액(원)"
             value={maxValue}
             onChange={(e) => setMaxValue(e.target.value)}
             fullWidth

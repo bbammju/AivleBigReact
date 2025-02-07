@@ -265,7 +265,7 @@ const RsltList = () => {
               "&:hover": { borderColor: "#888" },
             }}
           >
-            <Typography>월세 선택</Typography>
+            <Typography>월임대료 선택</Typography>
             <Box sx={{ fontSize: "16px", color: "#aaa" }}>▼</Box>
           </Box>
 
@@ -274,6 +274,7 @@ const RsltList = () => {
           </Button>
           {/* Hashtags */}
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 2 }}>
+            {/* Location chips */}
             {location.map((loc, index) => (
               <Chip
                 key={index}
@@ -282,16 +283,35 @@ const RsltList = () => {
                   setLocation((prev) => prev.filter((item) => item !== loc));
                   setSelectedDistricts((prev) => prev.filter((item) => item !== loc));
                 }}
+                sx={{ backgroundColor: "#ABE7FE" }} // 지역(구) 색상
               />
             ))}
+
+            {/* Size range chips */}
             {sizeRange.length > 0 && (
-              <Chip label={`#${sizeRange[0]} ~ ${sizeRange[1]} m²`} onDelete={clearSizeRange} />
+              <Chip
+                label={`#${sizeRange[0]} ~ ${sizeRange[1]} m²`}
+                onDelete={clearSizeRange}
+                sx={{ backgroundColor: "#ABD2FE" }} // 면적 색상
+              />
             )}
+
+            {/* Guarantee range chips */}
             {guaranteeRange.length > 0 && (
-              <Chip label={`#${guaranteeRange[0]} ~ ${guaranteeRange[1]}`} onDelete={clearGuaranteeRange} />
+              <Chip
+                label={`#${Number(guaranteeRange[0]).toLocaleString()}원 ~ ${Number(guaranteeRange[1]).toLocaleString()}원`}
+                onDelete={clearGuaranteeRange}
+                sx={{ backgroundColor: "#ABC2FE" }} // 보증금 색상
+              />
             )}
+
+            {/* Monthly range chips */}
             {monthlyRange.length > 0 && (
-              <Chip label={`#${monthlyRange[0]} ~ ${monthlyRange[1]}`} onDelete={clearMonthlyRange} />
+              <Chip
+                label={`#${Number(monthlyRange[0]).toLocaleString()}원 ~ ${Number(monthlyRange[1]).toLocaleString()}원`}
+                onDelete={clearMonthlyRange}
+                sx={{ backgroundColor: "#ABB4FE" }} // 월임대료 색상
+              />
             )}
           </Box>
         </Box>
@@ -369,6 +389,10 @@ const RsltList = () => {
                         {item.jutaekName} {item.jutaekType}
                       </Typography>
                       <Typography variant="body2" fontSize="12px">
+                        {item.jutaekSize ? `넓이: ${item.jutaekSize} m²` : "정보 없음"}
+                      </Typography>
+                      <br/>
+                      <Typography variant="body2" fontSize="12px">
                         {diff === 0 ? (
                           "내 순위와 동일합니다"
                         ) : (
@@ -431,30 +455,10 @@ const RsltList = () => {
                 <Card>
                   <CardContent>
                     <Typography variant="subtitle1" fontWeight="bold">
-                      단지명
-                    </Typography>
-                    <Typography variant="body2">
-                      {dtlData.jutaekName}
-                    </Typography>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent>
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      크기
-                    </Typography>
-                    <Typography variant="body2">
-                      {dtlData.jutaekSize} m²
-                    </Typography>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent>
-                    <Typography variant="subtitle1" fontWeight="bold">
                       보증금
                     </Typography>
                     <Typography variant="body2">
-                      {dtlData.guarantee ? `${dtlData.guarantee} 원` : "정보 없음"}
+                      {dtlData.guarantee ? `${Number(dtlData.guarantee).toLocaleString()} 원` : "정보 없음"}
                     </Typography>
                   </CardContent>
                 </Card>
@@ -464,7 +468,27 @@ const RsltList = () => {
                       월임대료
                     </Typography>
                     <Typography variant="body2">
-                      {dtlData.monthly ? `${dtlData.monthly} 원` : "정보 없음"}
+                      {dtlData.monthly ? `${Number(dtlData.monthly).toLocaleString()} 원` : "정보 없음"}
+                    </Typography>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      인프라점수
+                    </Typography>
+                    <Typography variant="body2">
+                      {dtlData.infraScore ? `${dtlData.infraScore} / 5 점` : "정보 없음"}
+                    </Typography>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      구조도점수
+                    </Typography>
+                    <Typography variant="body2">
+                      {dtlData.structureScore ? `${dtlData.structureScore} / 5 점` : "정보 없음"}
                     </Typography>
                   </CardContent>
                 </Card>
