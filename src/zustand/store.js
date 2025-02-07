@@ -19,7 +19,8 @@ export const useStore = create(
       partialize: (state) => ({
         gongoSn: state.gongoSn,
         gongoName: state.gongoName,
-        userSn: state.userSn,        
+        userSn: state.userSn,
+        userRole: state.userRole        
        }),
     }
   )
