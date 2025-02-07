@@ -171,14 +171,37 @@ const PasswordChange = () => {
                   onChange={handleChange}
                   onKeyDown={(e) => {
                     if (e.key === ' ') e.preventDefault();
+                    if (e.key === 'Enter' && !isCurrentPasswordVerified) {
+                      e.preventDefault();
+                      handleCurrentPasswordCheck();
+                    }
                   }}
                   disabled={isCurrentPasswordVerified}
                   required
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#2B4155'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#2B4155'
+                    }
+                  }}
                 />
                 <Button 
                   variant="outlined"
                   onClick={handleCurrentPasswordCheck}
                   disabled={isCurrentPasswordVerified}
+                  sx={{ 
+                    height: '100%',
+                    borderColor: '#2B4155',
+                    color: '#2B4155',
+                    '&:hover': {
+                      borderColor: '#3A5268',
+                      backgroundColor: 'rgba(43, 65, 85, 0.04)'
+                    }
+                  }}
                 >
                   확인
                 </Button>
@@ -201,6 +224,16 @@ const PasswordChange = () => {
                     if (e.key === ' ') e.preventDefault();
                   }}
                   required
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#2B4155'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#2B4155'
+                    }
+                  }}
                   error={!!fieldErrors.newPassword}
                   helperText={fieldErrors.newPassword}
                 />
@@ -218,6 +251,16 @@ const PasswordChange = () => {
                     if (e.key === ' ') e.preventDefault();
                   }}
                   required
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#2B4155'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#2B4155'
+                    }
+                  }}
                   error={!!fieldErrors.newPasswordConfirm}
                   helperText={fieldErrors.newPasswordConfirm}
                 />
@@ -228,6 +271,13 @@ const PasswordChange = () => {
                   fullWidth
                   variant="contained"
                   onClick={handlePasswordChange}
+                  sx={{
+                    backgroundColor: '#2B4155', // 더 어두운 파란색
+                    '&:hover': {
+                      backgroundColor: '#3A5268', // hover 시 좀 더 밝은 톤
+                    },
+                    transition: 'background-color 0.3s' // 부드러운 색상 전환 효과
+                  }} 
                 >
                   비밀번호 변경
                 </Button>

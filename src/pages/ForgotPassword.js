@@ -156,6 +156,16 @@ const ForgotPassword = () => {
                   error={!!emailError}
                   helperText={emailError}
                   fullWidth
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#2B4155'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#2B4155'
+                    }
+                  }}
                 />
                 {isLoading && (
                   <CircularProgress 

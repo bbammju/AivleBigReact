@@ -207,7 +207,16 @@ const WithdrawalPage = () => {
             error={!!error}
             helperText={error}
             autoComplete="current-password"
-            sx={{ mt: 1 }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                  borderColor: '#2B4155'
+                }
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: '#2B4155'
+              }
+            }}
           />
         </DialogContent>
         

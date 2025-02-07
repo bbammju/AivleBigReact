@@ -75,6 +75,13 @@ const Signup = () => {
       if (!termsAgreed.serviceTerms || !termsAgreed.privacyTerms) {
         setAlertMessage('모든 필수 약관에 동의해주세요.');
         setShowAlert(true);
+
+        // 1초 후 알림창 자동으로 닫기
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 2000);
+        
+      return;
         return;
       }
       setIsEmailVerified(false);
@@ -394,6 +401,11 @@ const Signup = () => {
                 checked={termsAgreed.serviceTerms && termsAgreed.privacyTerms}
                 onChange={handleAllTermsChange}
                 color="primary"
+                sx={{
+                  '&.Mui-checked': {
+                    color: '#1976d2'
+                  }
+                }}
               />
             }
             label="전체 약관 동의"
@@ -406,6 +418,11 @@ const Signup = () => {
                   onChange={handleTermsChange}
                   name="serviceTerms"
                   color="primary"
+                  sx={{
+                    '&.Mui-checked': {
+                      color: '#1976d2'
+                    }
+                  }}
                   required
                 />
               }
@@ -447,6 +464,11 @@ const Signup = () => {
                   onChange={handleTermsChange}
                   name="privacyTerms"
                   color="primary"
+                  sx={{
+                    '&.Mui-checked': {
+                      color: '#1976d2'
+                    }
+                  }}
                   required
                 />
               }
@@ -509,6 +531,16 @@ const Signup = () => {
                     if (e.key === ' ') e.preventDefault(); // 스페이스바 입력 방지
                   }}
                   required
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#2B4155'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#2B4155'
+                    }
+                  }}
                   error={!!fieldErrors.email}
                   helperText={fieldErrors.email}
                 />              
@@ -525,7 +557,15 @@ const Signup = () => {
                 variant="outlined"
                 onClick={handleEmailCheck}
                 fullWidth
-                sx={{ height: '100%' }}
+                sx={{ 
+                  height: '100%',
+                  borderColor: '#2B4155',
+                  color: '#2B4155',
+                  '&:hover': {
+                    borderColor: '#3A5268',
+                    backgroundColor: 'rgba(43, 65, 85, 0.04)'
+                  }
+                }}
               >
                 중복 확인
               </Button>
@@ -542,6 +582,16 @@ const Signup = () => {
             value={formData.password}
             onChange={handleChange}
             required
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                  borderColor: '#2B4155'
+                }
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: '#2B4155'
+              }
+            }}
             error={!!fieldErrors.password}
             helperText={fieldErrors.password}
           />
@@ -556,6 +606,16 @@ const Signup = () => {
             value={formData.passwordConfirm}
             onChange={handleChange}
             required
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                  borderColor: '#2B4155'
+                }
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: '#2B4155'
+              }
+            }}
             error={!!fieldErrors.passwordConfirm}
             helperText={fieldErrors.passwordConfirm}
           />
@@ -569,6 +629,16 @@ const Signup = () => {
                 value={formData.userName}
                 onChange={handleChange}
                 required
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#2B4155'
+                    }
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#2B4155'
+                  }
+                }}
                 error={!!fieldErrors.userName}
                 helperText={fieldErrors.userName}
               />
@@ -585,12 +655,26 @@ const Signup = () => {
                 >
                   <FormControlLabel 
                     value="male" 
-                    control={<Radio required />} 
+                    control={<Radio 
+                        required
+                        sx={{
+                          '&.Mui-checked': {
+                            color: '#1976d2' // 체크됐을 때의 색상
+                          }
+                        }}                        
+                        />} 
                     label="남성"
                   />
                   <FormControlLabel 
                     value="female" 
-                    control={<Radio required />} 
+                    control={<Radio 
+                        required
+                        sx={{
+                          '&.Mui-checked': {
+                            color: '#1976d2' // 체크됐을 때의 색상
+                          }
+                        }}                         
+                        />} 
                     label="여성"
                   />
                 </RadioGroup>
@@ -621,6 +705,16 @@ const Signup = () => {
                     value="010"
                     disabled
                     size="small"
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#2B4155'
+                        }
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#2B4155'
+                      }
+                    }}
                     inputProps={{ style: { textAlign: 'center' } }}
                   />
                 </Grid>
@@ -631,6 +725,16 @@ const Signup = () => {
                     value={formData.telnoMiddle}
                     onChange={handlePhoneChange}
                     required
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#2B4155'
+                        }
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#2B4155'
+                      }
+                    }}
                     error={!!fieldErrors.telno}
                     size="small"
                     inputProps={{ 
@@ -646,6 +750,16 @@ const Signup = () => {
                     value={formData.telnoLast}
                     onChange={handlePhoneChange}
                     required
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#2B4155'
+                        }
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#2B4155'
+                      }
+                    }}
                     error={!!fieldErrors.telno}
                     size="small"
                     inputProps={{ 
@@ -676,6 +790,14 @@ const Signup = () => {
                 variant="outlined"
                 onClick={handleAddressSearch}
                 fullWidth
+                sx={{ 
+                  borderColor: '#2B4155',
+                  color: '#2B4155',
+                  '&:hover': {
+                    borderColor: '#3A5268',
+                    backgroundColor: 'rgba(43, 65, 85, 0.04)'
+                  }
+                }}
               >
                 주소 검색
               </Button>
@@ -701,6 +823,16 @@ const Signup = () => {
                 value={formData.detailAddress}
                 onChange={handleChange}
                 onBlur={handleBlur}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#2B4155'
+                    }
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#2B4155'
+                  }
+                }}
                 placeholder="상세 주소를 입력해주세요(쉼표 입력 불가)"                         
                 error={!!fieldErrors.detailAddress}  
                 helperText={fieldErrors.detailAddress}  
@@ -761,7 +893,18 @@ return (
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
         {activeStep !== 0 && (
-          <Button onClick={handleBack}>
+            <Button 
+            variant="contained"
+            onClick={handleBack}
+            sx={{ 
+              backgroundColor: '#78909C',
+              '&:hover': {
+                backgroundColor: '#90A4AE',
+              },
+              transition: 'background-color 0.3s',
+              marginRight: 1
+            }}
+          >
             이전
           </Button>
         )}
@@ -770,6 +913,13 @@ return (
             variant="contained"
             onClick={handleNext}
             fullWidth={activeStep === 0}
+            sx={{
+              backgroundColor: '#2B4155',
+              '&:hover': {
+                backgroundColor: '#3A5268',
+              },
+              transition: 'background-color 0.3s'
+            }}
           >
             다음
           </Button>
@@ -780,7 +930,14 @@ return (
             color="primary"
             size="large"
             fullWidth
-            onClick={handleFormSubmit}           
+            onClick={handleFormSubmit}
+            sx={{
+              backgroundColor: '#2B4155',
+              '&:hover': {
+                backgroundColor: '#3A5268',
+              },
+              transition: 'background-color 0.3s'
+            }}           
           >
             가입하기
           </Button>
