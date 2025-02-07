@@ -1,9 +1,6 @@
 import axios from 'axios';
-<<<<<<< HEAD
 // import Client from 'ftp';
-=======
 import api from './api'; // api.js를 가져와서 사용용
->>>>>>> a7a0e213b7f212c49f456d9c7c2caafef9a1a6c9
 
 // // FTP 서버 정보
 // const FTP_CONFIG = {
@@ -83,6 +80,34 @@ apiFile.uploadFile = async (file, refTable = 'board', refSn = 0) => {
     //     ftpClient.on('error', reject);
     //     ftpClient.connect(FTP_CONFIG);
     // });
+}
+// // ✅ `api.js`에서 이미 토큰 갱신 로직이 구현되어 있으므로, 그대로 활용
+// apiFile.interceptors.response.use(
+//     (response) => response,
+//     async (error) => {
+//         const originalRequest = error.config;
+
+//         if (error.response?.status === 401) {
+//             console.warn('🔄 401 오류 발생! 재발급 또는 로그아웃 확인');
+
+//             try {
+//                 // ✅ `api.js`에서 이미 관리하는 토큰 갱신 로직 활용
+//                 await api.post('/users/reissue');
+//                 return apiFile(originalRequest); // 🔄 원래 요청 재시도
+//             } catch (refreshError) {
+//                 console.error('❌ Refresh Token도 만료됨. 로그아웃 진행.');
+//                 window.location.href = '/';
+//                 return Promise.reject(refreshError);
+//             }
+//         }
+
+//         return Promise.reject(error);
+//     }
+// );
+
+
+// 🔹 파일 업로드 함수(필요시 변경)
+apiFile.uploadFile = async (file, onProgress) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append("refTable", refTable); // 🔥 필요한 테이블 이름 전달
