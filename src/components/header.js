@@ -167,7 +167,7 @@ const Header = () => {
               justifyContent: 'space-between',
               alignItems: 'center',
               ml: 3, // 로고 위치 조정
-              mr: 3, // 회원가입, 로그인 버튼 조정정
+              mr: 3, // 회원가입, 로그인 버튼 조정
             }}
             >
             <Box
@@ -199,13 +199,22 @@ const Header = () => {
                   {/* 커뮤니티 버튼 */}
                   <Button 
                     color="inherit"
-                    onClick={() => navigate('/board')} 
+                    onClick={() => navigate('/board')}
+                    sx={{ 
+                      minWidth: '80px',  // 버튼의 최소 너비 설정
+                      textAlign: 'center'
+                    }} 
                   >
                     커뮤니티
                   </Button>
 
                   {/* 사용자 이름 및 아바타 */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'flex-end', 
+                    gap: 1 }}
+                    >
                     <Typography color="inherit">
                       {displayName.userName}님
                     </Typography>
@@ -220,6 +229,7 @@ const Header = () => {
                     anchorEl={anchorEl}
                     open={open}
                     onClose={handleMenuClose}
+                    disableScrollLock={true} 
                     anchorOrigin={{
                       vertical: 'bottom',
                       horizontal: 'right',

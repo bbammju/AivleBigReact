@@ -253,7 +253,19 @@ const EditProfile = () => {
                     value={formData.address}
                     disabled
                   />
-                  <Button variant="outlined" onClick={handleAddressSearch}>
+                  <Button
+                    variant="outlined"
+                    onClick={handleAddressSearch}
+                    fullWidth
+                    sx={{ 
+                      borderColor: '#2B4155',
+                      color: '#2B4155',
+                      '&:hover': {
+                        borderColor: '#3A5268',
+                        backgroundColor: 'rgba(43, 65, 85, 0.04)'
+                      }
+                    }}
+                  >
                     주소 검색
                   </Button>
                 </Box>
@@ -266,6 +278,16 @@ const EditProfile = () => {
                   placeholder="상세 주소를 입력해주세요 (쉼표 입력 불가)"
                   inputProps={{
                     pattern: '[^,]*' // HTML5 validation으로 쉼표 막기
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#2B4155'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#2B4155'
+                    }
                   }}
                 />
               </Box>
@@ -288,7 +310,17 @@ const EditProfile = () => {
                   value={formData.telnoMiddle}
                   onChange={handlePhoneChange}
                   inputProps={{ maxLength: 4 }}
-                  sx={{ width: 100 }}
+                  sx={{
+                    width: 100,
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#2B4155'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#2B4155'
+                    }
+                  }}
                 />
                 <TextField
                   size="small"
@@ -296,14 +328,31 @@ const EditProfile = () => {
                   value={formData.telnoLast}
                   onChange={handlePhoneChange}
                   inputProps={{ maxLength: 4 }}
-                  sx={{ width: 100 }}
+                  sx={{
+                    width: 100,
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#2B4155'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#2B4155'
+                    }
+                  }}
                 />
               </Box>
             </Box>
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
               <Button 
-                variant="contained" 
+                variant="contained"
+                sx={{
+                  backgroundColor: '#2B4155', // 더 어두운 파란색
+                  '&:hover': {
+                    backgroundColor: '#3A5268', // hover 시 좀 더 밝은 톤
+                  },
+                  transition: 'background-color 0.3s' // 부드러운 색상 전환 효과
+                }} 
                 onClick={handleUpdate}
               >
                 수정완료
