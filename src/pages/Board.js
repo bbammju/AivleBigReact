@@ -62,6 +62,7 @@ const Board = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const { userSn } = useStore();
+    const [pdfFiles, setPdfFiles] = useState([]);
 
     const handleEditPost = (post, imgs) => {
       navigate("/boardform", { state: { post, imgs } });
@@ -156,6 +157,20 @@ const Board = () => {
         fetchPostDetails();
       }, [activeTab, id, userSn]);
 
+      useEffect(() => {
+        const fetchPdfFiles = async () => {
+          if (activeTab === "gongo" && id ) {
+            try {
+              const response = await api.get(`/gongoboard/detail?gongoSn=${id}`);
+              setPdfFiles(response.data.pdfs || []);
+            } catch (error) {
+              console.error("PDF 파일 목록 불러오기 오류:", error);
+            }
+          }
+        };
+        fetchPdfFiles();
+      }, [activeTab, id]);
+
       if (activeTab === "user" && id ) {
         if (!post) return <Typography>Loading...</Typography>;
         return (
@@ -218,11 +233,39 @@ const Board = () => {
         );
     }
 
+    
+
     // 공고게시물 클릭시
     if (activeTab === "gongo" && id ) {
       const post = data[activeTab]?.find((item) => item.gongoSn === parseInt(id));
       if (!post) return <Typography>Loading...</Typography>;
-
+      
+      const downloadPdf = async (pdfSn, filename) => {
+        try {
+          const response = await api.get(`/gongoboard/pdf/download/${pdfSn}`, {
+            responseType: "blob", // Expecting a binary file
+          });
+          // 범주님 추가코드
+          // const a = document.createElement('a');
+          // a.href = ${apiUrl}/api/get-file-download?fileSn=${fileSn}&columnSn=${columnSn}&columnNm=${columnNm};
+          // a.download = fileNm;
+          // a.target = '_blank';
+          // document.body.appendChild(a);
+          // a.click();
+          // document.body.removeChild(a);
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", filename);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+        } catch (error) {
+          console.error("PDF 다운로드 오류:", error);
+          alert("PDF 다운로드 중 오류가 발생했습니다.");
+        }
+      };
+    
       return (
         <>
           <Header />
@@ -247,7 +290,7 @@ const Board = () => {
                 {post.gongoName}
               </Typography>
               <Typography variant="subtitle1" sx={{ mb: 2 }}>
-                공고 유형: {post.gongoType}
+              공고 유형: {post.gongoType === 0 ? "청년안심주택" : post.gongoType === 1 ? "청년매입임대" : "기타"}
             </Typography>
               <Typography variant="subtitle1" sx={{ mb: 2 }}>
                 작성일: {post.createdDt}
@@ -255,6 +298,26 @@ const Board = () => {
               <Typography variant="subtitle2" sx={{ mb: 2 }}>
               시작일: {post.scheduleStartDt} | 종료일: {post.scheduleEndDt}
             </Typography>
+             {pdfFiles.map((pdf) => (
+                <li key={pdf.pdfSn}>
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      downloadPdf(pdf.pdfSn, pdf.oriFileName);
+                    }}
+                  >
+                    {pdf.oriFileName}
+                  </a>
+                </li>
+              ))}
+                <Typography variant="body1">
+                  <div
+                    style={{ whiteSpace: 'pre-wrap' }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content)}}
+                  />
+                  {/*  __html: DOMPurify.sanitize(post.content) */}
+              </Typography>
               <Button sx={{ mt: 4 }} variant="contained" onClick={() => navigate("/board")}>
               뒤로가기
               </Button>
@@ -265,6 +328,7 @@ const Board = () => {
       );
   }
 
+  // 게시판 리스트
   return (
     <>
       <Header />
@@ -279,16 +343,13 @@ const Board = () => {
 
       {/* 게시판 내용 */}
       <Box sx={{ mt: 4 }}>
-        <Typography variant="h5" sx={{ mb: 2 }}>
-          {tabs.find((tab) => tab.id === activeTab)?.label || ""}
-        </Typography>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
               <TableCell>No</TableCell>
               <TableCell>제목</TableCell>
               {activeTab === "user" && <TableCell>글쓴이</TableCell>}
-              <TableCell>작성일</TableCell>
+              <TableCell sx={{ textAlign: "right", paddingRight: "14.5rem" }}>작성일</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -307,7 +368,7 @@ const Board = () => {
                 <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
                 <TableCell>{activeTab === "gongo" ? item.gongoName : item.title}</TableCell>
                 {activeTab === "user" && <TableCell>{item.userName}</TableCell>}
-                <TableCell>{item.createdDt}</TableCell>
+                <TableCell sx={{ textAlign: "right", paddingRight: "10rem" }}>{item.createdDt}</TableCell>
               </TableRow>
             ))}
           </TableBody>

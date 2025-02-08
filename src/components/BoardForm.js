@@ -178,10 +178,6 @@ const BoardForm = () => {
               <li key={index}>{file.name}</li>
             ))}
             {existingImages && existingImages.map(img => (
-                // <div key={img.id}>
-                //   <img src={img.path} alt={img.oriFileName} style={{ maxWidth: '100px' }} />
-                //   <button type="button" onClick={() => handleDeleteExistingImage(img.id)}>삭제</button>
-                // </div>
                 img && img.path ? (
                   <div key={img.imgSn}>
                     <img src={`${img.path}${img.fileName}`} alt={img.oriFileName || '이미지'} style={{ maxWidth: '100px' }} />
