@@ -109,13 +109,18 @@ const Signup = () => {
       const response = await api.post('/users/check-email', {
         email: formData.email
       });
+
       
-      if (!response.data.exists) {
+
+      if (response.data.success) {
         setIsEmailVerified(true);        
-        setFieldErrors({});
+        setFieldErrors({});        
       } else {
         setIsEmailVerified(false);
-        setFieldErrors(prev => ({ ...prev, email: '이미 사용 중인 이메일입니다.' }));
+        setFieldErrors(prev => ({ 
+          ...prev, 
+          email: response.data.message 
+        }));
       }
     } catch (error) {
       setIsEmailVerified(false);
@@ -378,13 +383,19 @@ const Signup = () => {
         }, 2000);
       }  else {
         setAlertType('error');
-        setAlertMessage(response.data.message || '회원가입 중 오류가 발생했습니다.');
+        // 탈퇴 후 30일 이내 재가입 시도 메시지 처리
+        if (response.data.resultMsg.includes('탈퇴 후 30일')) {
+          setAlertMessage(response.data.resultMsg);
+        } else {
+          setAlertMessage(response.data.resultMsg || '회원가입 중 오류가 발생했습니다.');
+        }
         setShowAlert(true);
-      }
+        }
     } catch (error) {
       console.error('Signup error:', error);
-      // axios 에러 응답 처리
-      const errorMessage = error.response?.data?.message || '회원가입 중 오류가 발생했습니다.';
+      // 서버에서 반환하는 에러 메시지 처리
+      const errorMessage = error.response?.data?.resultMsg || '회원가입 중 오류가 발생했습니다.';
+      setAlertType('error');
       setAlertMessage(errorMessage);
       setShowAlert(true);
     }
