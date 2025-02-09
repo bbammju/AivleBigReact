@@ -7,7 +7,8 @@ import { Tabs, Tab, Table, TableHead, TableRow, TableCell, TableBody, Box, Typog
   Pagination,
  } from "@mui/material";
 import { useStore } from '../zustand/store';
-
+import DOMPurify from 'dompurify';
+import 'react-quill/dist/quill.snow.css';
 
 // CustomTabs 컴포넌트
 const CustomTabs = ({ tabs, activeTab, setActiveTab, setCurrentPage, setId}) => {
@@ -20,7 +21,7 @@ const CustomTabs = ({ tabs, activeTab, setActiveTab, setCurrentPage, setId}) => 
           setCurrentPage(1);
           if (newValue !== activeTab) {
             setId(null);
-            navigate("/board");
+            navigate("/userboard");
           }
         }}
         centered
@@ -46,17 +47,7 @@ const CustomTabs = ({ tabs, activeTab, setActiveTab, setCurrentPage, setId}) => 
       </Tabs>
     );
   };
-  
-  function sanitizeHtml(content) {
-    return content
-      .replace(/<p>\s*<\/p>/g, '')  // 빈 <p> 태그 제거
-      .replace(/<\/?p>/g, '<br>')   // <p> 태그를 줄바꿈으로 변환
-      .replace(/<(?!img|strong|em|u|s|blockquote|ol|ul|li|span|br|style|class)[^>]+>/g, '') // 필요한 태그만 허용
-      .replace(/style="[^"]*"/g, '');  // 스타일 속성 제거 (옵션: 이 부분은 원한다면 제거할 수 있음)
-  }
-  
-  
-  
+
 const Board = () => {
     const location = useLocation();
     const tabs = [
@@ -76,20 +67,22 @@ const Board = () => {
     const [post, setPost] = useState(null);
     const [isOwner, setIsOwner] = useState(false);
 
+    // userboard 게시글 수정
     const handleEditPost = (post, imgs) => {
       navigate("/boardform", { state: { post, imgs } });
     };
     
+    // userboard 게시글 삭제
     const handleDeletePost = async (boardSn) => {
       if (!window.confirm("정말 삭제하시겠습니까?")) return;
       try {
-        await api.put(`/board/${boardSn}?userSn=${userSn}`);
+        await api.put(`/userboard/${boardSn}?userSn=${userSn}`);
         alert("게시글이 삭제되었습니다.");
         // 게시글 삭제 후 데이터 새로 불러오기
       if (activeTab === "user") {
         fetchUserBoardList(); // 사용자 게시판 새로고침
       }
-        navigate("/board");
+        navigate("/userboard");
       } catch (error) {
         console.error("게시글 삭제 오류:", error);
         alert("게시글 삭제 중 오류가 발생했습니다.");
@@ -98,7 +91,7 @@ const Board = () => {
     
     const fetchUserBoardList = async () => {
       try {
-        const response = await api.get("/board");
+        const response = await api.get("/userboard");
         setData((prevData) => ({
           ...prevData,
           user: response.data.boardListResponse || [],
@@ -108,10 +101,11 @@ const Board = () => {
       }
     };
 
+    // 게시판 리스트 로드
     useEffect(() => {
         const fetchData = async () => {
           try {
-            if (activeTab === "user") {
+            if (activeTab === "user" && location.pathname.startsWith("/userboard")) {
               fetchUserBoardList(); // 사용자 게시판 로드
             } else if (activeTab === "gongo") {
               const response = await api.get("/gongoboard");
@@ -122,7 +116,7 @@ const Board = () => {
           }
         };
         fetchData();
-    }, [activeTab]);
+    }, [activeTab, location.pathname]);
 
     // 페이지네이션 관련 데이터
     const itemsPerPage = 5;
@@ -133,43 +127,43 @@ const Board = () => {
         currentPage * itemsPerPage
     );
 
-    // Render detailed post if an ID is provided
-    
-      useEffect(() => {
-        const fetchPostDetails = async () => {
-          if (activeTab === "user" && id) {
-            try {
-              const response = await api.get(`/board/detail?boardSn=${id}&userSn=${userSn}`);
-              setPost(response.data.post);
-              setIsOwner(response.data.isOwner);
-              setImages(response.data.imgs || []);
-            } catch (error) {
-              console.error("게시글을 가져오는 중 오류가 발생했습니다.", error);
-            }
-          } else {
-            // id가 없으면 post, images 초기화
-            setPost(null);
-            setImages([]);
+    // 유저게시판 상세보기
+    useEffect(() => {
+      const fetchPostDetails = async () => {
+        if (activeTab === "user" && location.pathname.startsWith("/userboard/") && id) {
+          try {
+            const response = await api.get(`/userboard/detail?boardSn=${id}&userSn=${userSn}`);
+            setPost(response.data.post);
+            setIsOwner(response.data.isOwner);
+            setImages(response.data.imgs || []);
+          } catch (error) {
+            console.error("게시글을 가져오는 중 오류가 발생했습니다.", error);
           }
-        };
-        fetchPostDetails();
-      }, [activeTab, id, userSn]);
+        } else {
+          // id가 없으면 post, images 초기화
+          setPost(null);
+          setImages([]);
+        }
+      };
+      fetchPostDetails();
+    }, [activeTab, id, userSn, location.pathname]);
 
-      useEffect(() => {
-        const fetchPdfFiles = async () => {
-          if (activeTab === "gongo" && id ) {
-            try {
-              const response = await api.get(`/gongoboard/detail?gongoSn=${id}`);
-              setPdfFiles(response.data.pdfs || []);
-            } catch (error) {
-              console.error("PDF 파일 목록 불러오기 오류:", error);
-            }
-          } else {
-            setPdfFiles([]);
+    // 공고게시판 상세보기
+    useEffect(() => {
+      const fetchPdfFiles = async () => {
+        if (activeTab === "gongo" && location.pathname.startsWith("/gongoboard/") && id ) {
+          try {
+            const response = await api.get(`/gongoboard/detail?gongoSn=${id}`);
+            setPdfFiles(response.data.pdfs || []);
+          } catch (error) {
+            console.error("PDF 파일 목록 불러오기 오류:", error);
           }
-        };
-        fetchPdfFiles();
-      }, [activeTab, id]);
+        } else {
+          setPdfFiles([]);
+        }
+      };
+      fetchPdfFiles();
+    }, [activeTab, id, location.pathname]);
 
       if (activeTab === "user" && id ) {
         if (!post) return <Typography>Loading...</Typography>;
@@ -183,8 +177,6 @@ const Board = () => {
                   setActiveTab={setActiveTab}
                   setCurrentPage={setCurrentPage}
                   setId={setId}
-                  // id={id}
-                  // navigate={navigate}
               />
               <Paper
                 elevation={2}
@@ -195,23 +187,36 @@ const Board = () => {
                   margin: 2,
                   backgroundColor: "white" }}>
             <Box sx={{ mt: 4, width: "80%", margin: "0 auto" }}>
+              <Box sx={{ borderBottom: '1px solid #e0e0e0', pb: 1, mb: 1 }}>
                 <Typography variant="h4" gutterBottom>
-                {post.title}
+                  {post.title}
                 </Typography>
-                <Typography variant="subtitle1" sx={{ mb: 2 }}>
-                작성자: {post.userName} | 작성일: {post.createdDt}
+              </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderBottom: '1px solid #e0e0e0',
+                  pb: 1,
+                  mb: 1,
+                }}
+              >
+                <Typography variant="subtitle1">
+                  작성자: {post.userName}
                 </Typography>
-                {/* <Typography variant="body1"> */}
+                <Typography variant="subtitle1">
+                  작성일: {post.createdDt}
+                </Typography>
+              </Box>
+
                 <div
-                  style={{
-                    whiteSpace: 'pre-wrap',
-                    fontSize: '16px',
-                    lineHeight: 1.6,
-                    color: '#333',
+                  className="ql-editor"
+                  style={{ whiteSpace: "pre-wrap", padding: "5px", height: "100%", borderBottom: '1px solid #e0e0e0', }}
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(post.content),
                   }}
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
                 />
-                  {/* </Typography> */}
                   {/* 이미지 렌더링 */}
                   {images.length > 0 && (
                     <Box sx={{ mt: 4 }}>
@@ -236,8 +241,10 @@ const Board = () => {
                       <Button variant="contained" color="error" onClick={() => handleDeletePost(post.boardSn)} sx={{ ml: 2 }}>삭제</Button>
                     </div>
                     </Box>
-              )}
-                <Button sx={{ mt: 4 }} variant="contained" onClick={() => navigate("/board")}>뒤로가기</Button>
+                  )}
+              <div style={{textAlign: "right"}}>
+                <Button sx={{ mt: 2 }} variant="contained" onClick={() => navigate("/userboard")}>목록</Button>
+              </div>
             </Box>
             </Paper>
         </Box>
@@ -245,15 +252,6 @@ const Board = () => {
         );
     }
 
-    
-// 범주님 추가코드
-          // const a = document.createElement('a');
-          // a.href = ${apiUrl}/api/get-file-download?fileSn=${fileSn}&columnSn=${columnSn}&columnNm=${columnNm};
-          // a.download = fileNm;
-          // a.target = '_blank';
-          // document.body.appendChild(a);
-          // a.click();
-          // document.body.removeChild(a);
     // 공고게시물 클릭시
     if (activeTab === "gongo" && id ) {
       const post = data[activeTab]?.find((item) => item.gongoSn === parseInt(id));
@@ -301,23 +299,44 @@ const Board = () => {
               backgroundColor: "white",
             }}>
           <Box sx={{ mt: 4, width: "80%", margin: "0 auto" }}>
+            <Box sx={{ borderBottom: '1px solid #e0e0e0', pb: 1, mb: 2 }}>
               <Typography variant="h4" gutterBottom>
                 {post.gongoName}
               </Typography>
-              <Typography variant="subtitle1" sx={{ mb: 2 }}>
-              공고 유형: {post.gongoType === 0 ? "청년안심주택" : post.gongoType === 1 ? "청년매입임대" : "기타"}
-            </Typography>
-              <Typography variant="subtitle1" sx={{ mb: 2 }}>
+            </Box>
+            <Box sx={{ display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                borderBottom: '1px solid #e0e0e0',
+                pb: 1, mb: 1 }}>
+              <Typography variant="subtitle1">
+                공고 유형: {post.gongoType === 0 ? "청년안심주택" : post.gongoType === 1 ? "청년매입임대" : "기타"}
+              </Typography>
+              <Typography variant="subtitle1">
                 작성일: {post.createdDt}
               </Typography>
-              <Typography variant="subtitle2" sx={{ mb: 2 }}>
-              시작일: {post.scheduleStartDt} | 종료일: {post.scheduleEndDt}
-            </Typography>
+            </Box>
+  
+            <Box sx={{ borderBottom: '1px solid #e0e0e0', pb: 1, mb: 1 }}>
+              <Typography variant="subtitle2" >
+                시작일: {post.scheduleStartDt} | 종료일: {post.scheduleEndDt}
+              </Typography>
+            </Box>
+            
+          <ul style={{ listStyleType: "none", padding: 0, margin: 0 }}>
              {pdfFiles.map((pdf) => (
-                <li key={pdf.pdfSn}>
+                <li key={pdf.pdfSn}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    borderBottom: "1px solid #ddd", // 구분선을 추가
+                    padding: "5px 0", // 항목 간격
+                }}>
+                  <span style={{ marginRight: "10px", fontWeight: "bold" }}>첨부</span>
                   <a
                     href="#"
-                    style={{ color: "blue", textDecoration: "underline" }}
+                    style={{ color: "blue", textDecoration: "underline"}}
                     onClick={(e) => {
                       e.preventDefault();
                       downloadPdf(pdf.pdfSn, pdf.oriFileName);
@@ -327,16 +346,23 @@ const Board = () => {
                   </a>
                 </li>
               ))}
-                <Typography variant="body1">
-                  <div
-                    style={{ whiteSpace: 'pre-wrap' }}
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content)}}
-                  />
+            </ul>
+
+            <div
+              style={{ whiteSpace: 'pre-wrap', marginTop: "16px" }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content, {
+                ALLOWED_TAGS: ['p', 'strong', 'em', 'u', 's', 'blockquote', 'ol', 'ul', 'li', 'span', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+                ALLOWED_ATTR: ['style', 'class', 'size'],
+                ALLOWED_CSS_PROPERTIES: ['color', 'font-size', 'font-weight', 'font-family', 'line-height'],
+                ALLOWED_CLASSES: {
+                  '*': ['ql-size-small', 'ql-size-large', 'ql-size-huge']
+                }
+              })}}
+            />
                   {/*  __html: DOMPurify.sanitize(post.content) */}
-              </Typography>
-              <Button sx={{ mt: 4 }} variant="contained" onClick={() => navigate("/board")}>
-              뒤로가기
-              </Button>
+              <div style={{textAlign: "right"}}>
+                <Button sx={{ mt: 4 }} variant="contained" onClick={() => navigate("/gongoboard")}>목록</Button>
+              </div>
           </Box>
           </Paper>
       </Box>
@@ -376,11 +402,9 @@ const Board = () => {
                 onClick={() => {
                   if (activeTab === "gongo") {
                     navigate(`/gongoboard/${item.gongoSn}`,
-                      // {state: {activeTab: "gongo"}}
                     );
                   } else {
-                    navigate(`/board/${item.boardSn}`,
-                      // {state: {activeTab: "user"}}
+                    navigate(`/userboard/${item.boardSn}`,
                     );
                   }
                 }}

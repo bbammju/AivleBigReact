@@ -217,7 +217,7 @@ const Header = () => {
                   {/* 커뮤니티 버튼 */}
                   <Button 
                     color="inherit"
-                    onClick={() => navigate('/board')}
+                    onClick={() => navigate('/userboard')}
                     sx={{ 
                       minWidth: '80px',  // 버튼의 최소 너비 설정
                       textAlign: 'center'
