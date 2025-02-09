@@ -9,9 +9,14 @@ import { Tabs, Tab, Box, Typography, Paper
  } from "@mui/material";
  import { useNavigate, useLocation  } from "react-router-dom";
  import { useStore } from '../zustand/store';
+//  import DOMPurify from 'dompurify';
 
 const BoardForm = () => {
   const [activeTab, setActiveTab] = useState('user');
+  const tabs = [
+    { id: "gongo", label: "공고게시판" },
+    { id: "user", label: "유저게시판" },
+  ];
   const navigate = useNavigate();
   const quillRef = useRef();
   const { userSn } = useStore();
@@ -57,6 +62,7 @@ const BoardForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // const sanitizedContent = DOMPurify.sanitize(content); // 안전한 HTML 생성
     // FormData 생성 및 데이터 추가
     const formData = new FormData();
     formData.append('boardSn', post?.boardSn || '');
@@ -100,7 +106,7 @@ const BoardForm = () => {
       () => ({
           toolbar: { // 툴바에 넣을 기능들을 순서대로 나열하면 된다.
               container: [
-                  ["bold", "italic", "underline", "strike", "blockquote"],
+                  ["bold", "italic", "underline", "strike"],
                   [{ size: ["small", false, "large", "huge"] }, { color: [] }],
                   [
                       { list: "ordered" },
@@ -124,17 +130,23 @@ const BoardForm = () => {
     <>
     <Header />
     <Box sx={{ width: "80%", margin: "0 auto", textAlign: "center", mt: 4 }}>
-      <Tabs value={activeTab} onChange={handleTabChange} centered>
-          {["공고게시판", "유저게시판"].map((label, id) => (
-            <Tab key={id} label={label} value={label.toLowerCase()} />
+      <Tabs value={activeTab} onChange={handleTabChange} centered
+      indicatorColor="primary"
+      textColor="primary"
+      sx={{
+        width: "80%",
+        margin: "0 auto",
+      }}>
+          {tabs.map((tab) => (
+            <Tab key={tab.id} label={tab.label} value={tab.id}
+            sx={{
+              fontSize: "1.5rem",
+              padding: "15px",
+              minWidth: "150px",
+            }}
+            />
           ))}
       </Tabs>
-
-        {activeTab === "user" && (
-          <Box sx={{ mt: 4 }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>유저게시판</Typography>
-          </Box>
-        )}
         
     <Paper
       elevation={2}
@@ -155,7 +167,7 @@ const BoardForm = () => {
               id="title"
               type="text"
               placeholder="제목을 입력해 주세요"
-              style={{padding:'7px', marginBottom:'10px',width:'100%',border:'1px solid lightGray', fontSize:'15px'}}
+              style={{padding:'7px', marginBottom:'10px', width:'584px',border:'1px solid lightGray', fontSize:'15px'}}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -186,7 +198,7 @@ const BoardForm = () => {
                 ) : null
               ))}
             <button type="submit" style={{ marginTop: "20px" }}>{post ? "수정하기" : "게시글 등록"}</button>
-            <button sx={{ ml: 2 }} variant="outlined" onClick={() => navigate("/board")}>취소</button>
+            <button sx={{ ml: 2 }} variant="outlined" onClick={() => navigate("/board", {state: {activeTab: "user"}})}>취소</button>
           </form>
     </div>
     </Paper>
