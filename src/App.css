@@ -1,5 +1,16 @@
+/* 폰트 추가 */ 
+/* @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap'); */
+
+.gowun-dodum-regular {
+  font-family: "Gowun Dodum", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+ /* */
+ 
 .App {
   text-align: center;
+  font-family: "Gowun Dodum", serif;
 }
 
 .App-logo {
@@ -27,6 +38,24 @@
 .App-link {
   color: #61dafb;
 }
+
+/* react-quill */
+.ql-align-center { text-align: center; }
+.ql-align-right { text-align: right; }
+.ql-align-left { text-align: left; }
+/* react-quill 스타일 확장 */
+.ql-editor .ql-size-huge {
+  font-size: 32.5px;
+}
+
+.ql-editor .ql-size-large {
+  font-size: 19.5px;
+}
+
+.ql-editor .ql-size-small {
+  font-size: 9.75px;
+}
+
 
 @keyframes App-logo-spin {
   from {

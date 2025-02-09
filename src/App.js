@@ -27,8 +27,8 @@ function App() {
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/pwchange" element={<PwChange />} />
         <Route path="/withdrawal" element={<WithdrawalPage />} />
-        <Route path="/board" element={<Board />} />
-        <Route path="/board/:id" element={<Board />} />
+        <Route path="/userboard" element={<Board />} />
+        <Route path="/userboard/:id" element={<Board />} />
         <Route path="/boardform" element={<BoardForm />} />
         <Route path="/gongoboard" element={<Board />} />
         <Route path="/gongoboard/:id" element={<Board />} />
