@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import Header from "../components/headersub";
-import Sidebar from "../components/Mypage_SideBar"; // Sidebar 컴포넌트 임포트
+import Sidebar from "../components/MypageSideBar"; // Sidebar 컴포넌트 임포트
 import {
   Box,
   Paper,
