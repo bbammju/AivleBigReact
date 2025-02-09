@@ -10,7 +10,8 @@ import {
   Divider,
   styled
 } from "@mui/material";
-import { Person, Key, Star, PersonRemove } from "@mui/icons-material";
+import { Person, Key, Star, PersonRemove, PersonAddAlt } from "@mui/icons-material";
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
 // MUI 스타일드 컴포넌트
 const SidebarListItemButton = styled(ListItemButton)(({ theme }) => ({
@@ -31,9 +32,10 @@ const Sidebar = () => {
   const location = useLocation();
 
   const menuItems = [
-    { path: '/editprofile', icon: <Person />, text: '회원정보수정' },
-    { path: '/pwchange', icon: <Key />, text: '비밀번호변경' },
+    { path: '/mypage', icon: <Person />, text: '내 정보' },
     { path: '/favorites', icon: <Star />, text: '관심주택' },
+    { path: '/editprofile', icon: <ManageAccountsIcon />, text: '회원정보수정' },
+    { path: '/pwchange', icon: <Key />, text: '비밀번호변경' },    
     { path: '/withdrawal', icon: <PersonRemove />, text: '회원탈퇴' }
   ];
 

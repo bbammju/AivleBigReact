@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/headersub';
-import Sidebar from '../components/Mypage_SideBar';
+import Sidebar from '../components/MypageSideBar';
 import api from '../utils/api';
 import { 
   Box, 
@@ -153,7 +153,12 @@ const PasswordChange = () => {
           {alertMessage}
         </Alert>
       )}
-      <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f5f5f5', p: 2 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        minHeight: '100vh', 
+        bgcolor: '#f5f5f5', 
+        p: 2 
+        }}>
         <Sidebar />
         <Paper elevation={2} sx={{ flex: 1, p: 3, borderRadius: 3, ml: 2 }}>
           <Typography variant="h5" gutterBottom>비밀번호 변경</Typography>
