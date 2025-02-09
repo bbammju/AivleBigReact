@@ -35,6 +35,7 @@ const Header = () => {
   const isLoggedIn = !!userSn;
   // 사용자 정보 상태 
   const [ displayName, setDisplayName ] = useState(null);
+  const { profileImage, setProfileImage } = useStore(); // 프로필 이미지 추가
   // 공고명을 표시할 경로들
   const showGongoRoutes = ['/', '/list']
   const shoutShowGongo = showGongoRoutes.includes(location.pathname);
@@ -62,6 +63,22 @@ const Header = () => {
     }
   }, [userSn]);
 
+  // ✅ 프로필 사진만 별도 API 호출
+  useEffect(() => {
+    if (userSn) {
+      api.get('/users/mypage')
+        .then(response => {
+          if (response.data.resultCode === 200) {
+            setProfileImage(response.data.data.profileImage); // ✅ 프로필 이미지 업데이트
+          }
+        })
+        .catch(error => {
+          console.error('프로필 이미지 불러오기 실패:', error);
+        });
+    }
+  }, [userSn]);
+  
+
 
   const handleLogout = async () => {
     try {
@@ -73,6 +90,7 @@ const Header = () => {
       // Zustand store 초기화
       useStore.getState().setUserAuth(null, null); // userAuth 초기화
       useStore.getState().setGongoInfo('',''); // gongo 정보 초기화
+      useStore.getState().setProfileImage(null); // 프로필 이미지 초기화
       // 로컬 상태 초기화
       setDisplayName(null);       
 
@@ -213,15 +231,24 @@ const Header = () => {
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'flex-end', 
-                    gap: 1 }}
-                    >
+                    gap: 1 
+                  }}>
                     <Typography color="inherit">
                       {displayName.userName}님
                     </Typography>
-                    <Avatar
-                      {...stringAvatar(displayName.userName || '')}
-                      onClick={handleMenuClick}
-                    />
+
+                    {profileImage ? (
+                      <Avatar 
+                        src={profileImage} 
+                        sx={{ cursor: 'pointer' }} 
+                        onClick={handleMenuClick} 
+                      />
+                    ) : (
+                      <Avatar 
+                        {...stringAvatar(displayName.userName || '')} 
+                        onClick={handleMenuClick} 
+                      />
+                    )}
                   </Box>
 
                   {/* 드롭다운 메뉴 */}
