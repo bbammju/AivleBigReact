@@ -35,7 +35,7 @@ const Header = () => {
   const isLoggedIn = !!userSn;
   // 사용자 정보 상태 
   const [ displayName, setDisplayName ] = useState(null);
-  const [profileImage, setProfileImage] = useState(null); // 프로필 이미지 추가
+  const { profileImage, setProfileImage } = useStore(); // 프로필 이미지 추가
   // 공고명을 표시할 경로들
   const showGongoRoutes = ['/', '/list']
   const shoutShowGongo = showGongoRoutes.includes(location.pathname);
@@ -90,6 +90,7 @@ const Header = () => {
       // Zustand store 초기화
       useStore.getState().setUserAuth(null, null); // userAuth 초기화
       useStore.getState().setGongoInfo('',''); // gongo 정보 초기화
+      useStore.getState().setProfileImage(null); // 프로필 이미지 초기화
       // 로컬 상태 초기화
       setDisplayName(null);       
 
