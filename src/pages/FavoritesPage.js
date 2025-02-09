@@ -1,14 +1,15 @@
 import Header from '../components/headersub';
-import Sidebar from "../components/Mypage_SideBar"; // Sidebar 컴포넌트 임포트
+import Sidebar from "../components/MypageSideBar"; // Sidebar 컴포넌트 임포트
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
+import { useStore } from '../zustand/store';
 import { Box, Typography, Card , Button, Paper, CardContent , CardActions } from '@mui/material';
 import Grid from "@mui/material/Grid2";
 
 const FavoritesPage = () => {
     const navigate = useNavigate();
-    const [userSn] = useState(14); // 사용자 고유 번호(예: 1, 실제 데이터에 맞게 설정)
+    const { userSn } = useStore(); 
     // const [userInfo, setUserInfo] = useState(null);
     const [favorites, setFavorites] = useState([]); // 관심주택 리스트 상태
 
@@ -50,16 +51,17 @@ const FavoritesPage = () => {
       height: '100vh',
       backgroundColor: '#f5f5f5',
       padding: 2 }}>
-
       {/* Left Sidebar */}
       <Sidebar />
       
       {/* Right Content */}
-      <Paper elevation={2} sx={{ flex: 1, padding: 2, borderRadius: 3 }}>
+      <Paper elevation={2} sx={{ flex: 1, padding: 3, borderRadius: 3, ml: 2 }}>
+      
       <div style={{ padding: "20px" }}>
       <Typography variant="h4" gutterBottom>
         나의 관심 주택 리스트
       </Typography>
+
       {Array.isArray(favorites) && favorites.length > 0 ? (
         <Grid container spacing={3}>
           {favorites.map((favorite, index) => (
