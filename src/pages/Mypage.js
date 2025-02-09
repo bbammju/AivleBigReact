@@ -61,17 +61,14 @@ const MyPage = () => {
 
     // ✅ 프로필 이미지 삭제
     const handleDeleteProfileImage = async () => {
-        if (!userInfo?.userSn) return;
-    
+            
         if (!window.confirm("프로필 사진을 삭제하시겠습니까?")) {
           return;
         }
     
         try {
           setUploading(true);
-          const response = await api.delete("/users/delete-profile", {
-            data: { userSn: userInfo.userSn },
-          });
+          const response = await api.delete("/users/delete-profile");
     
           if (response.data.resultCode === 200) {
             setProfileImage(null); // 기본 프로필 이미지로 변경
