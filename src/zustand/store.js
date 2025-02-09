@@ -9,10 +9,15 @@ export const useStore = create(
       gongoName: '',
       setGongoInfo: (gongoSn, gongoName) => set({ gongoSn, gongoName }),
 
-      // userSn 관련 상태 (persist 적용 안 함)
+      // userSn 관련 상태
       userSn: null,
       userRole: null, // 권한 추가
       setUserAuth: (userSn, userRole) => set({ userSn, userRole }),
+
+      // 프로필 이미지 관련 상태
+      profileImage: null,
+      setProfileImage: (image) => set({ profileImage: image}),
+
     }),
     {
       name: "gongo-store", // localstorage에 저장될 key 이름
@@ -20,7 +25,8 @@ export const useStore = create(
         gongoSn: state.gongoSn,
         gongoName: state.gongoName,
         userSn: state.userSn,
-        userRole: state.userRole        
+        userRole: state.userRole,
+        profileImage: state.profileImage        
        }),
     }
   )

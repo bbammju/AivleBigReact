@@ -5,13 +5,15 @@ import api from "../utils/api";
 import MyPageMainLayout from "../components/MypageLayout";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useStore } from '../zustand/store'; 
 
 const MyPage = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
+  const [profileImage, setProfileImage] = useState(null); // 로컬 상태
+  const { setProfileImage: setStoreProfileImage } = useStore(); // zustand 전역 상태태
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -48,7 +50,8 @@ const MyPage = () => {
       });
 
       if (response.data.resultCode === 200) {
-        setProfileImage(response.data.data.profileImage);
+        setProfileImage(response.data.data.profileImage); // 로컬 상태 업데이트트
+        setStoreProfileImage(response.data.data.profileImage); //store 상태 업데이트 
       } else {
         alert("프로필 이미지 업로드 실패: " + response.data.resultMsg);
       }
