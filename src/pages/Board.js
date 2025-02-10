@@ -68,6 +68,11 @@ const Board = () => {
     const [isOwner, setIsOwner] = useState(false);
     const [gongoPost, setGongoPost] = useState(null);
 
+    const [page, setPage] = useState(1); // 현재 페이지 번호
+    const [size, setSize] = useState(7); // 한 페이지에 표시할 데이터 수
+    const [totalCount, setTotalCount] = useState(0); // 전체 데이터 개수
+    const [totalPages, setTotalPages] = useState(1);
+
     // userboard 게시글 수정
     const handleEditPost = (post, imgs) => {
       navigate("/boardform", { state: { post, imgs } });
@@ -81,8 +86,15 @@ const Board = () => {
         alert("게시글이 삭제되었습니다.");
         // 게시글 삭제 후 데이터 새로 불러오기
       if (activeTab === "user") {
-        fetchUserBoardList(); // 사용자 게시판 새로고침
-      }
+          const response = await api.get("/userboard", {
+            params: { page, size },
+          });
+          setData((prevData) => ({
+            ...prevData,
+            user: response.data.boardListResponse || [],
+          }));
+          setTotalCount(response.data.totalCount); // 사용자 게시판 새로고침
+        }
         navigate("/userboard");
       } catch (error) {
         console.error("게시글 삭제 오류:", error);
@@ -90,27 +102,32 @@ const Board = () => {
       }
     };
     
-    const fetchUserBoardList = async () => {
-      try {
-        const response = await api.get("/userboard");
-        setData((prevData) => ({
-          ...prevData,
-          user: response.data.boardListResponse || [],
-        }));
-      } catch (error) {
-        console.error("Error fetching user board data:", error);
-      }
-    };
-
     // 게시판 리스트 로드
     useEffect(() => {
         const fetchData = async () => {
           try { // && location.pathname.startsWith("/userboard")
+            let response = null;
             if (activeTab === "user" ) {
-              fetchUserBoardList(); // 사용자 게시판 로드
+              const response = await api.get("/userboard", {
+                params: { page, size }
+              });
+              setData((prevData) => ({
+                ...prevData,
+                user: response.data.boardListResponse || [],
+              }));
+              const total = response.data.totalCount || 0;
+              setTotalCount(total);
+              setTotalPages(Math.ceil(total / size));
             } else if (activeTab === "gongo") {
-              const response = await api.get("/gongoboard");
+              const response = await api.get("/gongoboard", {
+                params: { page, size }
+              });
               setData((prevData) => ({ ...prevData, gongo: response.data.gongoListResponse || [] }));
+            }
+            if (response) {
+              const total = response.data.totalCount || 0;
+              setTotalCount(total);
+              setTotalPages(Math.ceil(total / size));
             }
           } catch (error) {
             console.error("Error fetching data:", error);
@@ -119,17 +136,10 @@ const Board = () => {
         // 상세보기 경로에서는 호출하지 않도록 제어
       if (!location.pathname.startsWith("/userboard/") && !location.pathname.startsWith("/gongoboard/")) {
         fetchData();
+        // console.log(totalPages);
       }
-    }, [activeTab, location.pathname]);
+    }, [activeTab, location.pathname, page, size]);
 
-    // 페이지네이션 관련 데이터
-    const itemsPerPage = 7;
-    const activeTabData = data[activeTab] || [];
-    const totalPages = Math.ceil((activeTabData.length) / itemsPerPage);
-    const paginatedData = activeTabData.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
 
     // 유저게시판 상세보기 activeTab === "user" &&  // activeTab, 
     useEffect(() => {
@@ -152,7 +162,7 @@ const Board = () => {
       };
       fetchPostDetails();
     }, [id, userSn, location]);
-
+    
     // 공고게시판 상세보기
     useEffect(() => {
       const fetchPdfFiles = async () => {
@@ -406,6 +416,8 @@ const Board = () => {
       </>
       );
   }
+  
+  const paginatedData = data[activeTab]?.slice((currentPage - 1) * size, currentPage * size) || [];
 
   // 게시판 리스트(공고게시판, 유저게시판)
   return (
@@ -435,8 +447,9 @@ const Board = () => {
               <TableCell sx={{ width: "25%", textAlign: "left" }}>작성일</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
-            {paginatedData.map((item, index) => (
+          <TableBody> 
+            {/* paginatedData */}
+            {/* {data.map((item, index) => (
               <TableRow 
                 key={activeTab === "gongo" ? item.gongoSn : item.boardSn}
                 onClick={() => {
@@ -450,12 +463,36 @@ const Board = () => {
                 }}
                   sx={{ cursor: "pointer" }}
               >
-                <TableCell sx={{ textAlign: "left" }}>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
+                <TableCell sx={{ textAlign: "left" }}>{(currentPage - 1) * size + index + 1}</TableCell>
                 <TableCell sx={{ textAlign: "left" }}>{activeTab === "gongo" ? item.gongoName : item.title}</TableCell>
-                 <TableCell sx={{ textAlign: "left" }}>{activeTab === "gongo" ? "관리자" : item.userName}</TableCell>
+                <TableCell sx={{ textAlign: "left" }}>{activeTab === "gongo" ? "관리자" : item.userName}</TableCell>
                 <TableCell sx={{ textAlign: "left" }}>{item.createdDt}</TableCell>
               </TableRow>
-            ))}
+            ))} */}
+            {activeTab === "user" ? data.user.map((item, index) => (
+                  <TableRow
+                    key={item.boardSn}
+                    onClick={() => navigate(`/userboard/${item.boardSn}`)}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    <TableCell sx={{ textAlign: "left" }}>{(page - 1) * size + index + 1}</TableCell>
+                    <TableCell sx={{ textAlign: "left" }}>{item.title}</TableCell>
+                    <TableCell sx={{ textAlign: "left" }}>{item.userName}</TableCell>
+                    <TableCell sx={{ textAlign: "left" }}>{item.createdDt}</TableCell>
+                  </TableRow>
+                ))
+              : data.gongo.map((item, index) => (
+                  <TableRow
+                    key={item.gongoSn}
+                    onClick={() => navigate(`/gongoboard/${item.gongoSn}`)}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    <TableCell sx={{ textAlign: "left" }}>{(page - 1) * size + index + 1}</TableCell>
+                    <TableCell sx={{ textAlign: "left" }}>{item.gongoName}</TableCell>
+                    <TableCell sx={{ textAlign: "left" }}>관리자</TableCell>
+                    <TableCell sx={{ textAlign: "left" }}>{item.createdDt}</TableCell>
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
 
@@ -464,9 +501,10 @@ const Board = () => {
             <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
               <Pagination
                 count={totalPages}
-                page={currentPage}
-                onChange={(event, value) => setCurrentPage(value)}
+                page={page}
+                onChange={(event, value) => setPage(value)}
                 color="primary"
+                sx={{ mt: 2, display: "flex", justifyContent: "center" }}
               />
             </Box>
             {/* 글쓰기 버튼 */}
