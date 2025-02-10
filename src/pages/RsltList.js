@@ -388,9 +388,6 @@ const RsltList = () => {
                       <Typography variant="h6" fontWeight="bold" fontSize="14px">
                         {item.jutaekName} {item.jutaekType}
                       </Typography>
-                      <Typography variant="body2" fontSize="12px">
-                        {item.jutaekSize ? `넓이: ${item.jutaekSize} m²` : "정보 없음"}
-                      </Typography>
                       <br/>
                       <Typography variant="body2" fontSize="12px">
                         {diff === 0 ? (
@@ -475,20 +472,20 @@ const RsltList = () => {
                 <Card>
                   <CardContent>
                     <Typography variant="subtitle1" fontWeight="bold">
-                      인프라점수
+                      실제 넓이
                     </Typography>
                     <Typography variant="body2">
-                      {dtlData.infraScore ? `${dtlData.infraScore} / 5 점` : "정보 없음"}
+                      {item.jutaekSize ? `넓이: ${item.jutaekSize} m²` : "정보 없음"}
                     </Typography>
-                  </CardContent>
+                </CardContent>
                 </Card>
                 <Card>
                   <CardContent>
                     <Typography variant="subtitle1" fontWeight="bold">
-                      구조도점수
+                      인프라점수
                     </Typography>
                     <Typography variant="body2">
-                      {dtlData.structureScore ? `${dtlData.structureScore} / 5 점` : "정보 없음"}
+                      {dtlData.infraScore ? `${dtlData.infraScore} / 5 점` : "정보 없음"}
                     </Typography>
                   </CardContent>
                 </Card>
