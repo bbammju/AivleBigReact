@@ -56,7 +56,6 @@ const Main = () => {
  const [expanded2, setExpanded2] = useState(false);
 
 
-
 const fetchActiveGongos = async () => {
 if (isDataFetched) return;
 
@@ -242,102 +241,118 @@ try {
       </Grid>
       {/* 오른쪽 영역 - 정보 카드 */}
       <Grid item xs={12} md={6}>
-          <Card sx={{ 
-            mb: 3, 
-            backgroundColor: 'rgba(33, 33, 33, 0.9)',  // 어두운 배경색
-            backdropFilter: 'blur(10px)',
-            color: 'white'  // 텍스트 색상을 흰색으로
-          }}>
+      <Card sx={{ 
+              mb: 3, 
+              backgroundColor: 'rgba(33, 33, 33, 0.9)',
+              backdropFilter: 'blur(10px)',
+              color: 'white'
+            }}>
+          <CardContent>
+            <Typography variant="h5" component="div" sx={{ color: 'white' }}>
+              청년안심주택(공공임대)
+            </Typography>
+            <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+              무주택 청년, 신혼부부 계층을 위한 임대주택
+            </Typography>
+          </CardContent>
+          <CardActions disableSpacing>
+            <ExpandMore
+              expand={expanded1}
+              onClick={() => setExpanded1(!expanded1)}
+              aria-expanded={expanded1}
+              aria-label="show more"
+              sx={{ 
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                }
+              }}
+            >
+              <ExpandMoreIcon />
+            </ExpandMore>
+          </CardActions>
+          <Collapse in={expanded1} timeout="auto" unmountOnExit>
             <CardContent>
-              <Typography variant="h5" component="div" sx={{ color: 'white' }}>
-                청년안심주택(공공임대)
+              <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 1 }}>
+                📏 전용면적: 14㎡ ~ 57㎡
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                청년들의 주거안정을 위한 맞춤형 임대주택
+              <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 1 }}>
+                ⏳ 거주 기간: 최대 10년 (입주 후 혼인한 경우 최대 20년)
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 1 }}>
+                💰 임대료: 시중 임대료의 30~85% 수준
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 1 }}>
+                📜 계약 방식: 보증금 + 월 임대료 방식
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 1 }}>
+                🎯 지원 대상: 만 19~39세 청년 (무주택자)
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 1 }}>
+                🏦 보증금 무이자 지원: 보증금의 30~50% (최대 4,500만원)
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+                📞 문의처: SH 청약센터 (☎ 1600-3456)
               </Typography>
             </CardContent>
-            <CardActions disableSpacing>
-              <ExpandMore
-                expand={expanded1}
-                onClick={() => setExpanded1(!expanded1)}
-                aria-expanded={expanded1}
-                aria-label="show more"
-                sx={{ 
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                  }
-                }}
-              >
-                <ExpandMoreIcon />
-              </ExpandMore>
-            </CardActions>
-            <Collapse in={expanded1} timeout="auto" unmountOnExit>
-              <CardContent>
-                <Typography paragraph sx={{ color: 'white' }}>주요 특징:</Typography>
-                <Typography paragraph sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                  • 만 19~39세 청년 대상
-                </Typography>
-                <Typography paragraph sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                  • 시중 임대료의 60~80% 수준
-                </Typography>
-                <Typography paragraph sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                  • 최대 6년간 거주 가능
-                </Typography>
-                <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                  • 임대보증금 지원제도 활용 가능
-                </Typography>
-              </CardContent>
-            </Collapse>
-          </Card>
+          </Collapse>
+        </Card>
 
-          <Card sx={{ 
-            backgroundColor: 'rgba(33, 33, 33, 0.9)',
-            backdropFilter: 'blur(10px)',
-            color: 'white'
-          }}>
+        <Card sx={{ 
+              mb: 3,
+              backgroundColor: 'rgba(33, 33, 33, 0.9)',
+              backdropFilter: 'blur(10px)',
+              color: 'white'
+            }}>
+          <CardContent>
+            <Typography variant="h5" component="div" sx={{ color: 'white' }}>
+              청년매입임대
+            </Typography>
+            <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+              무주택 청년 계층을 위한 임대주택
+            </Typography>
+          </CardContent>
+          <CardActions disableSpacing>
+            <ExpandMore
+              expand={expanded2}
+              onClick={() => setExpanded2(!expanded2)}
+              aria-expanded={expanded2}
+              aria-label="show more"
+              sx={{ 
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                }
+              }}
+            >
+              <ExpandMoreIcon />
+            </ExpandMore>
+          </CardActions>
+          <Collapse in={expanded2} timeout="auto" unmountOnExit>
             <CardContent>
-              <Typography variant="h5" component="div" sx={{ color: 'white' }}>
-                청년매입임대
+              <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 1 }}>
+                📏 전용면적: 20㎡ ~ 40㎡
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                안정적인 장기 거주를 위한 주택
+              <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 1 }}>
+                ⏳ 거주 기간: 최대 10년 
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 1 }}>
+                💰 임대료: 시중 전세가의 30~50% 수준
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 1 }}>
+                📜 계약 방식: 보증금 + 월 임대료
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 1 }}>
+                🎯 지원 대상: 대학생, 사회 초년생, 취업준비생
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+                📞 문의처: SH 청약센터 (☎ 1600-3456)
               </Typography>
             </CardContent>
-            <CardActions disableSpacing>
-              <ExpandMore
-                expand={expanded2}
-                onClick={() => setExpanded2(!expanded2)}
-                aria-expanded={expanded2}
-                aria-label="show more"
-                sx={{ 
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                  }
-                }}
-              >
-                <ExpandMoreIcon />
-              </ExpandMore>
-            </CardActions>
-            <Collapse in={expanded2} timeout="auto" unmountOnExit>
-              <CardContent>
-                <Typography paragraph sx={{ color: 'white' }}>주요 특징:</Typography>
-                <Typography paragraph sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                  • 소득/자산 기준 충족 시 신청 가능
-                </Typography>
-                <Typography paragraph sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                  • 시중 전세가의 80% 수준
-                </Typography>
-                <Typography paragraph sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                  • 최장 20년 거주 가능
-                </Typography>
-                <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                  • 분할 납부 제도 활용 가능
-                </Typography>
-              </CardContent>
-            </Collapse>
-          </Card>
+          </Collapse>
+        </Card>
+
+ 
         </Grid>
         </Grid>
       </Container>
