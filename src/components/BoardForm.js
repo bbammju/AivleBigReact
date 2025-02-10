@@ -5,7 +5,7 @@ import api from '../utils/api';
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import Header from "../components/headersub";
-import { Tabs, Tab, Box, Typography, Paper, Button
+import { Tabs, Tab, Box, Typography, Paper, Button, TextField,
  } from "@mui/material";
  import { useNavigate, useLocation  } from "react-router-dom";
  import { useStore } from '../zustand/store';
@@ -19,7 +19,7 @@ const BoardForm = () => {
   ];
   const navigate = useNavigate();
   const quillRef = useRef();
-  const { userSn } = useStore();
+  const { userSn, userRole} = useStore();
   const location = useLocation();
   const post = location.state?.post; // 전달받은 게시글 데이터
   const imgs = location.state?.imgs;
@@ -139,7 +139,7 @@ const BoardForm = () => {
     <>
     <Header />
     <Box sx={{ width: "80%", margin: "0 auto", textAlign: "center", mt: 4 }}>
-      <Tabs value={activeTab} onChange={handleTabChange} centered
+      {/* <Tabs value={activeTab} onChange={handleTabChange} centered
       indicatorColor="primary"
       textColor="primary"
       sx={{
@@ -155,72 +155,71 @@ const BoardForm = () => {
             }}
             />
           ))}
-      </Tabs>
-        
-    <Paper
-      elevation={2}
-      sx={{
-          flex: 1,
-          padding: 4,
-          borderRadius: 3,
-          margin: 2,
-          backgroundColor: "white",
-      }}
-    >
+      </Tabs> */}
+
+    <Typography variant="h4" gutterBottom textAlign={'left'}>유저 게시글 작성</Typography>
+      <Paper elevation={2} sx={{ padding: 4 }}>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            fullWidth
+            label="공고 제목"
+            placeholder="제목을 입력해 주세요"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            sx={{mb: 2}}
+          />
+          <ReactQuill
+            theme="snow"
+            placeholder="내용을 입력해 주세요"
+            value={content}
+            modules={modules}
+            onChange={setContent}
+            ref={quillRef}
+            style={{ height: "500px", marginBottom: "20px" , width: '100%', boxSizing: 'border-box'}}
+          />
           
-    <div style={{ maxWidth: '100%', margin: '0 auto' }}>
-      <h2>게시글 작성</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ width: '100%', marginBottom: '10px' }}>
-            <input
-              id="title"
-              type="text"
-              placeholder="제목을 입력해 주세요"
-              style={{padding:'7px', marginBottom:'10px', width:'100%', border:'1px solid lightGray', fontSize:'15px', boxSizing: 'border-box'}}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-        </div>
-        <div style={{height:'650px', width: '100%'}}>
-            <ReactQuill
-              theme="snow"
-              placeholder="내용을 입력해 주세요"
-              value={content}
-              modules={modules}
-              onChange={setContent}
-              ref={quillRef}
-              style={{ height: "600px", marginBottom: "20px" ,width: '100%', boxSizing: 'border-box'}}
-            />
-        </div>
-        <div style={{ width: '100%', marginBottom: '10px' }}>
-            <label htmlFor="file">파일 업로드: </label>
+        <Box sx={{ mt: 5, display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+          {/* 파일 업로드와 파일 선택 버튼: 왼쪽 정렬 */}
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 2 }}>
+            <label htmlFor="file" style={{ whiteSpace: "nowrap" }}>파일 업로드: </label>
             <input id="file" type="file" multiple accept="image/*" onChange={handleFileChange} />
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px', marginBottom: '10px' }}>
-              {files.map((file, index) => (
-                <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <img src={URL.createObjectURL(file)} alt={file.name} style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
-                  <span>{file.name}</span>
-                </div>
-              ))}
+          </Box>
+
+          {/* 게시글 등록과 취소 버튼: 오른쪽 정렬 */}
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2, mt: 2 }}>
+            <Button variant="contained" type="submit">{post ? "수정하기" : "게시글 등록"}</Button>
+            <Button variant="outlined" onClick={() => navigate("/userboard", { state: { activeTab: "user" } })}>
+              취소
+            </Button>
+          </Box>
+        </Box>
+
+        {/* 선택한 파일들이 한 줄로 표시 */}
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2 }}>
+          {files.map((file, index) => (
+            <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <img src={URL.createObjectURL(file)} alt={file.name} style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
+              <span>{file.name}</span>
             </div>
-            <div style={{ width: '100%', marginBottom: '10px', display: 'flex', flexWrap: 'wrap', }}>
-              {existingImages && existingImages.map(img => (
-                  img && img.path ? (
-                    <div key={img.imgSn} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <img src={`${img.path}${img.fileName}`} alt={img.oriFileName || '이미지'} style={{ maxWidth: '100px', objectFit: 'cover' }} />
-                      <Button type="button" variant="contained" onClick={() => handleDeleteExistingImage(img.imgSn)}>삭제</Button>
-                    </div>
-                  ) : null
-                ))}
+          ))}
+        </Box>
+
+      {/* 기존 이미지 표시 */}
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
+        {existingImages && existingImages.map(img => (
+          img && img.path ? (
+            <div key={img.imgSn} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <img src={`${img.path}${img.fileName}`} alt={img.oriFileName || '이미지'} style={{ maxWidth: '100px', objectFit: 'cover' }} />
+              <Button type="button" variant="contained" onClick={() => handleDeleteExistingImage(img.imgSn)}>삭제</Button>
             </div>
-        </div>
-            <Button variant="outlined" type="submit" style={{ marginTop: "20px" }}>{post ? "수정하기" : "게시글 등록"}</Button>
-            <Button sx={{ ml: 2 }} variant="outlined" style={{ marginTop: "20px" }} onClick={() => navigate("/userboard", {state: {activeTab: "user"}})}>취소</Button>
-          </form>
-    </div>
+          ) : null
+        ))}
+      </Box>
+
+      </form>
     </Paper>
-    </Box>
+  </Box>
     </>
   );
 };

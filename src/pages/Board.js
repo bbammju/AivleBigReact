@@ -61,11 +61,12 @@ const Board = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [currentId, setId] = useState(id || null);
-    const { userSn } = useStore();
+    const { userSn, userRole } = useStore();
     const [pdfFiles, setPdfFiles] = useState([]);
     const [images, setImages] = useState([]);
     const [post, setPost] = useState(null);
     const [isOwner, setIsOwner] = useState(false);
+    const [gongoPost, setGongoPost] = useState(null);
 
     // userboard 게시글 수정
     const handleEditPost = (post, imgs) => {
@@ -104,8 +105,8 @@ const Board = () => {
     // 게시판 리스트 로드
     useEffect(() => {
         const fetchData = async () => {
-          try {
-            if (activeTab === "user" && location.pathname.startsWith("/userboard")) {
+          try { // && location.pathname.startsWith("/userboard")
+            if (activeTab === "user" ) {
               fetchUserBoardList(); // 사용자 게시판 로드
             } else if (activeTab === "gongo") {
               const response = await api.get("/gongoboard");
@@ -115,11 +116,14 @@ const Board = () => {
             console.error("Error fetching data:", error);
           }
         };
+        // 상세보기 경로에서는 호출하지 않도록 제어
+      if (!location.pathname.startsWith("/userboard/") && !location.pathname.startsWith("/gongoboard/")) {
         fetchData();
+      }
     }, [activeTab, location.pathname]);
 
     // 페이지네이션 관련 데이터
-    const itemsPerPage = 5;
+    const itemsPerPage = 7;
     const activeTabData = data[activeTab] || [];
     const totalPages = Math.ceil((activeTabData.length) / itemsPerPage);
     const paginatedData = activeTabData.slice(
@@ -127,10 +131,11 @@ const Board = () => {
         currentPage * itemsPerPage
     );
 
-    // 유저게시판 상세보기
+    // 유저게시판 상세보기 activeTab === "user" &&  // activeTab, 
     useEffect(() => {
       const fetchPostDetails = async () => {
-        if (activeTab === "user" && location.pathname.startsWith("/userboard/") && id) {
+        if (location.pathname.startsWith("/userboard/") && id) {
+          setActiveTab("user");
           try {
             const response = await api.get(`/userboard/detail?boardSn=${id}&userSn=${userSn}`);
             setPost(response.data.post);
@@ -146,27 +151,55 @@ const Board = () => {
         }
       };
       fetchPostDetails();
-    }, [activeTab, id, userSn, location.pathname]);
+    }, [id, userSn, location]);
 
     // 공고게시판 상세보기
     useEffect(() => {
       const fetchPdfFiles = async () => {
         if (activeTab === "gongo" && location.pathname.startsWith("/gongoboard/") && id ) {
+          setActiveTab("gongo");
           try {
             const response = await api.get(`/gongoboard/detail?gongoSn=${id}`);
+            setGongoPost(response.data.gongo);
             setPdfFiles(response.data.pdfs || []);
           } catch (error) {
             console.error("PDF 파일 목록 불러오기 오류:", error);
           }
         } else {
           setPdfFiles([]);
+          setGongoPost(null);
         }
       };
       fetchPdfFiles();
-    }, [activeTab, id, location.pathname]);
+    }, [activeTab, id, location, location.pathname]);
+
+    // 공고게시판 삭제하기
+    const handleDeleteGongo = async () => {
+      if (userRole !== "ROLE_ADMIN") {
+        alert("관리자만 삭제할 수 있습니다.");
+        return;
+      }
+  
+      if (!window.confirm("정말로 이 공고 게시글을 삭제하시겠습니까?")) return;
+  
+      try {
+        const response = await api.put(`/gongoboard/${id}`, null, {
+          params: { userSn },
+        });
+  
+        if (response.status === 200) {
+          alert("게시글이 삭제되었습니다.");
+          navigate("/gongoboard");
+        }
+      } catch (error) {
+        console.error("Error deleting gongo post:", error);
+        alert("게시글 삭제 중 오류가 발생했습니다.");
+      }
+    };
 
       if (activeTab === "user" && id ) {
-        if (!post) return <Typography>Loading...</Typography>;
+        // const post = data[activeTab]?.find((item) => item.boardSn === parseInt(id));
+        if (!post) return <Typography>user post Loading...</Typography>;
         return (
           <>
             <Header />
@@ -247,15 +280,15 @@ const Board = () => {
               </div>
             </Box>
             </Paper>
-        </Box>
+          </Box>
         </>
         );
     }
 
     // 공고게시물 클릭시
     if (activeTab === "gongo" && id ) {
-      const post = data[activeTab]?.find((item) => item.gongoSn === parseInt(id));
-      if (!post) return <Typography>Loading...</Typography>;
+      // const post = data[activeTab]?.find((item) => item.gongoSn === parseInt(id));
+      if (!gongoPost) return <Typography>id, post Loading...</Typography>;
       
       const downloadPdf = async (pdfSn, originalFileName) => {
         try {
@@ -301,7 +334,7 @@ const Board = () => {
           <Box sx={{ mt: 4, width: "80%", margin: "0 auto" }}>
             <Box sx={{ borderBottom: '1px solid #e0e0e0', pb: 1, mb: 2 }}>
               <Typography variant="h4" gutterBottom>
-                {post.gongoName}
+                {gongoPost.gongoName}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex',
@@ -310,16 +343,16 @@ const Board = () => {
                 borderBottom: '1px solid #e0e0e0',
                 pb: 1, mb: 1 }}>
               <Typography variant="subtitle1">
-                공고 유형: {post.gongoType === 0 ? "청년안심주택" : post.gongoType === 1 ? "청년매입임대" : "기타"}
+                공고 유형: {gongoPost.gongoType === 0 ? "청년안심주택" : gongoPost.gongoType === 1 ? "청년매입임대" : "기타"}
               </Typography>
               <Typography variant="subtitle1">
-                작성일: {post.createdDt}
+                작성일: {gongoPost.createdDt}
               </Typography>
             </Box>
   
             <Box sx={{ borderBottom: '1px solid #e0e0e0', pb: 1, mb: 1 }}>
               <Typography variant="subtitle2" >
-                시작일: {post.scheduleStartDt} | 종료일: {post.scheduleEndDt}
+                시작일: {gongoPost.scheduleStartDt} | 종료일: {gongoPost.scheduleEndDt}
               </Typography>
             </Box>
             
@@ -349,17 +382,21 @@ const Board = () => {
             </ul>
 
             <div
-              style={{ whiteSpace: 'pre-wrap', marginTop: "16px" }}
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content, {
-                ALLOWED_TAGS: ['p', 'strong', 'em', 'u', 's', 'blockquote', 'ol', 'ul', 'li', 'span', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-                ALLOWED_ATTR: ['style', 'class', 'size'],
-                ALLOWED_CSS_PROPERTIES: ['color', 'font-size', 'font-weight', 'font-family', 'line-height'],
-                ALLOWED_CLASSES: {
-                  '*': ['ql-size-small', 'ql-size-large', 'ql-size-huge']
-                }
-              })}}
-            />
-                  {/*  __html: DOMPurify.sanitize(post.content) */}
+                  className="ql-editor"
+                  style={{ whiteSpace: "pre-wrap", padding: "5px", height: "100%", borderBottom: '1px solid #e0e0e0', }}
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(gongoPost.content),
+                  }}
+                />
+            {userRole === "ROLE_ADMIN" && userRole && (
+                <Box sx={{ mt: 2 }}>
+                <div style={{ marginTop: "20px" , textAlign: "center"}}>
+                  {/* <Button variant="outlined" onClick={() => handleEditPost(post, images)}>수정</Button> */}
+                  {/* DELETE GONGO */}
+                  <Button variant="contained" color="error" onClick={() => handleDeleteGongo(gongoPost.gongoSn)} sx={{ ml: 2 }}>삭제</Button>
+                </div>
+                </Box>
+              )}
               <div style={{textAlign: "right"}}>
                 <Button sx={{ mt: 4 }} variant="contained" onClick={() => navigate("/gongoboard")}>목록</Button>
               </div>
@@ -370,7 +407,7 @@ const Board = () => {
       );
   }
 
-  // 게시판 리스트
+  // 게시판 리스트(공고게시판, 유저게시판)
   return (
     <>
       <Header />
@@ -389,10 +426,10 @@ const Board = () => {
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>No</TableCell>
-              <TableCell>제목</TableCell>
-              {activeTab === "user" && <TableCell>글쓴이</TableCell>}
-              <TableCell sx={{ textAlign: "right", paddingRight: "14.5rem" }}>작성일</TableCell>
+              <TableCell sx={{ width: "10%", textAlign: "left" }}>No</TableCell>
+              <TableCell sx={{ width: "40%", textAlign: "left" }}>제목</TableCell>
+              <TableCell sx={{ width: "25%", textAlign: "left" }}>글쓴이</TableCell>
+              <TableCell sx={{ width: "25%", textAlign: "left" }}>작성일</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -410,39 +447,50 @@ const Board = () => {
                 }}
                   sx={{ cursor: "pointer" }}
               >
-                <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
-                <TableCell>{activeTab === "gongo" ? item.gongoName : item.title}</TableCell>
-                {activeTab === "user" && <TableCell>{item.userName}</TableCell>}
-                <TableCell sx={{ textAlign: "right", paddingRight: "10rem" }}>{item.createdDt}</TableCell>
+                <TableCell sx={{ textAlign: "left" }}>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
+                <TableCell sx={{ textAlign: "left" }}>{activeTab === "gongo" ? item.gongoName : item.title}</TableCell>
+                 <TableCell sx={{ textAlign: "left" }}>{activeTab === "gongo" ? "관리자" : item.userName}</TableCell>
+                <TableCell sx={{ textAlign: "left" }}>{item.createdDt}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
 
-        {/* 페이지네이션 */}
-        <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
-            <Pagination
-              count={totalPages}
-              page={currentPage}
-              onChange={(event, value) => setCurrentPage(value)}
-              color="primary"
-            />
+          <Box sx={{ mt: 3, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px" }}>
+            {/* 페이지네이션 */}
+            <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={(event, value) => setCurrentPage(value)}
+                color="primary"
+              />
+            </Box>
+            {/* 글쓰기 버튼 */}
+            {activeTab === "user" && (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => navigate("/boardform")}
+              >
+                글쓰기
+              </Button>
+            )}
+            {/* 공고게시판 관리자일때만 글쓰기 버튼 표시 */}
+            {activeTab === "gongo" && userRole === "ROLE_ADMIN" && (
+                <>
+                  {/* 글쓰기 버튼 */}
+                  <Box sx={{ textAlign: "right", mt: 2 }}>
+                    <Button variant="contained" color="primary" 
+                    onClick={() => navigate("/boardformgongo")}
+                    sx={{ mr: 2 }} >
+                      글쓰기
+                    </Button>
+                  </Box>
+                </>
+            )}
           </Box>
       </Box>
-      
-      {/* 유저게시판 탭일 때만 글쓰기 버튼 표시 */}
-      {activeTab === "user" && (
-        <>
-          {/* 글쓰기 버튼 */}
-          <Box sx={{ textAlign: "right", mt: 2 }}>
-            <Button variant="contained" color="primary" 
-            onClick={() => navigate("/boardform")}
-            sx={{ mr: 2 }} >
-              글쓰기
-            </Button>
-          </Box>
-        </>
-      )}
     </Box>
     </>
   );
