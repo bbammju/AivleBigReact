@@ -11,6 +11,7 @@ import EditProfile from "./pages/EditProfile";
 import WithdrawalPage from "./pages/WithdrawalPage";
 import Board from './pages/Board'; // 게시판
 import BoardForm from './components/BoardForm';
+import BoardFormGongo from './components/BoardFormGongo';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/userboard" element={<Board />} />
         <Route path="/userboard/:id" element={<Board />} />
         <Route path="/boardform" element={<BoardForm />} />
+        <Route path="/boardformgongo" element={<BoardFormGongo />} />
         <Route path="/gongoboard" element={<Board />} />
         <Route path="/gongoboard/:id" element={<Board />} />
       </Routes>
