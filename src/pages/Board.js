@@ -267,7 +267,7 @@ const Board = () => {
                     </Box>
                   )}
 
-                  {isOwner && (
+                  {(userRole === "ROLE_ADMIN" || isOwner) && (
                     <Box sx={{ mt: 2 }}>
                     <div style={{ marginTop: "20px" , textAlign: "center"}}>
                       <Button variant="outlined" onClick={() => handleEditPost(post, images)}>수정</Button>
@@ -425,10 +425,13 @@ const Board = () => {
       <Box sx={{ mt: 4 }}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
-            <TableRow>
+            <TableRow sx={{ backgroundColor: "#E2E2E2", "& th": { fontWeight: "bold" },
+          // borderBottom: "1.5px solid #000",
+          borderTop: "1.5px solid #000" 
+          }}>
               <TableCell sx={{ width: "10%", textAlign: "left" }}>No</TableCell>
-              <TableCell sx={{ width: "40%", textAlign: "left" }}>제목</TableCell>
-              <TableCell sx={{ width: "25%", textAlign: "left" }}>글쓴이</TableCell>
+              <TableCell sx={{ width: "50%", textAlign: "left" }}>제목</TableCell>
+              <TableCell sx={{ width: "15%", textAlign: "left" }}>글쓴이</TableCell>
               <TableCell sx={{ width: "25%", textAlign: "left" }}>작성일</TableCell>
             </TableRow>
           </TableHead>
