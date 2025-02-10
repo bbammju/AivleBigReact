@@ -475,7 +475,7 @@ const RsltList = () => {
                       실제 넓이
                     </Typography>
                     <Typography variant="body2">
-                      {item.jutaekSize ? `넓이: ${item.jutaekSize} m²` : "정보 없음"}
+                      {dtlData.jutaekSize ? `넓이: ${dtlData.jutaekSize} m²` : "정보 없음"}
                     </Typography>
                 </CardContent>
                 </Card>
