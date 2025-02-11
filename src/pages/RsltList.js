@@ -342,19 +342,16 @@ const RsltList = () => {
                 const absDiff = Math.abs(diff);
                 return (
                   <Card
-                  key={item.jutaekDtlSn}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    boxShadow: 3,
-                    cursor: "pointer",
-                    height: "27vh", // Set a fixed height for the card (adjust as needed)
-                  }}
-                  onClick={() => dtlHandler(item.jutaekDtlSn)}
-                >
-                  {/* Top content area */}
-                  <Box>
-                    {/* Star icon at the top-right (still using absolute if needed) */}
+                    key={item.jutaekDtlSn}
+                    sx={{
+                      position: "relative",
+                      maxWidth: "100%",
+                      boxShadow: 3,
+                      cursor: "pointer",
+                    }}
+                    onClick={() => dtlHandler(item.jutaekDtlSn)}
+                  >
+                    {/* Star icon positioned at the top-right corner */}
                     <Box
                       sx={{
                         position: "absolute",
@@ -374,7 +371,7 @@ const RsltList = () => {
                         <StarBorderIcon sx={{ color: "black" }} />
                       )}
                     </Box>
-                
+
                     {/* Image area */}
                     <Box
                       sx={{
@@ -388,13 +385,12 @@ const RsltList = () => {
                         backgroundRepeat: "no-repeat",
                       }}
                     />
-                
-                    {/* Card content */}
+
                     <CardContent>
                       <Typography variant="h6" fontWeight="bold" fontSize="14px">
                         {item.jutaekName} {item.jutaekType}
                       </Typography>
-                      <br />
+                      <br/>
                       <Typography variant="body2" fontSize="12px">
                         {diff === 0 ? (
                           "내 순위와 동일합니다"
@@ -409,25 +405,23 @@ const RsltList = () => {
                         )}
                       </Typography>
                     </CardContent>
-                  </Box>
-                
-                  {/* Bottom reserved area for structureScore */}
-                  <Box
-                    sx={{
-                      height: 20, // Fixed height for the bottom area
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      alignItems: "center",
-                      px: 1, // horizontal padding
-                    }}
-                  >
+
+                    {/* structureScore 표시 (존재할 경우) */}
                     {item.structureScore !== "" && (
-                      <Typography variant="body2" sx={{ color: "#7FB3FA", fontWeight: "bold" }}>
-                        구조도점수 : {item.structureScore} / 5
-                      </Typography>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          bottom: 8,
+                          right: 8,
+                          zIndex: 2,
+                        }}
+                      >
+                        <Typography variant="body2" sx={{ color: "#7FB3FA", fontWeight: "bold", fontSize: "10px" }}>
+                          구조도점수 : {item.structureScore} / 5
+                        </Typography>
+                      </Box>
                     )}
-                  </Box>
-                </Card>
+                  </Card>
                 );
               })}
             </Box>
