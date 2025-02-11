@@ -220,9 +220,21 @@ const Headersub = () => {
                   </>
                 )}
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               {isLoggedIn && displayName ? (
                 <>
+                  {/* 관심주택 버튼 */}
+                  <Button 
+                    color="inherit"
+                    onClick={() => navigate('/favorites')}
+                    sx={{ 
+                      minWidth: '80px',  // 버튼의 최소 너비 설정
+                      textAlign: 'center'
+                    }} 
+                  >
+                    관심주택
+                  </Button>
+
                   {/* 커뮤니티 버튼 */}
                   <Button 
                     color="inherit"
