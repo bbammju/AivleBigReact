@@ -40,6 +40,7 @@ const Headersub = () => {
   // 공고명을 표시할 경로들
   const showGongoRoutes = ['/', '/list']
   const shoutShowGongo = showGongoRoutes.includes(location.pathname);
+  const {inputPriority,inputScore} = useStore();
 
   // userSn이 있는 경우만 '/users/me' 요청 
   useEffect(() => {
@@ -212,6 +213,12 @@ const Headersub = () => {
             }}
           >
             {gongoName}
+            {!!inputPriority && (
+                  <> 
+                    {' '} 
+                    -나의 점수: {inputPriority}순위  {inputScore}점
+                  </>
+                )}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               {isLoggedIn && displayName ? (

@@ -16,6 +16,7 @@ const InputModal = ({ open, onClose }) => {
 
   //Zustand 스토어에서 필요한 상태와 액션 가져오기
   const { userSn, gongoSn } = useStore();
+  const { setInputResult } = useStore();
 
 
   const handleSubmit = async () => {
@@ -31,7 +32,8 @@ const InputModal = ({ open, onClose }) => {
   try {
     const response = await api.post("/input", data);
     if(response){
-      alert(`제출 완료! \n선택한 순위: ${selectedPriority}\n총점: ${as}점`);
+      alert(`제출 완료! \n선택한 순위: ${selectedPriority}\n가산점: ${as}점`);
+      setInputResult(selectedPriority, as);
       navigate('/list');
       }
   } catch (error) {
