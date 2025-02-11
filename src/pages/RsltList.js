@@ -371,6 +371,7 @@ const RsltList = () => {
                         <StarBorderIcon sx={{ color: "black" }} />
                       )}
                     </Box>
+
                     {/* Image area */}
                     <Box
                       sx={{
@@ -384,11 +385,12 @@ const RsltList = () => {
                         backgroundRepeat: "no-repeat",
                       }}
                     />
+
                     <CardContent>
                       <Typography variant="h6" fontWeight="bold" fontSize="14px">
                         {item.jutaekName} {item.jutaekType}
                       </Typography>
-                      <br/>
+                      <br />
                       <Typography variant="body2" fontSize="12px">
                         {diff === 0 ? (
                           "내 순위와 동일합니다"
@@ -396,13 +398,29 @@ const RsltList = () => {
                           <>
                             내 순위와{" "}
                             <span style={{ color: diff < 0 ? "red" : "green" }}>
-                              {absDiff}점
+                              {diff > 0 ? `+${absDiff}` : `-${absDiff}`}점
                             </span>{" "}
                             차이납니다
                           </>
                         )}
                       </Typography>
                     </CardContent>
+
+                    {/* structureScore 표시 (존재할 경우) */}
+                    {item.structureScore !== "" && (
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          bottom: 8,
+                          right: 8,
+                          zIndex: 2,
+                        }}
+                      >
+                        <Typography variant="body2" sx={{ color: "#7FB3FA", fontWeight: "bold" }}>
+                          구조도점수 : {item.structureScore} / 5
+                        </Typography>
+                      </Box>
+                    )}
                   </Card>
                 );
               })}
