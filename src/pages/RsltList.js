@@ -390,7 +390,6 @@ const RsltList = () => {
                       <Typography variant="h6" fontWeight="bold" fontSize="14px">
                         {item.jutaekName} {item.jutaekType}
                       </Typography>
-                      <br />
                       <Typography variant="body2" fontSize="12px">
                         {diff === 0 ? (
                           "내 순위와 동일합니다"
