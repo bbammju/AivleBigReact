@@ -5,8 +5,8 @@ export const useStore = create(
   persist(
     (set) => ({
       // gongo 관련 상태
-      gongoSn: '',
-      gongoName: '',
+      gongoSn: "",
+      gongoName: "",
       setGongoInfo: (gongoSn, gongoName) => set({ gongoSn, gongoName }),
 
       // userSn 관련 상태
@@ -16,18 +16,24 @@ export const useStore = create(
 
       // 프로필 이미지 관련 상태
       profileImage: null,
-      setProfileImage: (image) => set({ profileImage: image}),
+      setProfileImage: (image) => set({ profileImage: image }),
 
+      inputPriority: null, // 선택한 순위 
+      inputScore: null,    // 계산된 총점
+      setInputResult: (priority, score) => 
+        set({ inputPriority: priority, inputScore: score }),
     }),
     {
-      name: "gongo-store", // localstorage에 저장될 key 이름
+      name: "gongo-store", // localStorage에 저장될 key 이름
       partialize: (state) => ({
         gongoSn: state.gongoSn,
         gongoName: state.gongoName,
         userSn: state.userSn,
         userRole: state.userRole,
-        profileImage: state.profileImage        
-       }),
+        profileImage: state.profileImage,
+        inputPriority: state.inputPriority,
+        inputScore: state.inputScore,
+      }),
     }
   )
 );
