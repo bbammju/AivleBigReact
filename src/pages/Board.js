@@ -11,14 +11,15 @@ import DOMPurify from 'dompurify';
 import 'react-quill/dist/quill.snow.css';
 
 // CustomTabs 컴포넌트
-const CustomTabs = ({ tabs, activeTab, setActiveTab, setCurrentPage, setId}) => {
+const CustomTabs = ({ tabs, activeTab, setActiveTab, setPage, setId}) => {
     const navigate = useNavigate();
     return (
       <Tabs
         value={activeTab}
         onChange={(event, newValue) => {
           setActiveTab(newValue);
-          setCurrentPage(1);
+          // setCurrentPage(1);
+          setPage(1)
           if (newValue !== activeTab) {
             setId(null);
             navigate("/userboard");
@@ -57,7 +58,7 @@ const Board = () => {
     
     const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'gongo');
     const [data, setData] = useState({ "gongo": [], "user": []});
-    const [currentPage, setCurrentPage] = useState(1);
+    // const [currentPage, setCurrentPage] = useState(1);
     const navigate = useNavigate();
     const { id } = useParams();
     const [currentId, setId] = useState(id || null);
@@ -123,12 +124,15 @@ const Board = () => {
                 params: { page, size }
               });
               setData((prevData) => ({ ...prevData, gongo: response.data.gongoListResponse || [] }));
-            }
-            if (response) {
               const total = response.data.totalCount || 0;
               setTotalCount(total);
               setTotalPages(Math.ceil(total / size));
             }
+            // if (response) {
+            //   const total = response.data.totalCount || 0;
+            //   setTotalCount(total);
+            //   setTotalPages(Math.ceil(total / size));
+            // }
           } catch (error) {
             console.error("Error fetching data:", error);
           }
@@ -136,7 +140,6 @@ const Board = () => {
         // 상세보기 경로에서는 호출하지 않도록 제어
       if (!location.pathname.startsWith("/userboard/") && !location.pathname.startsWith("/gongoboard/")) {
         fetchData();
-        // console.log(totalPages);
       }
     }, [activeTab, location.pathname, page, size]);
 
@@ -218,7 +221,8 @@ const Board = () => {
                   tabs={tabs}
                   activeTab={activeTab}
                   setActiveTab={setActiveTab}
-                  setCurrentPage={setCurrentPage}
+                  // setCurrentPage={setCurrentPage}
+                  setPage={setPage}
                   setId={setId}
               />
               <Paper
@@ -329,7 +333,8 @@ const Board = () => {
                 tabs={tabs}
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
-                setCurrentPage={setCurrentPage}
+                // setCurrentPage={setCurrentPage}
+                setPage={setPage}
                 setId={setId}
             />
           <Paper
@@ -417,7 +422,7 @@ const Board = () => {
       );
   }
   
-  const paginatedData = data[activeTab]?.slice((currentPage - 1) * size, currentPage * size) || [];
+  // const paginatedData = data[activeTab]?.slice((currentPage - 1) * size, currentPage * size) || [];
 
   // 게시판 리스트(공고게시판, 유저게시판)
   return (
@@ -429,8 +434,9 @@ const Board = () => {
         tabs={tabs}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        setCurrentPage={setCurrentPage}
+        // setCurrentPage={setCurrentPage}
         setId={setId}
+        setPage={setPage}
       />
 
       {/* 게시판 내용 */}
@@ -448,27 +454,6 @@ const Board = () => {
             </TableRow>
           </TableHead>
           <TableBody> 
-            {/* paginatedData */}
-            {/* {data.map((item, index) => (
-              <TableRow 
-                key={activeTab === "gongo" ? item.gongoSn : item.boardSn}
-                onClick={() => {
-                  if (activeTab === "gongo") {
-                    navigate(`/gongoboard/${item.gongoSn}`,
-                    );
-                  } else {
-                    navigate(`/userboard/${item.boardSn}`,
-                    );
-                  }
-                }}
-                  sx={{ cursor: "pointer" }}
-              >
-                <TableCell sx={{ textAlign: "left" }}>{(currentPage - 1) * size + index + 1}</TableCell>
-                <TableCell sx={{ textAlign: "left" }}>{activeTab === "gongo" ? item.gongoName : item.title}</TableCell>
-                <TableCell sx={{ textAlign: "left" }}>{activeTab === "gongo" ? "관리자" : item.userName}</TableCell>
-                <TableCell sx={{ textAlign: "left" }}>{item.createdDt}</TableCell>
-              </TableRow>
-            ))} */}
             {activeTab === "user" ? data.user.map((item, index) => (
                   <TableRow
                     key={item.boardSn}
