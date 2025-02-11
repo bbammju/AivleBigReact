@@ -83,13 +83,8 @@ const Board = () => {
     const handleDeletePost = async (boardSn) => {
       if (!window.confirm("정말 삭제하시겠습니까?")) return;
       try {
-        if (userRole === "ROLE_ADMIN") { // 관리자전용삭제
-          await api.put(`/userboard/admin/${boardSn}?userSn=${userSn}`);
-          alert("게시글이 삭제되었습니다.");
-        } else {
           await api.put(`/userboard/${boardSn}?userSn=${userSn}`);
           alert("게시글이 삭제되었습니다.");
-        }
         // 게시글 삭제 후 데이터 새로 불러오기
       if (activeTab === "user") {
           const response = await api.get("/userboard", {
