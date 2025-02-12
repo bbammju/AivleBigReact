@@ -786,7 +786,7 @@ const Signup = () => {
                 </Typography>
               )}
             </Grid>
-
+            
             <Grid item xs={12} sm={4}>
               <TextField
                 fullWidth
@@ -794,6 +794,10 @@ const Signup = () => {
                 name="zipCode"
                 value={formData.zipCode}
                 disabled
+                size="small"
+                InputProps={{
+                  style: { height: '40px' }
+                }}
               />
             </Grid>
             <Grid item xs={12} sm={8}>
@@ -802,6 +806,7 @@ const Signup = () => {
                 onClick={handleAddressSearch}
                 fullWidth
                 sx={{ 
+                  height: '40px',
                   borderColor: '#2B4155',
                   color: '#2B4155',
                   '&:hover': {
